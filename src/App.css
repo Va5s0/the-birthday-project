@@ -1,0 +1,149 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-image: url('/images/exclusive_paper.png');
+}
+
+.navbar-default {
+  background-color: rgba(0, 0, 0, 0.0);
+}
+
+.navbar {
+  border: 0;
+  border-radius: 0;
+}
+
+.navbar-default .navbar-brand {
+  color: #ffffff;
+}
+
+.font30 {
+  font-size: 30px;
+  margin: 15px auto;
+}
+
+.thumbnail {
+  background-color: #f7f7f7;
+  /*border: 1px solid #ddd;
+  box-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;*/
+  /*background-image: -webkit-linear-gradient(top, #f7f7f7, #e7e7e7);*/
+}
+
+.thumbnail>img {
+  width: 100px;
+  margin-top: 20px;
+}
+
+#addButton {
+  margin-left: 15px;
+  margin-bottom: 15px;
+}
+
+.panel {
+  background-color: rgba(102, 153, 153, 0.2);
+  margin-top: 10px;
+}
+
+.glyph {
+    padding: 5px 8px 6px 8px;
+    color: #555;
+    text-align: center;
+    margin-right: 8px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+.glyph-input {
+  padding: 6px 9px;
+  }
+
+.modal-title {
+  font-size: 30px;
+}
+
+.modal-content {
+   background-image: url('/images/exclusive_paper.png');
+}
+
+.list-group {
+  margin-bottom: 20px;
+}
+
+.list-group-item {
+  background-color: rgba(102, 153, 153, 0.2);
+  border: 1px solid #cccaca;
+}
+
+.btn.custom {
+  -moz-box-shadow:inset 0px 39px 0px -24px #669999;
+	-webkit-box-shadow:inset 0px 39px 0px -24px #669999;
+	box-shadow:inset 0px 39px 0px -24px #669999;
+	background-color:#669999;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:13px;
+	padding:6px 15px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #669999;
+  }
+
+.btn.bottomMargin {
+  margin-bottom: 20px;
+}
+
+.btn.custom:hover {
+	background-color:#669999;
+}
+
+.btn.custom:active {
+	position:relative;
+	top:1px;
+}
+
+.glyphicon {
+    position: inherit;
+    vertical-align: middle;
+    line-height: inherit;
+}
+
+/* react-datepicker */
+
+.react-datepicker__input-container {
+  display: block;
+}
+.react-datepicker {
+  font-size: 1em;
+}
+.react-datepicker__header {
+  padding-top: 0.8em;
+}
+.react-datepicker__month {
+  margin: 0.4em 1em;
+}
+.react-datepicker__day-name, .react-datepicker__day {
+  width: 1.9em;
+  line-height: 1.9em;
+  margin: 0.166em;
+}
+.react-datepicker__current-month {
+  font-size: 1em;
+}
+.react-datepicker__navigation {
+  top: 1em;
+  line-height: 1.7em;
+  border: 0.45em solid transparent;
+}
+.react-datepicker__navigation--previous {
+  border-right-color: #ccc;
+  left: 1em;
+}
+.react-datepicker__navigation--next {
+  border-left-color: #ccc;
+  right: 1em;
+}
