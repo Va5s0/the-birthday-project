@@ -10,6 +10,8 @@ class EditConnection extends Component {
     super(props);
     this.state = {
       date: this.props.parent.connections[this.props.index].birthday,
+      controlId: null,
+      validationState: null,
     }
   }
 
@@ -20,6 +22,8 @@ class EditConnection extends Component {
    }
 
   handleSubmit(e){
+    const pattern = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+
     let newBirthday
     if(typeof this.state.date === 'object') {
       newBirthday = this.state.date.format().toString().slice(8,10)+'-'+this.state.date.format().toString().slice(5,7)+'-'+this.state.date.format().toString().slice(0,4)
@@ -30,6 +34,8 @@ class EditConnection extends Component {
     let connections
     if(this.name.value === ''){
       alert('Name is required')
+    } else if (!pattern.test(this.phone.value) && this.phone.value!==""){
+      this.setState({controlId: "formValidationError1", validationState: "error"})
     } else {
       connections = update(this.props.parent.connections, {$splice: [[this.props.index, 1]]});
       let newConnection = {
@@ -40,6 +46,7 @@ class EditConnection extends Component {
         nameday: this.nameday.value,
       };
       connections = [ ...connections, newConnection];
+      this.setState({controlId: null, validationState: null});
       this.props.callbackParent(this.props.id, connections);
     }
     e.preventDefault();
@@ -88,7 +95,7 @@ class EditConnection extends Component {
                 />
               </InputGroup>
             </FormGroup>
-            <FormGroup>
+            <FormGroup controlId={this.state.controlId} validationState={this.state.validationState}>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/phone.png" width='20px' role="presentation"/></InputGroup.Addon>
                   <FormControl

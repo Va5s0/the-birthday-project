@@ -22,6 +22,8 @@ class AddParent extends Component {
         }],
       },
       date: '',
+      controlId: null,
+      validationState: null,
     }
   }
 
@@ -32,6 +34,8 @@ class AddParent extends Component {
    }
 
   handleSubmit(e){
+    const pattern = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+
     let newBirthday
     if(typeof this.state.date === 'object') {
       newBirthday = this.state.date.format().toString().slice(8,10)+'-'+this.state.date.format().toString().slice(5,7)+'-'+this.state.date.format().toString().slice(0,4)
@@ -41,6 +45,8 @@ class AddParent extends Component {
 
     if(this.firstName.value === '' && this.lastName.value === ''){
       alert('Name is required')
+    } else if (!pattern.test(this.phone.value) && this.phone.value!==""){
+      this.setState({controlId: "formValidationError1", validationState: "error"})
     } else {
 
       this.setState({
@@ -63,8 +69,10 @@ class AddParent extends Component {
       this.email.value = '';
       this.nameday.value = '';
 
+      this.setState({controlId: null, validationState: null});
+      this.props.callbackParent();
     }
-    this.props.callbackParent();
+
     e.preventDefault();
   }
 
@@ -97,7 +105,7 @@ class AddParent extends Component {
                   />
               </InputGroup>
             </FormGroup>
-            <FormGroup>
+            <FormGroup controlId={this.state.controlId} validationState={this.state.validationState}>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/phone.png" width='20px' role="presentation"/></InputGroup.Addon>
                   <FormControl

@@ -10,6 +10,8 @@ class UpdateParent extends Component {
     super(props);
     this.state = {
       date: this.props.parent.birthday,
+      controlId: null,
+      validationState: null,
     }
   }
 
@@ -20,6 +22,8 @@ class UpdateParent extends Component {
    }
 
   handleSubmit(e, id){
+    const pattern = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+
     let newBirthday
     if(typeof this.state.date === 'object') {
       newBirthday = this.state.date.format().toString().slice(8,10)+'-'+this.state.date.format().toString().slice(5,7)+'-'+this.state.date.format().toString().slice(0,4)
@@ -31,6 +35,8 @@ class UpdateParent extends Component {
 
     if(this.firstName.value === '' && this.lastName.value === ''){
       alert('Name is required')
+    } else if (!pattern.test(this.phone.value) && this.phone.value!==""){
+      this.setState({controlId: "formValidationError1", validationState: "error"})
     } else {
 
       let newParent = {
@@ -42,8 +48,10 @@ class UpdateParent extends Component {
         nameday: this.nameday.value,
       };
       parent = update(parent, {$merge: newParent});
+      this.setState({controlId: null, validationState: null});
+      this.props.callbackParent(this.props.id, parent);
     };
-    this.props.callbackParent(this.props.id, parent);
+
     e.preventDefault();
   }
 
@@ -108,7 +116,7 @@ class UpdateParent extends Component {
                   />
               </InputGroup>
             </FormGroup>
-            <FormGroup>
+            <FormGroup controlId={this.state.controlId} validationState={this.state.validationState}>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/phone.png" width='20px' role="presentation"/></InputGroup.Addon>
                   <FormControl
