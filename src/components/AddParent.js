@@ -22,8 +22,10 @@ class AddParent extends Component {
         }],
       },
       date: '',
-      controlId: null,
-      validationState: null,
+      controlId_phone: null,
+      controlId_email: null,
+      validationState_phone: null,
+      validationState_email: null,
     }
   }
 
@@ -34,7 +36,9 @@ class AddParent extends Component {
    }
 
   handleSubmit(e){
-    const pattern = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+    const pattern_name = /^\s+$/;
+    const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+    const pattern_email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
     let newBirthday
     if(typeof this.state.date === 'object') {
@@ -43,10 +47,23 @@ class AddParent extends Component {
       newBirthday = this.state.date
     }
 
-    if(this.firstName.value === '' && this.lastName.value === ''){
-      alert('Name is required')
-    } else if (!pattern.test(this.phone.value) && this.phone.value!==""){
-      this.setState({controlId: "formValidationError1", validationState: "error"})
+    if((pattern_name.test(this.firstName.value) || this.firstName.value === "") && (pattern_name.test(this.lastName.value) || this.lastName.value === "")){
+      alert('Name is required');
+      if (!pattern_phone.test(this.phone.value) && this.phone.value!=="" && !pattern_email.test(this.email.value) && this.email.value!==""){
+        this.setState({controlId_phone: "formValidationError1", validationState_phone: "error", controlId_email: "formValidationError1", validationState_email: "error"});
+      } else if ((pattern_phone.test(this.phone.value) || this.phone.value === "") && !pattern_email.test(this.email.value) && this.email.value!==""){
+        this.setState({controlId_phone: null, validationState_phone: null, controlId_email: "formValidationError1", validationState_email: "error"})
+      } else if ((pattern_email.test(this.email.value) || this.email.value === "") && !pattern_phone.test(this.phone.value) && this.phone.value!==""){
+        this.setState({controlId_phone: "formValidationError1", validationState_phone: "error", controlId_email: null, validationState_email: null})
+      } else (
+        this.setState({controlId_phone: null, validationState_phone: null, controlId_email: null, validationState_email: null})
+      )
+    } else if (!pattern_phone.test(this.phone.value) && this.phone.value!=="" && !pattern_email.test(this.email.value) && this.email.value!==""){
+      this.setState({controlId_phone: "formValidationError1", validationState_phone: "error", controlId_email: "formValidationError1", validationState_email: "error"});
+    } else if ((pattern_phone.test(this.phone.value) || this.phone.value === "") && !pattern_email.test(this.email.value) && this.email.value!==""){
+      this.setState({controlId_phone: null, validationState_phone: null, controlId_email: "formValidationError1", validationState_email: "error"})
+    } else if ((pattern_email.test(this.email.value) || this.email.value === "") && !pattern_phone.test(this.phone.value) && this.phone.value!==""){
+      this.setState({controlId_phone: "formValidationError1", validationState_phone: "error", controlId_email: null, validationState_email: null})
     } else {
 
       this.setState({
@@ -69,7 +86,12 @@ class AddParent extends Component {
       this.email.value = '';
       this.nameday.value = '';
 
-      this.setState({controlId: null, validationState: null});
+      this.setState({
+        controlId_phone: null,
+        controlId_email: null,
+        validationState_phone: null,
+        validationState_email: null,
+      });
       this.props.callbackParent();
     }
 
@@ -105,7 +127,7 @@ class AddParent extends Component {
                   />
               </InputGroup>
             </FormGroup>
-            <FormGroup controlId={this.state.controlId} validationState={this.state.validationState}>
+            <FormGroup controlId={this.state.controlId_phone} validationState={this.state.validationState_phone}>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/phone.png" width='20px' role="presentation"/></InputGroup.Addon>
                   <FormControl
@@ -115,7 +137,7 @@ class AddParent extends Component {
                   />
               </InputGroup>
             </FormGroup>
-            <FormGroup>
+            <FormGroup controlId={this.state.controlId_email} validationState={this.state.validationState_email}>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/mail-ru.png" width='20px' role="presentation"/></InputGroup.Addon>
                   <FormControl

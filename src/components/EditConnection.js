@@ -22,7 +22,8 @@ class EditConnection extends Component {
    }
 
   handleSubmit(e){
-    const pattern = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+    const pattern_name = /^\s+$/;
+    const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
 
     let newBirthday
     if(typeof this.state.date === 'object') {
@@ -32,9 +33,14 @@ class EditConnection extends Component {
     }
 
     let connections
-    if(this.name.value === ''){
-      alert('Name is required')
-    } else if (!pattern.test(this.phone.value) && this.phone.value!==""){
+    if(pattern_name.test(this.name.value) || this.name.value === ''){
+      alert('Name is required');
+      if (!pattern_phone.test(this.phone.value) && this.phone.value!==""){
+        this.setState({controlId: "formValidationError1", validationState: "error"})
+      } else {
+        this.setState({controlId: null, validationState: null})
+      }
+    } else if (!pattern_phone.test(this.phone.value) && this.phone.value!==""){
       this.setState({controlId: "formValidationError1", validationState: "error"})
     } else {
       connections = update(this.props.parent.connections, {$splice: [[this.props.index, 1]]});
