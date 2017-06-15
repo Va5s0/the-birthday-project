@@ -5,9 +5,24 @@ import {EventEmitter} from 'events';
 const CHANGE_EVENT ='change';
 
 let _parents = [];
+let _names = [];
+let _easterNames = [];
+let _specialEasterNames = [];
 
 function setParents(parents){
   _parents = parents;
+}
+
+function setNames(names){
+  _names = names;
+}
+
+function setEasterNames(easterNames){
+  _easterNames = easterNames;
+}
+
+function setSpecialEasterNames(specialEasterNames){
+  _specialEasterNames = specialEasterNames;
 }
 
 function addParent(parent){
@@ -41,6 +56,18 @@ class AppStoreClass extends EventEmitter {
 		return _parents;
   }
 
+  getNames(){
+    return _names;
+  }
+
+  getEasterNames(){
+    return _easterNames;
+  }
+
+  getSpecialEasterNames(){
+    return _specialEasterNames;
+  }
+
 }
 
 const AppStore = new AppStoreClass();
@@ -72,6 +99,27 @@ AppStore.dispatchToken = AppDispatcher.register(action =>{
     case AppConstants.DELETE_PARENT:
       // Store Remove
       deleteParent(action.id);
+      // Emit Change
+      AppStore.emitChange();
+      break;
+
+    case AppConstants.GET_NAMES:
+      // Store Save
+      setNames(action.names);
+      // Emit Change
+      AppStore.emitChange();
+      break;
+
+    case AppConstants.GET_EASTERNAMES:
+      // Store Save
+      setEasterNames(action.easterNames);
+      // Emit Change
+      AppStore.emitChange();
+      break;
+
+    case AppConstants.GET_SPECIALEASTERNAMES:
+      // Store Save
+      setSpecialEasterNames(action.specialEasterNames);
       // Emit Change
       AppStore.emitChange();
       break;

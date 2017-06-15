@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { Panel, FormGroup, Button, InputGroup, FormControl } from 'react-bootstrap';
 import AppActions from '../actions/AppActions';
+import Nameday from './Nameday';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 class AddParent extends Component {
-  constructor(props){
-    super(props);
+  constructor(){
+    super();
     this.state = {
       newParent: {
         firstName: '',
@@ -22,11 +23,17 @@ class AddParent extends Component {
         }],
       },
       date: '',
+      nameday_date: '',
       controlId_phone: null,
       controlId_email: null,
       validationState_phone: null,
       validationState_email: null,
+      nameChange: ''
     }
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
   handleChange(selected) {
@@ -34,6 +41,14 @@ class AddParent extends Component {
       date: selected,
     })
    }
+
+  handleNameChange(value) {
+    this.setState({nameChange: this.firstName.value})
+  }
+
+  onNamedayChange(date){
+    this.setState({nameday_date: date});
+  }
 
   handleSubmit(e){
     const pattern_name = /^\s+$/;
@@ -73,7 +88,7 @@ class AddParent extends Component {
           phone: this.phone.value,
           email: this.email.value,
           birthday: newBirthday,
-          nameday: this.nameday.value,
+          nameday: this.state.nameday_date,
           connections: [],
         }
       }, function(){
@@ -84,13 +99,13 @@ class AddParent extends Component {
       this.lastName.value = '';
       this.phone.value = '';
       this.email.value = '';
-      this.nameday.value = '';
 
       this.setState({
         controlId_phone: null,
         controlId_email: null,
         validationState_phone: null,
         validationState_email: null,
+        nameChange: ''
       });
       this.props.callbackParent();
     }
@@ -106,7 +121,7 @@ class AddParent extends Component {
           Add a new friend
         </div>
         <Panel>
-          <form onSubmit={this.handleSubmit.bind(this)}>
+          <form onSubmit={this.handleSubmit}>
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/account.png" width='20px' role="presentation" /></InputGroup.Addon>
@@ -114,6 +129,7 @@ class AddParent extends Component {
                   type="text"
                   placeholder="Add First Name"
                   inputRef={(ref) => {this.firstName = ref}}
+                  onBlur={this.handleNameChange}
                 />
               </InputGroup>
             </FormGroup>
@@ -152,7 +168,7 @@ class AddParent extends Component {
                 <InputGroup.Addon className='glyph-input'><img src="images/cake-layered.png" width='20px' role="presentation"/></InputGroup.Addon>
                 <DatePicker
                   selected={this.state.date}
-                  onChange={this.handleChange.bind(this)}
+                  onChange={this.handleChange}
                   dateFormat="DD/MM/YYYY"
                   className="form-control"
                   placeholderText="Add Birthday"
@@ -162,11 +178,7 @@ class AddParent extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/calendar.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <FormControl
-                    type="text"
-                    placeholder="Add NameDay"
-                    inputRef={(ref) => {this.nameday = ref}}
-                  />
+                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange}/>
               </InputGroup>
             </FormGroup>
 

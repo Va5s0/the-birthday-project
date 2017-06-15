@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Panel, FormGroup, Button, InputGroup, FormControl } from 'react-bootstrap';
+import Nameday from './Nameday';
 import update from 'react-addons-update';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -10,16 +11,30 @@ class UpdateParent extends Component {
     super(props);
     this.state = {
       date: this.props.parent.birthday,
+      newNamedate: this.props.parent.nameday,
       controlId: null,
       validationState_phone: null,
       validationState_email: null,
+      nameChange: this.props.parent.firstName,
     }
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
   handleChange(selected) {
     this.setState({
       date: selected,
     })
+   }
+
+   handleNameChange(value) {
+     this.setState({nameChange: this.firstName.value})
+   }
+
+   onNamedayChange(date){
+     this.setState({newNamedate: date});
    }
 
   handleSubmit(e, id){
@@ -61,7 +76,7 @@ class UpdateParent extends Component {
         phone: this.phone.value,
         email: this.email.value,
         birthday: newBirthday,
-        nameday: this.nameday.value,
+        nameday: this.state.newNamedate
       };
       parent = update(parent, {$merge: newParent});
       this.setState({
@@ -87,7 +102,7 @@ class UpdateParent extends Component {
           <DatePicker
             openToDate={moment(parent.birthday, "DD-MM-YYYY")}
             selected={moment(this.state.date, "DD-MM-YYYY")}
-            onChange={this.handleChange.bind(this)}
+            onChange={this.handleChange}
             dateFormat="DD/MM/YYYY"
             className="form-control"
           />
@@ -98,7 +113,7 @@ class UpdateParent extends Component {
           <InputGroup.Addon className='glyph-input'><img src="images/cake-layered.png" width='20px' role="presentation"/></InputGroup.Addon>
           <DatePicker
             selected={this.state.date}
-            onChange={this.handleChange.bind(this)}
+            onChange={this.handleChange}
             dateFormat="DD/MM/YYYY"
             className="form-control"
             placeholderText="Add Birthday"
@@ -107,14 +122,13 @@ class UpdateParent extends Component {
       }
 
     return (
-
       <div>
         <div className='font30'>
           Edit
         </div>
 
         <Panel>
-          <form onSubmit={this.handleSubmit.bind(this)}>
+          <form onSubmit={this.handleSubmit}>
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/account.png" width='20px' role="presentation" /></InputGroup.Addon>
@@ -123,40 +137,41 @@ class UpdateParent extends Component {
                   placeholder="Add First Name"
                   defaultValue={parent.firstName}
                   inputRef={(ref) => {this.firstName = ref}}
+                  onBlur={this.handleNameChange}
                 />
               </InputGroup>
             </FormGroup>
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/account.png" width='20px' role="presentation" /></InputGroup.Addon>
-                  <FormControl
-                    type="text"
-                    placeholder="Add Last Name"
-                    defaultValue={parent.lastName}
-                    inputRef={(ref) => {this.lastName = ref}}
-                  />
+                <FormControl
+                  type="text"
+                  placeholder="Add Last Name"
+                  defaultValue={parent.lastName}
+                  inputRef={(ref) => {this.lastName = ref}}
+                />
               </InputGroup>
             </FormGroup>
             <FormGroup controlId={this.state.controlId_phone} validationState={this.state.validationState_phone}>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/phone.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <FormControl
-                    type="text"
-                    placeholder="Add Phone Number"
-                    defaultValue={parent.phone}
-                    inputRef={(ref) => {this.phone = ref}}
-                  />
+                <FormControl
+                  type="text"
+                  placeholder="Add Phone Number"
+                  defaultValue={parent.phone}
+                  inputRef={(ref) => {this.phone = ref}}
+                />
               </InputGroup>
             </FormGroup>
             <FormGroup controlId={this.state.controlId_email} validationState={this.state.validationState_email}>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/mail-ru.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <FormControl
-                    type="text"
-                    placeholder="Add Email"
-                    defaultValue={parent.email}
-                    inputRef={(ref) => {this.email = ref}}
-                  />
+                <FormControl
+                  type="text"
+                  placeholder="Add Email"
+                  defaultValue={parent.email}
+                  inputRef={(ref) => {this.email = ref}}
+                />
               </InputGroup>
             </FormGroup>
             <FormGroup>
@@ -165,12 +180,7 @@ class UpdateParent extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/calendar.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <FormControl
-                    type="text"
-                    placeholder="Add NameDay"
-                    defaultValue={parent.nameday}
-                    inputRef={(ref) => {this.nameday = ref}}
-                  />
+                <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange} date={this.props.parent.nameday} />
               </InputGroup>
             </FormGroup>
 

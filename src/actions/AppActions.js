@@ -1,6 +1,7 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import AppConstants from '../constants/AppConstants';
 import ParentsAPI from '../utils/ParentsAPI';
+import NamesAPI from '../utils/NamesAPI';
 
 export default {
   getParents: () => {
@@ -63,5 +64,50 @@ export default {
           message: message
         });
       });
-	 }
+	 },
+   getNames: () => {
+     NamesAPI
+       .getNames('names/recurring_namedays.json')
+       .then(names => {
+         AppDispatcher.dispatch({
+           actionType: AppConstants.GET_NAMES,
+           names: names.data,
+         });
+       })
+       .catch(message => {
+         AppDispatcher.dispatch({
+           message: message
+         });
+       });
+   },
+   getEasterNames: () => {
+     NamesAPI
+       .getNames('names/relative_to_easter.json')
+       .then(easterNames => {
+         AppDispatcher.dispatch({
+           actionType: AppConstants.GET_EASTERNAMES,
+           easterNames: easterNames.special
+         });
+       })
+       .catch(message => {
+         AppDispatcher.dispatch({
+           message: message
+         });
+       });
+   },
+   getSpecialEasterNames: () => {
+     NamesAPI
+       .getNames('names/recurring_special_namedays.json')
+       .then(specialEasterNames => {
+         AppDispatcher.dispatch({
+           actionType: AppConstants.GET_SPECIALEASTERNAMES,
+           specialEasterNames: specialEasterNames.data
+         });
+       })
+       .catch(message => {
+         AppDispatcher.dispatch({
+           message: message
+         });
+       });
+   }
 }

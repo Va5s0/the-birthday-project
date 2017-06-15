@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import {Panel, FormGroup, Button, InputGroup, FormControl } from 'react-bootstrap';
+import Nameday from './Nameday';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 class AddConnection extends Component {
-  constructor(props){
-    super(props);
+  constructor(){
+    super();
     this.state = {
       newConnection: {
         id: '',
@@ -15,9 +16,15 @@ class AddConnection extends Component {
         nameday: '',
       },
       date: '',
+      nameday_date: '',
       controlId: null,
       validationState: null,
+      nameChange: ''
     }
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
   handleChange(selected) {
@@ -25,6 +32,14 @@ class AddConnection extends Component {
       date: selected,
     })
    }
+
+  handleNameChange(value) {
+    this.setState({nameChange: this.name.value})
+  }
+
+  onNamedayChange(date){
+    this.setState({nameday_date: date});
+  }
 
   handleSubmit(e, id){
     const pattern_name = /^\s+$/;
@@ -55,7 +70,7 @@ class AddConnection extends Component {
             name: this.name.value,
             phone: this.phone.value,
             birthday: newBirthday,
-            nameday: this.nameday.value,
+            nameday: this.state.nameday_date,
           },
         }, function(){
           let connections = [ ...this.props.parent.connections, this.state.newConnection];
@@ -63,9 +78,12 @@ class AddConnection extends Component {
         });
         this.name.value = '';
         this.phone.value = '';
-        this.nameday.value = '';
 
-        this.setState({controlId: null, validationState: null});
+        this.setState({
+          controlId: null,
+          validationState: null,
+          nameChange: ''
+        });
 
       } else {
         this.setState({
@@ -74,7 +92,7 @@ class AddConnection extends Component {
             name: this.name.value,
             phone: this.phone.value,
             birthday: newBirthday,
-            nameday: this.nameday.value,
+            nameday: this.state.nameday_date,
           },
         }, function(){
           let connections = [ ...this.props.parent.connections, this.state.newConnection];
@@ -82,9 +100,12 @@ class AddConnection extends Component {
         });
         this.name.value = '';
         this.phone.value = '';
-        this.nameday.value = '';
 
-        this.setState({controlId: null, validationState: null});
+        this.setState({
+          controlId: null,
+          validationState: null,
+          nameChange: ''
+        });
       }
     }
 
@@ -98,7 +119,7 @@ class AddConnection extends Component {
           Add {this.props.parent.firstName}'s Connection
         </div>
         <Panel>
-          <form onSubmit={this.handleSubmit.bind(this)}>
+          <form onSubmit={this.handleSubmit}>
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/account.png" width='20px' role="presentation" /></InputGroup.Addon>
@@ -106,6 +127,7 @@ class AddConnection extends Component {
                   type="text"
                   placeholder="Add Connection's Name"
                   inputRef={(ref) => {this.name = ref}}
+                  onBlur={this.handleNameChange}
                 />
               </InputGroup>
             </FormGroup>
@@ -124,7 +146,7 @@ class AddConnection extends Component {
                 <InputGroup.Addon className='glyph-input'><img src="images/cake-layered.png" width='20px' role="presentation"/></InputGroup.Addon>
                 <DatePicker
                   selected={this.state.date}
-                  onChange={this.handleChange.bind(this)}
+                  onChange={this.handleChange}
                   dateFormat="DD/MM/YYYY"
                   className="form-control"
                   placeholderText="Add Connection's Birthday"
@@ -134,11 +156,7 @@ class AddConnection extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/calendar.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <FormControl
-                    type="text"
-                    placeholder="Add Connection's Nameday"
-                    inputRef={(ref) => {this.nameday = ref}}
-                  />
+                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange}/>
               </InputGroup>
             </FormGroup>
 

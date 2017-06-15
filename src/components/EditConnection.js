@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Panel, FormGroup, Button, InputGroup, FormControl } from 'react-bootstrap';
+import Nameday from './Nameday';
 import update from 'react-addons-update';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -10,9 +11,15 @@ class EditConnection extends Component {
     super(props);
     this.state = {
       date: this.props.parent.connections[this.props.index].birthday,
+      newNamedate: this.props.parent.connections[this.props.index].nameday,
       controlId: null,
       validationState: null,
+      nameChange: this.props.parent.connections[this.props.index].name,
     }
+    this.onNamedayChange = this.onNamedayChange.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleNameChange = this.handleNameChange.bind(this);
   }
 
   handleChange(selected) {
@@ -20,6 +27,14 @@ class EditConnection extends Component {
       date: selected,
     })
    }
+
+  handleNameChange(value) {
+   this.setState({nameChange: this.name.value})
+  }
+
+  onNamedayChange(date){
+    this.setState({newNamedate: date});
+  }
 
   handleSubmit(e){
     const pattern_name = /^\s+$/;
@@ -49,10 +64,13 @@ class EditConnection extends Component {
         name: this.name.value,
         phone: this.phone.value,
         birthday: newBirthday,
-        nameday: this.nameday.value,
+        nameday: this.state.newNamedate,
       };
       connections = [ ...connections, newConnection];
-      this.setState({controlId: null, validationState: null});
+      this.setState({
+        controlId: null,
+        validationState: null,
+      });
       this.props.callbackParent(this.props.id, connections);
     }
     e.preventDefault();
@@ -67,7 +85,7 @@ class EditConnection extends Component {
           <DatePicker
             openToDate={moment(this.props.parent.connections[this.props.index].birthday, "DD-MM-YYYY")}
             selected={moment(this.state.date, "DD-MM-YYYY")}
-            onChange={this.handleChange.bind(this)}
+            onChange={this.handleChange}
             dateFormat="DD/MM/YYYY"
             className="form-control"
             />
@@ -78,7 +96,7 @@ class EditConnection extends Component {
           <InputGroup.Addon className='glyph-input'><img src="images/cake-layered.png" width='20px' role="presentation"/></InputGroup.Addon>
           <DatePicker
             selected={this.state.date}
-            onChange={this.handleChange.bind(this)}
+            onChange={this.handleChange}
             dateFormat="DD/MM/YYYY"
             className="form-control"
             placeholderText="Add Connection's Birthday"
@@ -89,7 +107,7 @@ class EditConnection extends Component {
     return (
       <div>
         <Panel>
-          <form onSubmit={this.handleSubmit.bind(this)}>
+          <form onSubmit={this.handleSubmit}>
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/account.png" width='20px' role="presentation" /></InputGroup.Addon>
@@ -98,6 +116,7 @@ class EditConnection extends Component {
                   placeholder="Add Connection's Name"
                   defaultValue={this.props.parent.connections[this.props.index].name}
                   inputRef={(ref) => {this.name = ref}}
+                  onBlur={this.handleNameChange}
                 />
               </InputGroup>
             </FormGroup>
@@ -118,12 +137,7 @@ class EditConnection extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/calendar.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <FormControl
-                    type="text"
-                    placeholder="Add Connection's Nameday"
-                    defaultValue={this.props.parent.connections[this.props.index].nameday}
-                    inputRef={(ref) => {this.nameday = ref}}
-                  />
+                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange} date={this.props.parent.connections[this.props.index].nameday} />
               </InputGroup>
             </FormGroup>
 
