@@ -11,10 +11,10 @@ class EditConnection extends Component {
     super(props);
     this.state = {
       date: this.props.parent.connections[this.props.index].birthday,
-      newNamedate: this.props.parent.connections[this.props.index].nameday,
+      newNamedate: this.props.parent.connections[this.props.index].nameday, // variable that updates through the 'Nameday' component and fills the form with the current connection nameday
       controlId: null,
       validationState: null,
-      nameChange: this.props.parent.connections[this.props.index].name,
+      nameChange: this.props.parent.connections[this.props.index].name, // variable passed to the 'Nameday' component that fills the form with the current connection name and updates every time the name changes
     }
     this.onNamedayChange = this.onNamedayChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -22,24 +22,29 @@ class EditConnection extends Component {
     this.handleNameChange = this.handleNameChange.bind(this);
   }
 
+  // handler to control date change of DatePicker
   handleChange(selected) {
     this.setState({
       date: selected,
     })
    }
 
+  // handler to update the nameChange variable every time the connection name changes
   handleNameChange(value) {
    this.setState({nameChange: this.name.value})
   }
 
+  // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
   onNamedayChange(date){
     this.setState({newNamedate: date});
   }
 
   handleSubmit(e){
+    // name, phone validation
     const pattern_name = /^\s+$/;
     const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
 
+    // sets the birthday date format to a uniform type of DD/MM/YYYY
     let newBirthday
     if(typeof this.state.date === 'object') {
       newBirthday = this.state.date.format().toString().slice(8,10)+'-'+this.state.date.format().toString().slice(5,7)+'-'+this.state.date.format().toString().slice(0,4)

@@ -52,26 +52,30 @@ class Nameday extends Component {
     });
   }
 
+  // passes the target value to the linked component ('AddParent', 'AddConnection', 'UpdateParent', 'EditConnection') every time the value changes
   handleOption(e) {
     this.props.callbackNameday(e.target.value);
   }
 
+  // handler to control date change of DatePicker
   handleChange(selected) {
     this.setState({newDate: selected});
 
+    // formats the selection to a uniform type of DD/MM
     let newNameday
     if(typeof selected === 'object') {
       newNameday = selected.format().toString().slice(8,10)+'/'+selected.format().toString().slice(5,7)
     } else {
       newNameday = selected
     };
+    // passes the DatePicker selection to the linked component ('AddParent', 'AddConnection', 'UpdateParent', 'EditConnection') every time the value changes
     this.props.callbackNameday(newNameday);
    }
 
 
   render() {
 
-    let firstName = this.props.name;
+    let firstName = this.props.name; // updates the first name of the parent or the parent connection
     let dates = [];
     let easterDates = [];
     let option;
@@ -79,13 +83,16 @@ class Nameday extends Component {
     let now = moment().year();
     let existingDate;
 
+    // fills the form with the current date (used at the 'UpdateParent' and 'EditConnection' components)
     if (this.props.date){
       existingDate = this.props.date;
     } else {
       existingDate = "";
     }
 
+    // checks if there is an existing first name
     if (firstName!==""){
+      // maps the 'recurring_namedays' json file
       this.state.saints.map((saint, i) => {
         saint.names.map((name, j) => {
           if (name === firstName) {
@@ -95,6 +102,7 @@ class Nameday extends Component {
         });
         return null;
       });
+      // maps the 'relative_to_easter' json file
       this.state.easterSaints.map((easterSaint, l) => {
         easterSaint.variations.map((easterName, m) => {
           if (easterName === firstName) {
@@ -105,6 +113,7 @@ class Nameday extends Component {
         })
         return null;
       });
+      // maps the 'recurring_special_namedays' json file
       this.state.specialEasterSaints.map((saint, i) => {
         saint.names.map((name, j) => {
           if (name === firstName) {
@@ -123,6 +132,7 @@ class Nameday extends Component {
         return null;
       });
 
+      // fills the dropdown selection form dynamically based on the 'dates' array
       if(dates.length>0) {
         options = dates.map((date, k) => {
           return (
@@ -140,6 +150,7 @@ class Nameday extends Component {
             {options}
           </FormControl>
       }else {
+        // activates the DatePicker dropdown if the json files search has no results
         option = <DatePicker
           selected={existingDate ? moment(existingDate, 'DD/MM') : this.state.newDate}
           onChange={this.handleChange}
@@ -149,6 +160,7 @@ class Nameday extends Component {
         />;
       }
     } else {
+      // activates the DatePicker dropdown if the first name field is empty
       option = <DatePicker
         selected={this.state.newDate}
         onChange={this.handleChange}

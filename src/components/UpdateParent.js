@@ -11,11 +11,11 @@ class UpdateParent extends Component {
     super(props);
     this.state = {
       date: this.props.parent.birthday,
-      newNamedate: this.props.parent.nameday,
+      newNamedate: this.props.parent.nameday, // variable that updates through the 'Nameday' component and fills the form with the current nameday
       controlId: null,
       validationState_phone: null,
       validationState_email: null,
-      nameChange: this.props.parent.firstName,
+      nameChange: this.props.parent.firstName, // variable passed to the 'Nameday' component that fills the form with the current name and updates every time the firstName changes
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -23,25 +23,30 @@ class UpdateParent extends Component {
     this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
+  // handler to control date change of DatePicker
   handleChange(selected) {
     this.setState({
       date: selected,
     })
    }
 
+   // handler to update the nameChange variable every time the first name changes
    handleNameChange(value) {
      this.setState({nameChange: this.firstName.value})
    }
 
+   // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
    onNamedayChange(date){
      this.setState({newNamedate: date});
    }
 
   handleSubmit(e, id){
+    // name, phone, email validation
     const pattern_name = /^\s+$/;
     const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
     const pattern_email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+    // sets the birthday date format to a uniform type of DD/MM/YYYY
     let newBirthday
     if(typeof this.state.date === 'object') {
       newBirthday = this.state.date.format().toString().slice(8,10)+'-'+this.state.date.format().toString().slice(5,7)+'-'+this.state.date.format().toString().slice(0,4)
