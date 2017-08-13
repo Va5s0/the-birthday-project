@@ -13,10 +13,14 @@ class AddConnection extends Component {
         name: '',
         phone: '',
         birthday: '',
-        nameday: '',
+        nameday: {
+          nameday_id: '10',
+          date: null
+        },
       },
       date: '',
-      nameday_date: '', // variable that updates through the 'Nameday' component
+      nameday_date: null, // variable that updates through the 'Nameday' component
+      newNameday_id: '10',
       controlId: null,
       validationState: null,
       nameChange: '' // variable passed to the 'Nameday' component that updates every time the connection name changes
@@ -40,8 +44,11 @@ class AddConnection extends Component {
   }
 
   // handler to update the nameday_date variable each time a new date is selected in the 'Nameday' component
-  onNamedayChange(date){
-    this.setState({nameday_date: date});
+  onNamedayChange(date, id){
+    this.setState({
+      nameday_date: date,
+      newNameday_id: id
+      });
   }
 
   handleSubmit(e, id){
@@ -68,14 +75,16 @@ class AddConnection extends Component {
       this.setState({controlId: "formValidationError1", validationState: "error"})
     } else {
 
-      if(this.props.parent.connections.length === 0) {
         this.setState({
           newConnection: {
-            id: 1,
+            id: this.props.parent.connections.length === 0 ? 1 : this.props.parent.connections[Object.keys(this.props.parent.connections).length - 1].id+1,
             name: this.name.value,
             phone: this.phone.value,
             birthday: newBirthday,
-            nameday: this.state.nameday_date,
+            nameday: {
+              nameday_id: this.state.newNameday_id,
+              date: this.state.nameday_date,
+            },
           },
         }, function(){
           let connections = [ ...this.props.parent.connections, this.state.newConnection];
@@ -90,28 +99,6 @@ class AddConnection extends Component {
           nameChange: ''
         });
 
-      } else {
-        this.setState({
-          newConnection: {
-            id: this.props.parent.connections[Object.keys(this.props.parent.connections).length - 1].id+1,
-            name: this.name.value,
-            phone: this.phone.value,
-            birthday: newBirthday,
-            nameday: this.state.nameday_date,
-          },
-        }, function(){
-          let connections = [ ...this.props.parent.connections, this.state.newConnection];
-          this.props.callbackParent(this.props.id, connections);
-        });
-        this.name.value = '';
-        this.phone.value = '';
-
-        this.setState({
-          controlId: null,
-          validationState: null,
-          nameChange: ''
-        });
-      }
     }
 
     e.preventDefault();
@@ -161,7 +148,7 @@ class AddConnection extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/calendar.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange}/>
+                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange} onList={false} />
               </InputGroup>
             </FormGroup>
 

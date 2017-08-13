@@ -15,7 +15,10 @@ class AddParent extends Component {
         phone: '',
         email: '',
         birthday: '',
-        nameday: '',
+        nameday: {
+          nameday_id: '10',
+          date: null
+        },
         connections: [{
           id: '',
           name: '',
@@ -24,6 +27,7 @@ class AddParent extends Component {
       },
       date: '',
       nameday_date: '', // variable that updates through the 'Nameday' component
+      nameday_id: '',
       controlId_phone: null,
       controlId_email: null,
       validationState_phone: null,
@@ -49,8 +53,11 @@ class AddParent extends Component {
   }
 
   // handler to update the nameday_date variable each time a new date is selected in the 'Nameday' component
-  onNamedayChange(date){
-    this.setState({nameday_date: date});
+  onNamedayChange(date, id){
+    this.setState({
+      nameday_id: id,
+      nameday_date: date,
+    });
   }
 
   handleSubmit(e){
@@ -93,7 +100,10 @@ class AddParent extends Component {
           phone: this.phone.value,
           email: this.email.value,
           birthday: newBirthday,
-          nameday: this.state.nameday_date,
+          nameday: {
+            nameday_id: this.state.nameday_id,
+            date: this.state.nameday_date,
+          },
           connections: [],
         }
       }, function(){
@@ -183,7 +193,7 @@ class AddParent extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/calendar.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange}/>
+                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange} onList={false}/>
               </InputGroup>
             </FormGroup>
 

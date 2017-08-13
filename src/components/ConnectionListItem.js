@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { Button, ListGroup, ListGroupItem, Collapse, Col, Glyphicon } from 'react-bootstrap';
 import EditConnection from './EditConnection';
+import AppActions from '../actions/AppActions';
 import update from 'react-addons-update';
+import moment from 'moment';
+import NamedayListGroup from './NamedayListGroup';
 
 class ConnectionListItem extends Component {
   constructor(props){
@@ -10,7 +13,9 @@ class ConnectionListItem extends Component {
       connections: this.props.parent.connections,
       parent: this.props.parent,
       openEdit: false,
+      year: moment().get('year').toString(),
     }
+    this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
   handleDeleteClick(index, id) {
@@ -21,6 +26,22 @@ class ConnectionListItem extends Component {
   handleEditClick(id, connections) {
     this.props.callbackParent(id, connections);
     this.setState({ openEdit: !this.state.openEdit})
+  }
+
+  onNamedayChange(date, id, parent, index){
+    let newConnection = {
+      id: parent.connections[index].id,
+      name: parent.connections[index].name,
+      phone: parent.connections[index].phone,
+      birthday: parent.connections[index].birthday,
+      nameday: {
+        nameday_id: id,
+        date: date,
+      },
+    };
+    let newParent = parent;
+    newParent.connections = [update(parent.connections[index], {$merge: newConnection})];
+    AppActions.updateParent(parent._id.$oid, newParent);
   }
 
   render() {
@@ -35,7 +56,9 @@ class ConnectionListItem extends Component {
             <ListGroup>
               <ListGroupItem><img src="images/phone.png" className='glyph' width='35px' role="presentation"/> {connection.phone}</ListGroupItem>
               <ListGroupItem><img src="images/cake-layered.png" className='glyph' width='35px' role="presentation"/> {connection.birthday}</ListGroupItem>
-              <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {connection.nameday}</ListGroupItem>
+              {(moment(connection.nameday.date).year().toString() !== this.state.year && connection.nameday.date !==null) ?
+              <NamedayListGroup name={connection.name} callbackNamedayChild={this.onNamedayChange} date={connection.nameday.date} dateId={connection.nameday.nameday_id} parent={this.props.parent} index={this.props.index} child={true}/> :
+              <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {(connection.nameday.date !==null)?moment(connection.nameday.date).format('DD/MM/YYYY'):connection.nameday.date}</ListGroupItem>}
             </ListGroup>
           </div>
 
@@ -44,7 +67,7 @@ class ConnectionListItem extends Component {
             <Glyphicon glyph="glyphicon glyphicon-pencil"/>
           </Button>
 
-          <Collapse in={this.state.openEdit}>
+          <Collapse in={this.state.openEdit} mountOnEnter={true}>
             <div>
               <EditConnection id={this.props.parent._id.$oid} parent={this.props.parent} index={this.props.index} callbackParent={this.handleEditClick.bind(this)}/>
             </div>

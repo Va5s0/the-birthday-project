@@ -9,21 +9,24 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 
 class Nameday extends Component {
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state = {
       saints: AppStore.getNames(),
       easterSaints: AppStore.getEasterNames(),
       specialEasterSaints: AppStore.getSpecialEasterNames(),
-      newDate: '',
+      newDate: this.props.date,
+      value: this.props.dateId,
+      onList: this.props.onList,
     }
     this.onChange = this.onChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.handleOption = this.handleOption.bind(this)
+    this.handleOption = this.handleOption.bind(this);
   }
 
   componentWillMount(){
     AppStore.addChangeListener(this.onChange);
+    console.log('will mount');
   }
 
   componentDidMount(){
@@ -32,147 +35,155 @@ class Nameday extends Component {
     AppActions.getSpecialEasterNames();
   }
 
+  onChange(){
+    this.setState({
+      saints: AppStore.getNames(),
+      easterSaints: AppStore.getEasterNames(),
+      specialEasterSaints: AppStore.getSpecialEasterNames(),
+    });
+  }
+
   componentWillUnmount(){
     AppStore.removeChangeListener(this.onChange);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if(this.state!==nextState || this.props.name!==nextProps.name ){
+    if(this.state!==nextState || this.props.name!==nextProps.name || this.props.date!==nextProps.date){
       return true
     } else {
       return false
     }
   }
 
-  onChange(){
-    this.setState({
-      saints: AppStore.getNames(),
-      easterSaints: AppStore.getEasterNames(),
-      specialEasterSaints: AppStore.getSpecialEasterNames()
-    });
-  }
-
   // passes the target value to the linked component ('AddParent', 'AddConnection', 'UpdateParent', 'EditConnection') every time the value changes
   handleOption(e) {
-    this.props.callbackNameday(e.target.value);
+    if (this.props.name!=="") {
+      this.setState({value: e.target.value});
+      for (let node of e.target.children) {
+        if (node.value === e.target.value) {
+          var id = node.getAttribute('data-id');
+          break;
+        }
+      }
+      this.props.callbackNameday(moment(e.target.value, "DD/MM/YYYY"), id);
+    } else {
+      this.props.callbackNameday('', '10');
+    }
   }
 
   // handler to control date change of DatePicker
   handleChange(selected) {
     this.setState({newDate: selected});
 
-    // formats the selection to a uniform type of DD/MM
-    let newNameday
-    if(typeof selected === 'object') {
-      newNameday = selected.format().toString().slice(8,10)+'/'+selected.format().toString().slice(5,7)
-    } else {
-      newNameday = selected
-    };
-    // passes the DatePicker selection to the linked component ('AddParent', 'AddConnection', 'UpdateParent', 'EditConnection') every time the value changes
-    this.props.callbackNameday(newNameday);
+    this.props.callbackNameday(selected, '10');
    }
 
-
   render() {
-
     let firstName = this.props.name; // updates the first name of the parent or the parent connection
     let dates = [];
     let easterDates = [];
     let option;
     let options;
-    let now = moment().year();
-    let existingDate;
+    let now = moment().get('year');
 
-    // fills the form with the current date (used at the 'UpdateParent' and 'EditConnection' components)
-    if (this.props.date){
-      existingDate = this.props.date;
-    } else {
-      existingDate = "";
-    }
-
-    // checks if there is an existing first name
+    // checks if there is an existing name
     if (firstName!==""){
       // maps the 'recurring_namedays' json file
-      this.state.saints.map((saint, i) => {
-        saint.names.map((name, j) => {
+      this.state.saints.forEach((saint, i) => {
+        saint.names.forEach((name, j) => {
           if (name === firstName) {
-            dates.push(saint.date);
+            dates.push(saint.date+'/'+now);
           }
           return dates;
         });
-        return null;
       });
       // maps the 'relative_to_easter' json file
-      this.state.easterSaints.map((easterSaint, l) => {
-        easterSaint.variations.map((easterName, m) => {
+      this.state.easterSaints.forEach((easterSaint, l) => {
+        easterSaint.variations.forEach((easterName, m) => {
           if (easterName === firstName) {
             easterDates.push(easterSaint.toEaster);
-            dates.push([moment(Easter(now).props.children).add(easterDates[0], 'day').format('DD/MM')]);
+            dates.push(moment(Easter(now).props.children).add(easterDates[0], 'day').format('DD/MM/YYYY'));
           }
           return dates;
         })
-        return null;
       });
       // maps the 'recurring_special_namedays' json file
-      this.state.specialEasterSaints.map((saint, i) => {
-        saint.names.map((name, j) => {
+      this.state.specialEasterSaints.forEach((saint, i) => {
+        saint.names.forEach((name, j) => {
           if (name === firstName) {
-
             var special_saint = moment([(moment().get('year')), 0, parseInt(saint.date.slice(0, 2), 10)]);
             var easter = moment([(moment().get('year')), 0, parseInt((moment(Easter(now).props.children).format('DD/MM/YYYY')).slice(0, 2), 10)]);
             if (easter.diff(special_saint, 'days') >= 0) {
               easterDates.push(saint.toEaster);
-              dates.push([moment(Easter(now).props.children).add(easterDates[0], 'day').format('DD/MM')]);
+              dates.push(moment(Easter(now).props.children).add(easterDates[0], 'day').format('DD/MM/YYYY'));
             } else {
-              dates.push(saint.date);
+              dates.push(saint.date+'/'+now);
             }
           }
           return dates;
         });
-        return null;
       });
 
       // fills the dropdown selection form dynamically based on the 'dates' array
       if(dates.length>0) {
         options = dates.map((date, k) => {
           return (
-            <option key={k} value={date}>{date}</option>
+            <option key={k} data-id={k} value={date}>{date}</option>
           );
         });
         option =
           <FormControl
             onChange={this.handleOption}
             onFocus={this.handleOption}
+            onBlur={this.handleOption}
             componentClass="select"
             placeholder="Add NameDay"
-            defaultValue={existingDate}
+            value={dates[this.state.value]}
           >
             {options}
           </FormControl>
-      }else {
-        // activates the DatePicker dropdown if the json files search has no results
-        option = <DatePicker
-          selected={existingDate ? moment(existingDate, 'DD/MM') : this.state.newDate}
-          onChange={this.handleChange}
-          dateFormat="DD/MM"
-          className="form-control"
-          placeholderText="Add NameDay"
-        />;
+      } else {
+        let selectedDate;
+        if(moment(this.state.newDate).year()!==now && this.state.newDate!==null){
+          selectedDate = moment(moment(this.state.newDate).format('DD/MM')+'/'+now, 'DD/MM/YYYY');
+        } else if (this.state.newDate===null){
+          selectedDate = this.state.newDate;
+        } else {
+          selectedDate = moment(this.state.newDate);
+        };
+
+        // activates the DatePicker if no date exists
+          option = <DatePicker
+            fixedHeight
+            selected={selectedDate}
+            onChange={this.handleChange}
+            dateFormat="DD/MM/YYYY"
+            isClearable={true}
+            onBlur={this.handleOnBlur}
+            className="form-control"
+            minDate={new Date(now, 0, 1)}
+            maxDate={new Date(now, 12, 31)}
+            placeholderText="Add NameDay"
+          />;
       }
     } else {
-      // activates the DatePicker dropdown if the first name field is empty
       option = <DatePicker
+        fixedHeight
         selected={this.state.newDate}
         onChange={this.handleChange}
-        dateFormat="DD/MM"
+        dateFormat="DD/MM/YYYY"
+        isClearable={true}
+        onBlur={this.handleOnBlur}
         className="form-control"
+        minDate={new Date(now, 0, 1)}
+        maxDate={new Date(now, 12, 31)}
         placeholderText="Add NameDay"
-      />;
-    };
+      />
+    }
 
     return (
       option
-    );
+    )
   }
 }
 

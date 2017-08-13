@@ -11,9 +11,10 @@ class EditConnection extends Component {
     super(props);
     this.state = {
       date: this.props.parent.connections[this.props.index].birthday,
-      newNamedate: this.props.parent.connections[this.props.index].nameday, // variable that updates through the 'Nameday' component and fills the form with the current connection nameday
+      newNamedate: this.props.parent.connections[this.props.index].nameday.date, // variable that updates through the 'Nameday' component and fills the form with the current connection nameday
       controlId: null,
       validationState: null,
+      newNameday_id: '',
       nameChange: this.props.parent.connections[this.props.index].name, // variable passed to the 'Nameday' component that fills the form with the current connection name and updates every time the name changes
     }
     this.onNamedayChange = this.onNamedayChange.bind(this);
@@ -31,12 +32,15 @@ class EditConnection extends Component {
 
   // handler to update the nameChange variable every time the connection name changes
   handleNameChange(value) {
-   this.setState({nameChange: this.name.value})
+   this.setState({nameChange: this.name.value});
   }
 
   // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
-  onNamedayChange(date){
-    this.setState({newNamedate: date});
+  onNamedayChange(date, id){
+    this.setState({
+      newNameday_id: id,
+      newNamedate: date
+    });
   }
 
   handleSubmit(e){
@@ -69,7 +73,10 @@ class EditConnection extends Component {
         name: this.name.value,
         phone: this.phone.value,
         birthday: newBirthday,
-        nameday: this.state.newNamedate,
+        nameday: {
+          nameday_id: this.state.newNameday_id,
+          date: this.state.newNamedate,
+        },
       };
       connections = [ ...connections, newConnection];
       this.setState({
@@ -142,7 +149,7 @@ class EditConnection extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/calendar.png" width='20px' role="presentation"/></InputGroup.Addon>
-                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange} date={this.props.parent.connections[this.props.index].nameday} />
+                  <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange} dateId={this.props.parent.connections[this.props.index].nameday.nameday_id} date={this.props.parent.connections[this.props.index].nameday.date} onList={false}/>
               </InputGroup>
             </FormGroup>
 

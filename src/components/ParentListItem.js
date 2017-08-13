@@ -4,7 +4,9 @@ import AppActions from '../actions/AppActions';
 import AddConnection from './AddConnection';
 import UpdateParent from './UpdateParent';
 import ConnectionListItem from './ConnectionListItem';
-
+import NamedayListGroup from './NamedayListGroup';
+import update from 'react-addons-update';
+import moment from 'moment';
 
 
 class ParentListItem extends Component {
@@ -15,7 +17,16 @@ class ParentListItem extends Component {
       openParent: false,
       openCon: false,
       parent: this.props.parent,
+      year: moment().get('year').toString(),
       }
+    this.onNamedayChange = this.onNamedayChange.bind(this);
+    this.onChildChanged = this.onChildChanged.bind(this);
+    this.openUpdate = this.openUpdate.bind(this);
+    this.openCon = this.openCon.bind(this);
+    this.closeParent = this.closeParent.bind(this);
+    this.closeUpdate = this.closeUpdate.bind(this);
+    this.onParentChanged = this.onParentChanged.bind(this);
+    this.closeCon = this.closeCon.bind(this);
   }
 
   closeParent() {
@@ -47,7 +58,7 @@ class ParentListItem extends Component {
   }
 
   onChildChanged(id, connections){
-    var parent = this.props.parent;
+    let parent = this.props.parent;
     parent.connections = connections;
     this.setState({parent: parent}, function(){
       AppActions.updateParent(id, this.state.parent);
@@ -60,9 +71,24 @@ class ParentListItem extends Component {
     this.closeUpdate();
   }
 
+  onNamedayChange(date, id, parent, index){
+    console.log(date, id);
+    let newParent = {
+      firstName: this.props.parent.firstName,
+      lastName: this.props.parent.lastName,
+      phone: this.props.parent.phone,
+      email: this.props.parent.email,
+      birthday: this.props.parent.birthday,
+      nameday: {
+        nameday_id: id,
+        date: date,
+      },
+    };
+    AppActions.updateParent(this.props.parent._id.$oid, update(this.props.parent, {$merge: newParent}));
+  }
+
   render() {
     const {parent} = this.props;
-
     const tooltip = (
       <Tooltip id="modal-tooltip">
         Add {parent.firstName}'s connections
@@ -73,12 +99,19 @@ class ParentListItem extends Component {
     if(parent.connections.length !== 0){
       connectionListItems = parent.connections.map(connection => {
         return (
-          <ConnectionListItem key={connection.id} connection={connection} index={parent.connections.indexOf(connection)} parent={parent} id={parent._id.$oid} callbackParent={this.onChildChanged.bind(this)}/>
+          <ConnectionListItem key={connection.id} connection={connection} index={parent.connections.indexOf(connection)} parent={parent} id={parent._id.$oid} callbackParent={this.onChildChanged}/>
         );
       });
     } else {
       connectionListItems = <ConnectionListItem parent={parent} id={parent._id.$oid}/>
     };
+
+     let namedayItem;
+     if(moment(parent.nameday.date).year().toString() !== this.state.year && parent.nameday.date !==null) {
+       namedayItem = <NamedayListGroup name={parent.firstName} callbackNamedayParent={this.onNamedayChange} date={parent.nameday.date} dateId={parent.nameday.nameday_id} child={false}/>
+     } else {
+       namedayItem = <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {(parent.nameday.date!==null)?moment(parent.nameday.date).format('DD/MM/YYYY'):parent.nameday.date}</ListGroupItem>
+     }
 
     return (
       <div>
@@ -87,10 +120,10 @@ class ParentListItem extends Component {
             <h3 style={{cursor: 'pointer'}} onClick={ ()=> this.setState({ openParent: !this.state.openParent })}>{parent.firstName} {parent.lastName}</h3>
             <p>
               <Button className="custom" onClick={this.handleDeleteClick.bind(this, parent._id.$oid)}> <Glyphicon glyph="glyphicon glyphicon-remove"/> </Button>&nbsp;
-              <Button className="custom" onClick={this.openUpdate.bind(this)}> <Glyphicon glyph="glyphicon glyphicon-pencil"/> </Button>&nbsp;
-              <Button className="custom" onClick={this.openCon.bind(this)}> <OverlayTrigger overlay={tooltip}><Glyphicon glyph="glyphicon glyphicon-user"/></OverlayTrigger> </Button>
+              <Button className="custom" onClick={this.openUpdate}> <Glyphicon glyph="glyphicon glyphicon-pencil"/> </Button>&nbsp;
+              <Button className="custom" onClick={this.openCon}> <OverlayTrigger overlay={tooltip}><Glyphicon glyph="glyphicon glyphicon-user"/></OverlayTrigger> </Button>
             </p>
-            <Modal show={this.state.openParent} onHide={this.closeParent.bind(this)} keyboard={true} >
+            <Modal show={this.state.openParent} onHide={this.closeParent} keyboard={true} >
 
               <Modal.Header>
                 <Modal.Title>{parent.firstName} {parent.lastName}</Modal.Title>
@@ -101,7 +134,7 @@ class ParentListItem extends Component {
                   <ListGroupItem><img src="images/phone.png" className='glyph' width='35px' role="presentation"/> {parent.phone}</ListGroupItem>
                   <ListGroupItem><img src="images/mail-ru.png" className='glyph' width='35px' role="presentation"/> {parent.email}</ListGroupItem>
                   <ListGroupItem><img src="images/cake-layered.png" className='glyph' width='35px' role="presentation"/> {parent.birthday}</ListGroupItem>
-                  <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {parent.nameday}</ListGroupItem>
+                  {namedayItem}
                 </ListGroup>
 
                 <Row>
@@ -112,22 +145,22 @@ class ParentListItem extends Component {
 
               </Modal.Body>
               <Modal.Footer>
-                <Button className="custom" onClick={this.closeParent.bind(this)}>Close</Button>
+                <Button className="custom" onClick={this.closeParent}>Close</Button>
               </Modal.Footer>
 
             </Modal>
           </Thumbnail>
         </Col>
 
-        <Modal show={this.state.openUpdate} onHide={this.closeUpdate.bind(this)} keyboard={true}>
+        <Modal show={this.state.openUpdate} onHide={this.closeUpdate} keyboard={true}>
           <Modal.Body>
-            <UpdateParent id={parent._id.$oid} parent={parent} callbackParent={this.onParentChanged.bind(this)}/>
+            <UpdateParent id={parent._id.$oid} parent={parent} callbackParent={this.onParentChanged}/>
           </Modal.Body>
         </Modal>
 
-        <Modal show={this.state.openCon} onHide={this.closeCon.bind(this)} keyboard={true}>
+        <Modal show={this.state.openCon} onHide={this.closeCon} keyboard={true}>
           <Modal.Body>
-            <AddConnection id={parent._id.$oid} parent={parent} callbackParent={this.onChildChanged.bind(this)}/>
+            <AddConnection id={parent._id.$oid} parent={parent} callbackParent={this.onChildChanged}/>
           </Modal.Body>
         </Modal>
 

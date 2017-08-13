@@ -11,10 +11,11 @@ class UpdateParent extends Component {
     super(props);
     this.state = {
       date: this.props.parent.birthday,
-      newNamedate: this.props.parent.nameday, // variable that updates through the 'Nameday' component and fills the form with the current nameday
+      newNamedate: this.props.parent.date, // variable that updates through the 'Nameday' component and fills the form with the current nameday
       controlId: null,
       validationState_phone: null,
       validationState_email: null,
+      newNameday_id: '',
       nameChange: this.props.parent.firstName, // variable passed to the 'Nameday' component that fills the form with the current name and updates every time the firstName changes
     }
     this.handleChange = this.handleChange.bind(this);
@@ -36,8 +37,11 @@ class UpdateParent extends Component {
    }
 
    // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
-   onNamedayChange(date){
-     this.setState({newNamedate: date});
+   onNamedayChange(date, id){
+     this.setState({
+       newNameday_id: id,
+       newNamedate: date
+     });
    }
 
   handleSubmit(e, id){
@@ -81,7 +85,10 @@ class UpdateParent extends Component {
         phone: this.phone.value,
         email: this.email.value,
         birthday: newBirthday,
-        nameday: this.state.newNamedate
+        nameday: {
+          nameday_id: this.state.newNameday_id,
+          date: this.state.newNamedate,
+        },
       };
       parent = update(parent, {$merge: newParent});
       this.setState({
@@ -185,7 +192,7 @@ class UpdateParent extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className='glyph-input'><img src="images/calendar.png" width='20px' role="presentation"/></InputGroup.Addon>
-                <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange} date={this.props.parent.nameday} />
+                <Nameday name={this.state.nameChange} callbackNameday={this.onNamedayChange} dateId={this.props.parent.nameday.nameday_id} date={this.props.parent.nameday.date} onList={false}/>
               </InputGroup>
             </FormGroup>
 
