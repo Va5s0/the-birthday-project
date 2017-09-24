@@ -151,7 +151,7 @@ class Nameday extends Component {
           selectedDate = moment(this.state.newDate);
         };
 
-        // activates the DatePicker if no date exists for a listed name
+        // activates the DatePicker if no date exists for an unlisted name
           option = <DatePicker
             fixedHeight
             selected={selectedDate}
@@ -166,10 +166,10 @@ class Nameday extends Component {
           />;
       }
     } else {
-      // activates the DatePicker if no date exists for an unlisted name
+      // activates the DatePicker for the first time
       option = <DatePicker
         fixedHeight
-        selected={moment(this.state.newDate)}
+        selected={this.state.newDate}
         onChange={this.handleChange}
         dateFormat="DD/MM/YYYY"
         isClearable={true}

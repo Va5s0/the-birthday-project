@@ -23,11 +23,16 @@ class AddParent extends Component {
           id: '',
           name: '',
           phone: '',
+          birthday: '',
+          nameday: {
+            nameday_id: '10',
+            date: null
+          }
         }],
       },
       date: '',
-      nameday_date: '', // variable that updates through the 'Nameday' component
-      nameday_id: '',
+      nameday_date: null, // variable that updates through the 'Nameday' component
+      nameday_id: '10',
       controlId_phone: null,
       controlId_email: null,
       validationState_phone: null,
