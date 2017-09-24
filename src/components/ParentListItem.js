@@ -72,7 +72,6 @@ class ParentListItem extends Component {
   }
 
   onNamedayChange(date, id, parent, index){
-    console.log(date, id);
     let newParent = {
       firstName: this.props.parent.firstName,
       lastName: this.props.parent.lastName,
@@ -107,6 +106,7 @@ class ParentListItem extends Component {
     };
 
      let namedayItem;
+     // checks whether the existing year matches the current year
      if(moment(parent.nameday.date).year().toString() !== this.state.year && parent.nameday.date !==null) {
        namedayItem = <NamedayListGroup name={parent.firstName} callbackNamedayParent={this.onNamedayChange} date={parent.nameday.date} dateId={parent.nameday.nameday_id} child={false}/>
      } else {

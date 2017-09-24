@@ -26,7 +26,6 @@ class Nameday extends Component {
 
   componentWillMount(){
     AppStore.addChangeListener(this.onChange);
-    console.log('will mount');
   }
 
   componentDidMount(){
@@ -74,7 +73,6 @@ class Nameday extends Component {
   // handler to control date change of DatePicker
   handleChange(selected) {
     this.setState({newDate: selected});
-
     this.props.callbackNameday(selected, '10');
    }
 
@@ -88,7 +86,7 @@ class Nameday extends Component {
 
     // checks if there is an existing name
     if (firstName!==""){
-      // maps the 'recurring_namedays' json file
+      // searches the 'recurring_namedays' json file
       this.state.saints.forEach((saint, i) => {
         saint.names.forEach((name, j) => {
           if (name === firstName) {
@@ -97,7 +95,7 @@ class Nameday extends Component {
           return dates;
         });
       });
-      // maps the 'relative_to_easter' json file
+      // searches the 'relative_to_easter' json file
       this.state.easterSaints.forEach((easterSaint, l) => {
         easterSaint.variations.forEach((easterName, m) => {
           if (easterName === firstName) {
@@ -107,7 +105,7 @@ class Nameday extends Component {
           return dates;
         })
       });
-      // maps the 'recurring_special_namedays' json file
+      // searches the 'recurring_special_namedays' json file
       this.state.specialEasterSaints.forEach((saint, i) => {
         saint.names.forEach((name, j) => {
           if (name === firstName) {
@@ -124,7 +122,7 @@ class Nameday extends Component {
         });
       });
 
-      // fills the dropdown selection form dynamically based on the 'dates' array
+      // fills the dropdown selection form dynamically, based on the 'dates' array for more than one results
       if(dates.length>0) {
         options = dates.map((date, k) => {
           return (
@@ -143,6 +141,7 @@ class Nameday extends Component {
             {options}
           </FormControl>
       } else {
+        // fills the selection when the 'dates' array has only one result
         let selectedDate;
         if(moment(this.state.newDate).year()!==now && this.state.newDate!==null){
           selectedDate = moment(moment(this.state.newDate).format('DD/MM')+'/'+now, 'DD/MM/YYYY');
@@ -152,7 +151,7 @@ class Nameday extends Component {
           selectedDate = moment(this.state.newDate);
         };
 
-        // activates the DatePicker if no date exists
+        // activates the DatePicker if no date exists for a listed name
           option = <DatePicker
             fixedHeight
             selected={selectedDate}
@@ -167,9 +166,10 @@ class Nameday extends Component {
           />;
       }
     } else {
+      // activates the DatePicker if no date exists for an unlisted name
       option = <DatePicker
         fixedHeight
-        selected={this.state.newDate}
+        selected={moment(this.state.newDate)}
         onChange={this.handleChange}
         dateFormat="DD/MM/YYYY"
         isClearable={true}

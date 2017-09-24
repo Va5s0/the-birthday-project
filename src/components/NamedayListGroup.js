@@ -24,7 +24,6 @@ class NamedayListGroup extends Component {
 
   componentWillMount(){
     AppStore.addChangeListener(this.onChange);
-    console.log('will mount');
   }
 
   componentDidMount(){
@@ -32,7 +31,6 @@ class NamedayListGroup extends Component {
     AppActions.getEasterNames();
     AppActions.getSpecialEasterNames();
     this._isMounted = true;
-    console.log('did mount');
   }
 
   onChange(){
@@ -42,14 +40,12 @@ class NamedayListGroup extends Component {
         easterSaints: AppStore.getEasterNames(),
         specialEasterSaints: AppStore.getSpecialEasterNames(),
       });
-      console.log('changed');
     }
   }
 
   componentWillUnmount(){
     AppStore.removeChangeListener(this.onChange);
     this._isMounted = false;
-    console.log('Unmounted');
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -79,9 +75,9 @@ class NamedayListGroup extends Component {
     let option;
     let now = moment().get('year');
 
-    // checks if there is known name
+    // checks if there is a listed name (this.state.value == '10' --> name isn't listed )
     if (this.state.value!=='10'){
-      // maps the 'recurring_namedays' json file
+      // searches the 'recurring_namedays' json file
       this.state.saints.forEach((saint, i) => {
         saint.names.forEach((name, j) => {
           if (name === firstName) {
@@ -90,7 +86,7 @@ class NamedayListGroup extends Component {
         });
         return null
       });
-      // maps the 'relative_to_easter' json file
+      // searches the 'relative_to_easter' json file
       this.state.easterSaints.forEach((easterSaint, l) => {
         easterSaint.variations.forEach((easterName, m) => {
           if (easterName === firstName) {
@@ -100,7 +96,7 @@ class NamedayListGroup extends Component {
         });
         return null
       });
-      // maps the 'recurring_special_namedays' json file
+      // searches the 'recurring_special_namedays' json file
       this.state.specialEasterSaints.forEach((saint, i) => {
         saint.names.forEach((name, j) => {
           if (name === firstName) {
@@ -117,7 +113,7 @@ class NamedayListGroup extends Component {
         return null
       });
 
-      // fills the dropdown selection form dynamically based on the 'dates' array
+      // replaces the existing listed date with the correct one based on the current year results
       if (this.state.newDate !== '') {
         if(this.props.child === false) {
           this.handleGroupItemParent(dates[this.state.value]);
@@ -126,16 +122,24 @@ class NamedayListGroup extends Component {
           this.handleGroupItemChild(dates[this.state.value]);
           option = <ListGroupItem ><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {dates[this.state.value]} </ListGroupItem>
         }
-      } else if (this.state.newDate === '') {
+        // if there is no existing date, it takes no action
+      } else {
           option = <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {this.state.newDate} </ListGroupItem>
       }
+
+    // if there is NOT a listed name (this.state.value == '10' --> name isn't listed) replaces ONLY the year of the existing listed date with the current year
     } else{
-      if(this.props.child === false){
-        this.handleGroupItemParent(moment(this.state.newDate).format('DD/MM')+'/'+now);
-        option = <ListGroupItem ><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {moment(this.state.newDate).format('DD/MM')+'/'+now} </ListGroupItem>
+      if (this.state.newDate !== '') {
+        if(this.props.child === false){
+          this.handleGroupItemParent(moment(this.state.newDate).format('DD/MM')+'/'+now);
+          option = <ListGroupItem ><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {moment(this.state.newDate).format('DD/MM')+'/'+now} </ListGroupItem>
+        } else {
+          this.handleGroupItemChild(moment(this.state.newDate).format('DD/MM')+'/'+now);
+          option = <ListGroupItem ><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {moment(this.state.newDate).format('DD/MM')+'/'+now} </ListGroupItem>
+        }
+      // if there is no existing date, it takes no action 
       } else {
-        this.handleGroupItemChild(moment(this.state.newDate).format('DD/MM')+'/'+now);
-        option = <ListGroupItem ><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {moment(this.state.newDate).format('DD/MM')+'/'+now} </ListGroupItem>
+        option = <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {this.state.newDate} </ListGroupItem>
       }
     }
 
