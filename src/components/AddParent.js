@@ -202,7 +202,7 @@ class AddParent extends Component {
               </InputGroup>
             </FormGroup>
 
-            <Button className="custom" type="submit">Submit</Button>
+            <Button className="custom-submit" type="submit">Submit</Button>
           </form>
         </Panel>
       </div>

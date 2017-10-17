@@ -90,7 +90,7 @@ class ParentListItem extends Component {
     const {parent} = this.props;
     const tooltip = (
       <Tooltip id="modal-tooltip">
-        Add {parent.firstName}'s connections
+        Add a connection
       </Tooltip>
     );
 
@@ -115,27 +115,34 @@ class ParentListItem extends Component {
 
     return (
       <div>
-        <Col xs={6} md={4}>
-          <Thumbnail src="images/profile-icon-png-917.png" alt="10x10">
-            <h3 style={{cursor: 'pointer'}} onClick={ ()=> this.setState({ openParent: !this.state.openParent })}>{parent.firstName} {parent.lastName}</h3>
-            <p>
-              <Button className="custom" onClick={this.handleDeleteClick.bind(this, parent._id.$oid)}> <Glyphicon glyph="glyphicon glyphicon-remove"/> </Button>&nbsp;
-              <Button className="custom" onClick={this.openUpdate}> <Glyphicon glyph="glyphicon glyphicon-pencil"/> </Button>&nbsp;
-              <Button className="custom" onClick={this.openCon}> <OverlayTrigger overlay={tooltip}><Glyphicon glyph="glyphicon glyphicon-user"/></OverlayTrigger> </Button>
-            </p>
+        <Col xs={6} md={3}>
+          <Thumbnail>
+            <div className='profile-img-box'><img className='profile-img' src="images/profile-icon-png-ce5a57.png" alt="10x10"/></div>
+            <div className='profile-content-box'>
+              <div className='profile-content-name'>
+                <h3 style={{cursor: 'pointer'}} onClick={ ()=> this.setState({ openParent: !this.state.openParent })}>{parent.firstName} {parent.lastName}</h3>
+              </div>
+              <div className='profile-content-buttons'>
+                <p>
+                  <Button className="custom" onClick={this.handleDeleteClick.bind(this, parent._id.$oid)}> <Glyphicon glyph="glyphicon glyphicon-remove"/> </Button>&nbsp;
+                  <Button className="custom" onClick={this.openUpdate}> <Glyphicon glyph="glyphicon glyphicon-pencil"/> </Button>
+                </p>
+              </div>
+            </div>
             <Modal show={this.state.openParent} onHide={this.closeParent} keyboard={true} >
 
               <Modal.Header>
                 <Modal.Title>{parent.firstName} {parent.lastName}</Modal.Title>
               </Modal.Header>
-              <Modal.Body>
-
-                <ListGroup>
-                  <ListGroupItem><img src="images/phone.png" className='glyph' width='35px' role="presentation"/> {parent.phone}</ListGroupItem>
-                  <ListGroupItem><img src="images/mail-ru.png" className='glyph' width='35px' role="presentation"/> {parent.email}</ListGroupItem>
-                  <ListGroupItem><img src="images/cake-layered.png" className='glyph' width='35px' role="presentation"/> {parent.birthday}</ListGroupItem>
-                  {namedayItem}
-                </ListGroup>
+              <Modal.Body  className="card-modal">
+                <div className="parent_card">
+                  <ListGroup>
+                    <ListGroupItem><img src="images/phone.png" className='glyph' width='35px' role="presentation"/> {parent.phone}</ListGroupItem>
+                    <ListGroupItem><img src="images/mail-ru.png" className='glyph' width='35px' role="presentation"/> {parent.email}</ListGroupItem>
+                    <ListGroupItem><img src="images/cake-layered.png" className='glyph' width='35px' role="presentation"/> {parent.birthday}</ListGroupItem>
+                    {namedayItem}
+                  </ListGroup>
+                </div>
 
                 <Row>
                   <div>
@@ -145,6 +152,7 @@ class ParentListItem extends Component {
 
               </Modal.Body>
               <Modal.Footer>
+                <Button className="connection-button custom" onClick={this.openCon}> <OverlayTrigger overlay={tooltip}><Glyphicon glyph="glyphicon glyphicon-user"/></OverlayTrigger> </Button>
                 <Button className="custom" onClick={this.closeParent}>Close</Button>
               </Modal.Footer>
 
@@ -153,13 +161,13 @@ class ParentListItem extends Component {
         </Col>
 
         <Modal show={this.state.openUpdate} onHide={this.closeUpdate} keyboard={true}>
-          <Modal.Body>
+          <Modal.Body className="add-modal">
             <UpdateParent id={parent._id.$oid} parent={parent} callbackParent={this.onParentChanged}/>
           </Modal.Body>
         </Modal>
 
         <Modal show={this.state.openCon} onHide={this.closeCon} keyboard={true}>
-          <Modal.Body>
+          <Modal.Body className="add-modal">
             <AddConnection id={parent._id.$oid} parent={parent} callbackParent={this.onChildChanged}/>
           </Modal.Body>
         </Modal>

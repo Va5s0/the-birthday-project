@@ -39,7 +39,7 @@ class App extends Component {
                     <Glyphicon glyph="glyphicon glyphicon-plus"/>
                 </Button>
                 <Modal show={this.state.openAdd} onHide={this.closeAdd.bind(this)} keyboard={true}>
-                  <Modal.Body>
+                  <Modal.Body className="add-modal">
                     <AddParent callbackParent={this.onParentChanged.bind(this)}/>
                   </Modal.Body>
                 </Modal>

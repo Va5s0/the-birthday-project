@@ -196,7 +196,7 @@ class UpdateParent extends Component {
               </InputGroup>
             </FormGroup>
 
-            <Button className="custom" type="submit">Save</Button>
+            <Button className="custom-submit" type="submit">Save</Button>
           </form>
         </Panel>
       </div>

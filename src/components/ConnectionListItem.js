@@ -49,30 +49,32 @@ class ConnectionListItem extends Component {
 
     let connectionItem = <div> {this.props.parent.connections.length !== 0 ?
 
-        <Col xs={12} >
+        <Col xs={12}>
+          <div className="card-effect">
 
-          <h4>{connection.name}</h4>
-          <div>
-            <ListGroup>
-              <ListGroupItem><img src="images/phone.png" className='glyph' width='35px' role="presentation"/> {connection.phone}</ListGroupItem>
-              <ListGroupItem><img src="images/cake-layered.png" className='glyph' width='35px' role="presentation"/> {connection.birthday}</ListGroupItem>
-              {(moment(connection.nameday.date).year().toString() !== this.state.year && connection.nameday.date !==null) ?
-              <NamedayListGroup name={connection.name} callbackNamedayChild={this.onNamedayChange} date={connection.nameday.date} dateId={connection.nameday.nameday_id} parent={this.props.parent} index={this.props.index} child={true}/> :
-              <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {(connection.nameday.date !==null)?moment(connection.nameday.date).format('DD/MM/YYYY'):connection.nameday.date}</ListGroupItem>}
-            </ListGroup>
-          </div>
-
-          <Button className="custom bottomMargin" onClick={this.handleDeleteClick.bind(this, this.props.index)} ><Glyphicon glyph="glyphicon glyphicon-remove"/></Button>&nbsp;
-          <Button className="custom bottomMargin" onClick={ ()=> this.setState({ openEdit: !this.state.openEdit })}>
-            <Glyphicon glyph="glyphicon glyphicon-pencil"/>
-          </Button>
-
-          <Collapse in={this.state.openEdit} mountOnEnter={true}>
+            <h4>{connection.name}</h4>
             <div>
-              <EditConnection id={this.props.parent._id.$oid} parent={this.props.parent} index={this.props.index} callbackParent={this.handleEditClick.bind(this)}/>
+              <ListGroup>
+                <ListGroupItem><img src="images/phone.png" className='glyph' width='35px' role="presentation"/> {connection.phone}</ListGroupItem>
+                <ListGroupItem><img src="images/cake-layered.png" className='glyph' width='35px' role="presentation"/> {connection.birthday}</ListGroupItem>
+                {(moment(connection.nameday.date).year().toString() !== this.state.year && connection.nameday.date !==null) ?
+                <NamedayListGroup name={connection.name} callbackNamedayChild={this.onNamedayChange} date={connection.nameday.date} dateId={connection.nameday.nameday_id} parent={this.props.parent} index={this.props.index} child={true}/> :
+                <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {(connection.nameday.date !==null)?moment(connection.nameday.date).format('DD/MM/YYYY'):connection.nameday.date}</ListGroupItem>}
+              </ListGroup>
             </div>
-          </Collapse>
 
+            <Button className="custom bottomMargin" onClick={this.handleDeleteClick.bind(this, this.props.index)} ><Glyphicon glyph="glyphicon glyphicon-remove"/></Button>&nbsp;
+            <Button className="custom bottomMargin" onClick={ ()=> this.setState({ openEdit: !this.state.openEdit })}>
+              <Glyphicon glyph="glyphicon glyphicon-pencil"/>
+            </Button>
+
+            <Collapse in={this.state.openEdit} mountOnEnter={true}>
+              <div>
+                <EditConnection id={this.props.parent._id.$oid} parent={this.props.parent} index={this.props.index} callbackParent={this.handleEditClick.bind(this)}/>
+              </div>
+            </Collapse>
+
+          </div>
         </Col>:
           null
         }

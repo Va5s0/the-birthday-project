@@ -134,6 +134,7 @@ class Nameday extends Component {
             onChange={this.handleOption}
             onFocus={this.handleOption}
             onBlur={this.handleOption}
+            className="form-control"
             componentClass="select"
             placeholder="Add NameDay"
             value={dates[this.state.value]}
