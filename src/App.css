@@ -164,7 +164,7 @@ h3:hover {
   -moz-border-radius-bottomleft: 15px;
   -moz-border-radius-bottomright: 15px;
   border-top: 0;
-  padding: 20px;
+  padding: 25px 20px 20px 20px;
 }
 
 .parent_card {
@@ -183,6 +183,11 @@ h3:hover {
 
 .card-effect h4 {
   font-size: 25px;
+  margin-bottom: 15px;
+}
+
+.card-effect .panel {
+  margin-bottom: 0;
 }
 
 .list-group {
@@ -217,7 +222,7 @@ h3:hover {
   }
 
 .btn.bottomMargin {
-  margin: 3px 0 10px 0;
+  margin: 15px 0 16px 0;
   padding: 5px 10px;
 }
 
@@ -274,6 +279,10 @@ h3:hover {
 
 .btn.connection-button {
   padding-bottom: 4px;
+}
+
+.btn.button-margin-top {
+  margin-top: 15px;
 }
 
 .glyphicon {

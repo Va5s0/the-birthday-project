@@ -117,7 +117,7 @@ class ParentListItem extends Component {
       <div>
         <Col xs={6} md={3}>
           <Thumbnail>
-            <div className='profile-img-box'><img className='profile-img' src="images/profile-icon-png-ce5a57.png" alt="10x10"/></div>
+            <div className='profile-img-box'><img className='profile-img' src="images/profile-icon-png-d68b89.png" alt="10x10"/></div>
             <div className='profile-content-box'>
               <div className='profile-content-name'>
                 <h3 style={{cursor: 'pointer'}} onClick={ ()=> this.setState({ openParent: !this.state.openParent })}>{parent.firstName} {parent.lastName}</h3>
@@ -152,7 +152,7 @@ class ParentListItem extends Component {
 
               </Modal.Body>
               <Modal.Footer>
-                <Button className="connection-button custom" onClick={this.openCon}> <OverlayTrigger overlay={tooltip}><Glyphicon glyph="glyphicon glyphicon-user"/></OverlayTrigger> </Button>
+                <OverlayTrigger placement="left" overlay={tooltip}><Button className="connection-button custom" onClick={this.openCon}><Glyphicon glyph="glyphicon glyphicon-plus"/></Button></OverlayTrigger>
                 <Button className="custom" onClick={this.closeParent}>Close</Button>
               </Modal.Footer>
 

@@ -153,7 +153,7 @@ class EditConnection extends Component {
               </InputGroup>
             </FormGroup>
 
-            <Button className="custom" type="submit">Save</Button>
+            <Button className="custom button-margin-top" type="submit">Save</Button>
           </form>
         </Panel>
       </div>
