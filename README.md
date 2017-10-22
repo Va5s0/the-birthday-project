@@ -26,6 +26,7 @@ The app is built with React and Flux. The project is written in ES6 syntax.
 
 * Clone this repo
 * Run `npm install`
+* In order to use the application, you must sign up at https://mlab.com/ and request an API access key
 * Store your API key at secrets.mine.js inside the token variable and rename the file to secrets.js
 * You're all set!
 
