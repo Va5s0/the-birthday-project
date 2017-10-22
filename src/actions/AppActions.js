@@ -2,11 +2,12 @@ import AppDispatcher from '../dispatcher/AppDispatcher';
 import AppConstants from '../constants/AppConstants';
 import ParentsAPI from '../utils/ParentsAPI';
 import NamesAPI from '../utils/NamesAPI';
+import secrets from '../secrets';
 
 export default {
   getParents: () => {
     ParentsAPI
-      .getParents('https://api.mlab.com/api/1/databases/birthdayproject/collections/parents?apiKey=7h7WFz9NpTzyTnoLwQRQxjEoZxdiahln')
+      .getParents('https://api.mlab.com/api/1/databases/birthdayproject/collections/parents?apiKey='+secrets.token)
       .then(parents => {
         AppDispatcher.dispatch({
           actionType: AppConstants.GET_PARENTS,
@@ -21,7 +22,7 @@ export default {
   },
 	addParent: (parent) => {
   	ParentsAPI
-  		.addParent('https://api.mlab.com/api/1/databases/birthdayproject/collections/parents?apiKey=7h7WFz9NpTzyTnoLwQRQxjEoZxdiahln', parent)
+  		.addParent('https://api.mlab.com/api/1/databases/birthdayproject/collections/parents?apiKey='+secrets.token, parent)
   		.then(parent => {
   			AppDispatcher.dispatch({
   				actionType: AppConstants.ADD_PARENT,
@@ -36,7 +37,7 @@ export default {
 	},
   updateParent: (id, parent) => {
   	ParentsAPI
-  		.updateParent('https://api.mlab.com/api/1/databases/birthdayproject/collections/parents/'+id+'?apiKey=7h7WFz9NpTzyTnoLwQRQxjEoZxdiahln', parent)
+  		.updateParent('https://api.mlab.com/api/1/databases/birthdayproject/collections/parents/'+id+'?apiKey='+secrets.token, parent)
   		.then(parent => {
   			AppDispatcher.dispatch({
   				actionType: AppConstants.UPDATE_PARENT,
@@ -52,7 +53,7 @@ export default {
 	},
 	deleteParent: (id) => {
 	  ParentsAPI
-	    .deleteParent('https://api.mlab.com/api/1/databases/birthdayproject/collections/parents/'+id+'?apiKey=7h7WFz9NpTzyTnoLwQRQxjEoZxdiahln')
+	    .deleteParent('https://api.mlab.com/api/1/databases/birthdayproject/collections/parents/'+id+'?apiKey='+secrets.token)
 	    .then(parent => {
 	      AppDispatcher.dispatch({
 	        actionType: AppConstants.DELETE_PARENT,
