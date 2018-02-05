@@ -4,42 +4,15 @@ import {EventEmitter} from 'events';
 
 const CHANGE_EVENT ='change';
 
-let _parents = [];
-let _names = [];
-let _easterNames = [];
-let _specialEasterNames = [];
-
-function setParents(parents){
-  _parents = parents;
-}
-
-function setNames(names){
-  _names = names;
-}
-
-function setEasterNames(easterNames){
-  _easterNames = easterNames;
-}
-
-function setSpecialEasterNames(specialEasterNames){
-  _specialEasterNames = specialEasterNames;
-}
-
-function addParent(parent){
-  _parents.splice(0,0,parent);
-}
-
-function updateParent(id, parent){
-  var index = _parents.findIndex(x => x._id.$oid === id);
-  _parents.splice(index, 1, parent);
-}
-
-function deleteParent(id){
-  var index = _parents.findIndex(x => x._id.$oid === id);
-  _parents.splice(index, 1);
-}
-
 class AppStoreClass extends EventEmitter {
+  constructor() {
+    super();
+    this.parents = [];
+    this.names = [];
+    this.easterNames = [];
+    this.specialEasterNames = [];
+  }
+
   emitChange(){
     this.emit(CHANGE_EVENT);
   }
@@ -53,21 +26,34 @@ class AppStoreClass extends EventEmitter {
   }
 
 	getParents(){
-		return _parents;
+		return this.parents;
+  }
+
+  addParent(parent){
+    this.parents.splice(0,0,parent);
+  }
+
+  updateParent(id, parent){
+    var index = this.parents.findIndex(x => x._id.$oid === id);
+    this.parents.splice(index, 1, parent);
+  }
+
+  deleteParent(id){
+    var index = this.parents.findIndex(x => x._id.$oid === id);
+    this.parents.splice(index, 1);
   }
 
   getNames(){
-    return _names;
+    return this.names;
   }
 
   getEasterNames(){
-    return _easterNames;
+    return this.easterNames;
   }
 
   getSpecialEasterNames(){
-    return _specialEasterNames;
+    return this.specialEasterNames;
   }
-
 }
 
 const AppStore = new AppStoreClass();
@@ -75,51 +61,51 @@ const AppStore = new AppStoreClass();
 AppStore.dispatchToken = AppDispatcher.register(action =>{
   switch(action.actionType){
 
+    case AppConstants.GET_PARENTS:
+      // Store Save
+      AppStore.parents = action.parents;
+      // Emit Change
+      AppStore.emitChange();
+      break;
+
     case AppConstants.ADD_PARENT:
       // Store Save
-      addParent(action.parent);
+      AppStore.addParent(action.parent);
       // Emit Change
       AppStore.emitChange();
       break;
 
     case AppConstants.UPDATE_PARENT:
       // Store Save
-      updateParent(action.id, action.parent);
-      // Emit Change
-      AppStore.emitChange();
-      break;
-
-    case AppConstants.GET_PARENTS:
-      // Store Save
-      setParents(action.parents);
+      AppStore.updateParent(action.id, action.parent);
       // Emit Change
       AppStore.emitChange();
       break;
 
     case AppConstants.DELETE_PARENT:
       // Store Remove
-      deleteParent(action.id);
+      AppStore.deleteParent(action.id);
       // Emit Change
       AppStore.emitChange();
       break;
 
     case AppConstants.GET_NAMES:
       // Store Save
-      setNames(action.names);
+      AppStore.names = action.names;
       // Emit Change
       AppStore.emitChange();
       break;
 
     case AppConstants.GET_EASTERNAMES:
       // Store Save
-      setEasterNames(action.easterNames);
+      AppStore.easterNames = action.easterNames;
       // Emit Change
       AppStore.emitChange();
       break;
 
     case AppConstants.GET_SPECIALEASTERNAMES:
       // Store Save
-      setSpecialEasterNames(action.specialEasterNames);
+      AppStore.specialEasterNames = action.specialEasterNames;
       // Emit Change
       AppStore.emitChange();
       break;
