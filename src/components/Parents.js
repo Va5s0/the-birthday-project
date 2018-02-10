@@ -3,7 +3,7 @@ import ParentListItem from './ParentListItem';
 import AppActions from '../actions/AppActions';
 import AppStore from '../stores/AppStore';
 
-
+// FIXME: remove AppActions from ComponentDidMount
 class Parents extends Component {
   constructor(props){
     super(props);
@@ -26,6 +26,7 @@ class Parents extends Component {
     AppStore.removeChangeListener(this.onChange);
   }
 
+  // FIXME: remove the function callback
   onChange(){
     this.setState({
       parents: AppStore.getParents()

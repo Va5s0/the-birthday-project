@@ -45,6 +45,7 @@ class EditConnection extends Component {
 
   handleSubmit(e){
     // name, phone validation
+    // FIXME: refactor code to be DRY
     const pattern_name = /^\s+$/;
     const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
 
