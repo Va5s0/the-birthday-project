@@ -19,45 +19,33 @@ class ParentListItem extends Component {
       parent: this.props.parent,
       year: moment().get('year').toString(),
       }
-    this.onNamedayChange = this.onNamedayChange.bind(this);
-    this.onChildChanged = this.onChildChanged.bind(this);
-    this.openUpdate = this.openUpdate.bind(this);
-    this.openCon = this.openCon.bind(this);
-    this.closeParent = this.closeParent.bind(this);
-    this.closeUpdate = this.closeUpdate.bind(this);
-    this.onParentChanged = this.onParentChanged.bind(this);
-    this.closeCon = this.closeCon.bind(this);
   }
 
-  closeParent() {
+  closeParent = () => {
    this.setState({ openParent: false })
   }
 
-  openParent() {
-    this.setState({ openParent: true })
-  }
-
-  closeUpdate() {
+  closeUpdate = () => {
    this.setState({ openUpdate: false })
   }
 
-  openUpdate() {
+  openUpdate = () => {
     this.setState({ openUpdate: true })
   }
 
-  closeCon() {
+  closeCon = () => {
    this.setState({ openCon: false })
   }
 
-  openCon() {
+  openCon = () => {
     this.setState({ openCon: true })
   }
 
-  handleDeleteClick(id){
+  handleDeleteClick = (id) => (e) => {
     AppActions.deleteParent(id);
   }
 
-  onChildChanged(id, connections){
+  onChildChanged = (id, connections) => {
     let parent = this.props.parent;
     parent.connections = connections;
     this.setState({parent: parent}, function(){
@@ -66,12 +54,12 @@ class ParentListItem extends Component {
     this.closeCon();
   }
 
-  onParentChanged(id, parent){
+  onParentChanged = (id, parent) => {
     AppActions.updateParent(id, parent);
     this.closeUpdate();
   }
 
-  onNamedayChange(date, id, parent, index){
+  onNamedayChange = (date, id, parent, index) => {
     let newParent = {
       firstName: this.props.parent.firstName,
       lastName: this.props.parent.lastName,
@@ -124,7 +112,7 @@ class ParentListItem extends Component {
               </div>
               <div className='profile-content-buttons'>
                 <p>
-                  <Button className="custom" onClick={this.handleDeleteClick.bind(this, parent._id.$oid)}> <Glyphicon glyph="glyphicon glyphicon-remove"/> </Button>&nbsp;
+                  <Button className="custom" onClick={this.handleDeleteClick(parent._id.$oid)}> <Glyphicon glyph="glyphicon glyphicon-remove"/> </Button>&nbsp;
                   <Button className="custom" onClick={this.openUpdate}> <Glyphicon glyph="glyphicon glyphicon-pencil"/> </Button>
                 </p>
               </div>
