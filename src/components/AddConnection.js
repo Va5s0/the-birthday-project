@@ -8,6 +8,7 @@ import {
 } from "react-bootstrap"
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
+import { birthdayFormat } from "../utils/birthdayFormat"
 import "react-datepicker/dist/react-datepicker.css"
 
 class AddConnection extends Component {
@@ -50,26 +51,7 @@ class AddConnection extends Component {
     const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
 
     // sets the birthday date format to a uniform type of DD/MM/YYYY
-    let newBirthday
-    if (typeof this.state.date === "object") {
-      newBirthday =
-        this.state.date
-          .format()
-          .toString()
-          .slice(8, 10) +
-        "-" +
-        this.state.date
-          .format()
-          .toString()
-          .slice(5, 7) +
-        "-" +
-        this.state.date
-          .format()
-          .toString()
-          .slice(0, 4)
-    } else {
-      newBirthday = this.state.date
-    }
+    const newBirthday = birthdayFormat(this.state.date)
 
     if (pattern_name.test(this.name.value) || this.name.value === "") {
       alert("Name is required")

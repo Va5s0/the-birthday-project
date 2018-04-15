@@ -9,6 +9,7 @@ import {
 import AppActions from "../actions/AppActions"
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
+import { birthdayFormat } from "../utils/birthdayFormat"
 import "react-datepicker/dist/react-datepicker.css"
 
 class AddParent extends Component {
@@ -68,26 +69,7 @@ class AddParent extends Component {
     const pattern_email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
     // sets the birthday date format to a uniform type of DD/MM/YYYY
-    let newBirthday
-    if (typeof this.state.date === "object") {
-      newBirthday =
-        this.state.date
-          .format()
-          .toString()
-          .slice(8, 10) +
-        "-" +
-        this.state.date
-          .format()
-          .toString()
-          .slice(5, 7) +
-        "-" +
-        this.state.date
-          .format()
-          .toString()
-          .slice(0, 4)
-    } else {
-      newBirthday = this.state.date
-    }
+    const newBirthday = birthdayFormat(this.state.date)
 
     if (
       (pattern_name.test(this.firstName.value) ||
