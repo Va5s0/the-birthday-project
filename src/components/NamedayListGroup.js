@@ -17,9 +17,6 @@ class NamedayListGroup extends Component {
       newDate: this.props.date,
       value: this.props.dateId,
     }
-    this.onChange = this.onChange.bind(this);
-    this.handleGroupItemParent = this.handleGroupItemParent.bind(this);
-    this.handleGroupItemChild = this.handleGroupItemChild.bind(this);
   }
 
   componentWillMount(){
@@ -33,7 +30,7 @@ class NamedayListGroup extends Component {
     this._isMounted = true;
   }
 
-  onChange(){
+  onChange = () => {
     if (this._isMounted) {
       this.setState({
         saints: AppStore.getNames(),
@@ -56,13 +53,13 @@ class NamedayListGroup extends Component {
     }
   }
 
-  handleGroupItemParent(changedDate) {
+  handleGroupItemParent = changedDate => {
     if(changedDate && !this._isMounted) {
       this.props.callbackNamedayParent(moment(changedDate, "DD/MM/YYYY"), this.props.dateId, this.props.parent, this.props.index);
     }
   }
 
-  handleGroupItemChild(changedDate) {
+  handleGroupItemChild = changedDate => {
     if(changedDate) {
       this.props.callbackNamedayChild(moment(changedDate, "DD/MM/YYYY"), this.props.dateId, this.props.parent, this.props.index);
     }
@@ -137,7 +134,7 @@ class NamedayListGroup extends Component {
           this.handleGroupItemChild(moment(this.state.newDate).format('DD/MM')+'/'+now);
           option = <ListGroupItem ><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {moment(this.state.newDate).format('DD/MM')+'/'+now} </ListGroupItem>
         }
-      // if there is no existing date, it takes no action 
+      // if there is no existing date, it takes no action
       } else {
         option = <ListGroupItem><img src="images/calendar.png" className='glyph' width='35px' role="presentation"/> {this.state.newDate} </ListGroupItem>
       }
