@@ -19,9 +19,6 @@ class Nameday extends Component {
       value: this.props.dateId,
       onList: this.props.onList,
     }
-    this.onChange = this.onChange.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleOption = this.handleOption.bind(this);
   }
 
   componentWillMount(){
@@ -34,7 +31,7 @@ class Nameday extends Component {
     AppActions.getSpecialEasterNames();
   }
 
-  onChange(){
+  onChange = () => {
     this.setState({
       saints: AppStore.getNames(),
       easterSaints: AppStore.getEasterNames(),
@@ -55,7 +52,7 @@ class Nameday extends Component {
   }
 
   // passes the target value to the linked component ('AddParent', 'AddConnection', 'UpdateParent', 'EditConnection') every time the value changes
-  handleOption(e) {
+  handleOption = e => {
     if (this.props.name!=="") {
       this.setState({value: e.target.value});
       for (let node of e.target.children) {
@@ -71,7 +68,7 @@ class Nameday extends Component {
   }
 
   // handler to control date change of DatePicker
-  handleChange(selected) {
+  handleChange = selected => {
     this.setState({newDate: selected});
     this.props.callbackNameday(selected, '10');
    }
