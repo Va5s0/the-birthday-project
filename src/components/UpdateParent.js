@@ -18,35 +18,25 @@ class UpdateParent extends Component {
       newNameday_id: '',
       nameChange: this.props.parent.firstName, // variable passed to the 'Nameday' component that fills the form with the current name and updates every time the firstName changes
     }
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
   // handler to control date change of DatePicker
-  handleChange(selected) {
-    this.setState({
-      date: selected,
-    })
-   }
+  handleChange = selected => this.setState({ date: selected })
 
    // handler to update the nameChange variable every time the first name changes
-   handleNameChange(value) {
-     this.setState({nameChange: this.firstName.value})
-   }
+   handleNameChange = value => this.setState({ nameChange: this.firstName.value })
 
    // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
-   onNamedayChange(date, id){
+   onNamedayChange = (date, id) => {
      this.setState({
        newNameday_id: id,
        newNamedate: date
      });
    }
 
-  handleSubmit(e, id){
+  handleSubmit = (e, id) => {
     // name, phone, email validation
-    // FIXME: refactor code to be DRY 
+    // FIXME: refactor code to be DRY
     const pattern_name = /^\s+$/;
     const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
     const pattern_email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
