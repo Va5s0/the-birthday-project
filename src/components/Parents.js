@@ -1,47 +1,41 @@
-import React, { Component } from 'react';
-import ParentListItem from './ParentListItem';
-import AppActions from '../actions/AppActions';
-import AppStore from '../stores/AppStore';
+import React, { Component } from "react"
+import ParentListItem from "./ParentListItem"
+import AppActions from "../actions/AppActions"
+import AppStore from "../stores/AppStore"
 
 // FIXME: remove AppActions from ComponentDidMount
 class Parents extends Component {
-  constructor(props){
-    super(props);
+  constructor(props) {
+    super(props)
     this.state = {
-      parents: AppStore.getParents()
+      parents: AppStore.getParents(),
     }
   }
 
-  componentWillMount(){
-    AppStore.addChangeListener(this.onChange);
+  componentWillMount() {
+    AppStore.addChangeListener(this.onChange)
   }
 
-  componentDidMount(){
-    AppActions.getParents();
+  componentDidMount() {
+    AppActions.getParents()
   }
 
-  componentWillUnmount(){
-    AppStore.removeChangeListener(this.onChange);
+  componentWillUnmount() {
+    AppStore.removeChangeListener(this.onChange)
   }
 
   onChange = () => this.setState({ parents: AppStore.getParents() })
 
   render() {
-    let parentListItems;
+    let parentListItems
 
-    if(this.state.parents){
+    if (this.state.parents) {
       parentListItems = this.state.parents.map(parent => {
-        return (
-          <ParentListItem key={parent._id.$oid} parent={parent} />
-        );
-      });
+        return <ParentListItem key={parent._id.$oid} parent={parent} />
+      })
     }
-    return (
-      <div>
-        {parentListItems}
-      </div>
-    );
+    return <div>{parentListItems}</div>
   }
 }
 
-export default Parents;
+export default Parents

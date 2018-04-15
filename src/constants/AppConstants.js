@@ -1,4 +1,4 @@
-import keyMirror from 'keymirror';
+import keyMirror from "keymirror"
 
 export default keyMirror({
   ADD_PARENT: null,
@@ -7,5 +7,5 @@ export default keyMirror({
   DELETE_PARENT: null,
   GET_NAMES: null,
   GET_EASTERNAMES: null,
-  GET_SPECIALEASTERNAMES: null
-});
+  GET_SPECIALEASTERNAMES: null,
+})

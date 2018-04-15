@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: tahoma,sans-serif;
+  font-family: tahoma, sans-serif;
   background-color: #fcfcfc;
   /*background-image: url('/images/exclusive_paper.png');*/
 }
@@ -11,11 +11,11 @@ h3 {
 }
 
 h3:hover {
-  color: #78A5A3;
+  color: #78a5a3;
 }
 
 .navbar-default {
-  background-color: rgba(0, 0, 0, 0.0);
+  background-color: rgba(0, 0, 0, 0);
 }
 
 .navbar {
@@ -41,8 +41,8 @@ h3:hover {
 }
 
 .thumbnail .caption {
-    padding: 0px;
-  }
+  padding: 0px;
+}
 
 .profile-img {
   width: 100px;
@@ -81,7 +81,8 @@ h3:hover {
   margin-bottom: 15px;
 }
 
-.panel-default, .panel{
+.panel-default,
+.panel {
   border: 0;
   box-shadow: none;
   background-color: inherit;
@@ -92,14 +93,14 @@ h3:hover {
 }
 
 .glyph {
-    padding: 5px 16px 6px 0px;
-    text-align: center;
-    margin-right: 8px;
-  }
+  padding: 5px 16px 6px 0px;
+  text-align: center;
+  margin-right: 8px;
+}
 
 .glyph-input {
   padding: 6px 9px 6px 0;
-  }
+}
 
 .input-group-addon {
   background-color: transparent;
@@ -204,22 +205,22 @@ h3:hover {
 .btn.custom {
   position: relative;
   outline: none !important;
-  -moz-box-shadow:inset 0px 39px 0px -24px #444c5c;
-	-webkit-box-shadow:inset 0px 39px 0px -24px #444c5c;
-	box-shadow:none;
+  -moz-box-shadow: inset 0px 39px 0px -24px #444c5c;
+  -webkit-box-shadow: inset 0px 39px 0px -24px #444c5c;
+  box-shadow: none;
   background-color: #668887;
-	-moz-border-radius:0;
-	-webkit-border-radius:0;
-	display:inline-block;
-	cursor:pointer;
-	color:#ffffff;
-	font-family:Arial;
-	font-size:18px;
-	padding:5px 42px;
-	text-decoration:none;
-	text-shadow:0 1px 2px rgba(0, 0, 0, 0.2);
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: Arial;
+  font-size: 18px;
+  padding: 5px 42px;
+  text-decoration: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   border: none;
-  }
+}
 
 .btn.bottomMargin {
   margin: 15px 0 16px 0;
@@ -227,18 +228,20 @@ h3:hover {
 }
 
 .btn.custom:after {
-  content:'\A';
+  content: "\A";
   position: absolute;
-  width:100%; height:100%;
-  top:0; left:0;
-  background:rgba(0,0,0,0.2);
-  opacity:0;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.2);
+  opacity: 0;
   transition: all 0.5s;
   -webkit-transition: all 0.5s;
 }
 
 .btn.custom:hover:after {
-  opacity:1;
+  opacity: 1;
 }
 
 .btn-default:active:hover {
@@ -263,18 +266,20 @@ h3:hover {
 }
 
 .btn.custom-submit:after {
-  content:'\A';
+  content: "\A";
   position: absolute;
-  width:100%; height:100%;
-  top:0; left:0;
-  background:rgba(0,0,0,0.2);
-  opacity:0;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.2);
+  opacity: 0;
   transition: all 0.5s;
   -webkit-transition: all 0.5s;
 }
 
 .btn.custom-submit:hover:after {
-    opacity:1;
+  opacity: 1;
 }
 
 .btn.connection-button {
@@ -306,7 +311,8 @@ h3:hover {
 .react-datepicker__month {
   margin: 0.4em 1em;
 }
-.react-datepicker__day-name, .react-datepicker__day {
+.react-datepicker__day-name,
+.react-datepicker__day {
   width: 1.9em;
   line-height: 1.9em;
   margin: 0.166em;

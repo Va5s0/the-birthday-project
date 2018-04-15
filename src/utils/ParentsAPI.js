@@ -1,54 +1,54 @@
-import request from 'superagent/lib/client';
+import request from "superagent/lib/client"
 //import axios from 'axios';
 
 export default {
-  getParents: (url) => {
+  getParents: url => {
     return new Promise((resolve, reject) => {
       request
         .get(url)
-				.set('Accept', 'application/json')
+        .set("Accept", "application/json")
         .end((err, response) => {
-          if(err) reject(err);
-					resolve(JSON.parse(response.text));
+          if (err) reject(err)
+          resolve(JSON.parse(response.text))
         })
-    });
+    })
   },
   addParent: (url, parent) => {
     return new Promise((resolve, reject) => {
       request
         .post(url)
-				.set('Content-Type', 'application/json')
+        .set("Content-Type", "application/json")
         .send(parent)
-				.accept('application/json')
+        .accept("application/json")
         .end((err, response) => {
-          if(err) reject(err);
-					resolve(JSON.parse(response.text));
+          if (err) reject(err)
+          resolve(JSON.parse(response.text))
         })
-    });
+    })
   },
   updateParent: (url, parent) => {
     return new Promise((resolve, reject) => {
       request
         .put(url)
-        .set('Content-Type', 'application/json')
+        .set("Content-Type", "application/json")
         .send(parent)
         .end((err, response) => {
-          if(err) reject(err);
-          resolve(JSON.parse(response.text));
+          if (err) reject(err)
+          resolve(JSON.parse(response.text))
         })
-    });
+    })
   },
-	deleteParent: (url) => {
+  deleteParent: url => {
     return new Promise((resolve, reject) => {
       request
         .delete(url)
-				.timeout({
-			    deadline: 300000, // allow 5 minutes for the file to finish loading.
-			  })
-        .end((err, response) => {
-          if(err) reject(err);
-          resolve(JSON.parse(response.text));
+        .timeout({
+          deadline: 300000, // allow 5 minutes for the file to finish loading.
         })
-    });
-  }
+        .end((err, response) => {
+          if (err) reject(err)
+          resolve(JSON.parse(response.text))
+        })
+    })
+  },
 }
