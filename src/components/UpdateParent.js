@@ -23,16 +23,16 @@ class UpdateParent extends Component {
   // handler to control date change of DatePicker
   handleChange = selected => this.setState({ date: selected })
 
-   // handler to update the nameChange variable every time the first name changes
-   handleNameChange = value => this.setState({ nameChange: this.firstName.value })
+  // handler to update the nameChange variable every time the first name changes
+  handleNameChange = value => this.setState({ nameChange: this.firstName.value })
 
-   // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
-   onNamedayChange = (date, id) => {
-     this.setState({
-       newNameday_id: id,
-       newNamedate: date
-     });
-   }
+  // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
+  onNamedayChange = (date, id) => {
+    this.setState({
+      newNameday_id: id,
+      newNamedate: date
+    });
+  }
 
   handleSubmit = (e, id) => {
     // name, phone, email validation
