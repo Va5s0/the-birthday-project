@@ -39,33 +39,18 @@ class AddParent extends Component {
       validationState_email: null,
       nameChange: '' // variable passed to the 'Nameday' component that updates every time the firstName changes
     }
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
   // handler to control date change of DatePicker
-  handleChange(selected) {
-    this.setState({
-      date: selected,
-    })
-   }
+  handleChange = selected => this.setState({ date: selected })
 
   // handler to update the nameChange variable every time the first name changes
-  handleNameChange(value) {
-    this.setState({nameChange: this.firstName.value})
-  }
+  handleNameChange = value => this.setState({ nameChange: this.firstName.value })
 
   // handler to update the nameday_date variable each time a new date is selected in the 'Nameday' component
-  onNamedayChange(date, id){
-    this.setState({
-      nameday_id: id,
-      nameday_date: date,
-    });
-  }
+  onNamedayChange = (date, id) => this.setState({ nameday_id: id, nameday_date: date })
 
-  handleSubmit(e){
+  handleSubmit = e => {
     // name, phone, email validation
     // FIXME: refactor code to be DRY
     const pattern_name = /^\s+$/;
