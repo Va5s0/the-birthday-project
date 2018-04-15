@@ -10,8 +10,6 @@ class Parents extends Component {
     this.state = {
       parents: AppStore.getParents()
     }
-
-    this.onChange = this.onChange.bind(this);
   }
 
   componentWillMount(){
@@ -26,13 +24,7 @@ class Parents extends Component {
     AppStore.removeChangeListener(this.onChange);
   }
 
-  // FIXME: remove the function callback
-  onChange(){
-    this.setState({
-      parents: AppStore.getParents()
-    }, function(){
-    });
-  }
+  onChange = () => this.setState({ parents: AppStore.getParents() })
 
   render() {
     let parentListItems;
