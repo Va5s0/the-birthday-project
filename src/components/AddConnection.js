@@ -25,33 +25,19 @@ class AddConnection extends Component {
       validationState: null,
       nameChange: '' // variable passed to the 'Nameday' component that updates every time the connection name changes
     }
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
   // handler to control date change of DatePicker
-  handleChange(selected) {
-    this.setState({
-      date: selected,
-    })
-   }
+  handleChange = selected => this.setState({date: selected,})
+
 
    // handler to update the nameChange variable every time the connection name changes
-  handleNameChange(value) {
-    this.setState({nameChange: this.name.value})
-  }
+  handleNameChange = value => this.setState({nameChange: this.name.value})
 
   // handler to update the nameday_date variable each time a new date is selected in the 'Nameday' component
-  onNamedayChange(date, id){
-    this.setState({
-      nameday_date: date,
-      newNameday_id: id
-      });
-  }
+  onNamedayChange = (date, id) => this.setState({ nameday_date: date, newNameday_id: id })
 
-  handleSubmit(e, id){
+  handleSubmit = (e, id) => {
     // name, phone validation
     // FIXME: refactor code to be DRY
     const pattern_name = /^\s+$/;
