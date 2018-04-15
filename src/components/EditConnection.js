@@ -17,33 +17,18 @@ class EditConnection extends Component {
       newNameday_id: '',
       nameChange: this.props.parent.connections[this.props.index].name, // variable passed to the 'Nameday' component that fills the form with the current connection name and updates every time the name changes
     }
-    this.onNamedayChange = this.onNamedayChange.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
   }
 
   // handler to control date change of DatePicker
-  handleChange(selected) {
-    this.setState({
-      date: selected,
-    })
-   }
+  handleChange = selected => this.setState({ date: selected })
 
   // handler to update the nameChange variable every time the connection name changes
-  handleNameChange(value) {
-   this.setState({nameChange: this.name.value});
-  }
+  handleNameChange = value => this.setState({ nameChange: this.name.value })
 
   // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
-  onNamedayChange(date, id){
-    this.setState({
-      newNameday_id: id,
-      newNamedate: date
-    });
-  }
+  onNamedayChange = (date, id) => this.setState({ newNameday_id: id, newNamedate: date })
 
-  handleSubmit(e){
+  handleSubmit = e => {
     // name, phone validation
     // FIXME: refactor code to be DRY
     const pattern_name = /^\s+$/;
