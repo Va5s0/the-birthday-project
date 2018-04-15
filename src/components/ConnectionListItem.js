@@ -15,20 +15,19 @@ class ConnectionListItem extends Component {
       openEdit: false,
       year: moment().get('year').toString(),
     }
-    this.onNamedayChange = this.onNamedayChange.bind(this);
   }
 
-  handleDeleteClick(index, id) {
+  handleDeleteClick = (index, id) => {
     let connections = update(this.props.parent.connections, {$splice: [[index, 1]]});
     this.props.callbackParent(this.props.id, connections);
   }
 
-  handleEditClick(id, connections) {
+  handleEditClick = (id, connections) => {
     this.props.callbackParent(id, connections);
     this.setState({ openEdit: !this.state.openEdit})
   }
 
-  onNamedayChange(date, id, parent, index){
+  onNamedayChange = (date, id, parent, index) => {
     let newConnection = {
       id: parent.connections[index].id,
       name: parent.connections[index].name,
