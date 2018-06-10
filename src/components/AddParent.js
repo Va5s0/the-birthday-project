@@ -10,6 +10,7 @@ import AppActions from "../actions/AppActions"
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
 import { birthdayFormat } from "../utils/birthdayFormat"
+import { validation } from "../utils/validation"
 import "react-datepicker/dist/react-datepicker.css"
 
 class AddParent extends Component {
@@ -26,26 +27,17 @@ class AddParent extends Component {
           nameday_id: "10",
           date: null,
         },
-        connections: [
-          {
-            id: "",
-            name: "",
-            phone: "",
-            birthday: "",
-            nameday: {
-              nameday_id: "10",
-              date: null,
-            },
-          },
-        ],
+        connections: [],
       },
       date: "",
       nameday_date: null, // variable that updates through the 'Nameday' component
       nameday_id: "10",
-      controlId_phone: null,
-      controlId_email: null,
-      validationState_phone: null,
-      validationState_email: null,
+      validation_state: {
+        controlId_phone: null,
+        controlId_email: null,
+        validationState_phone: null,
+        validationState_email: null,
+      },
       nameChange: "", // variable passed to the 'Nameday' component that updates every time the firstName changes
     }
   }
@@ -62,136 +54,38 @@ class AddParent extends Component {
     this.setState({ nameday_id: id, nameday_date: date })
 
   handleSubmit = e => {
-    // name, phone, email validation
-    // FIXME: refactor code to be DRY
-    const pattern_name = /^\s+$/
-    const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
-    const pattern_email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
     // sets the birthday date format to a uniform type of DD/MM/YYYY
     const newBirthday = birthdayFormat(this.state.date)
+    const validatedValues = validation(
+      this.state.newParent,
+      this.firstName.value,
+      this.lastName.value,
+      this.phone.value,
+      this.email.value,
+      this.state.nameday_id,
+      this.state.nameday_date,
+      newBirthday
+    )
+    const invalid = validatedValues.validation_state
+    const valid_parent = validatedValues.parent_updated
 
-    if (
-      (pattern_name.test(this.firstName.value) ||
-        this.firstName.value === "") &&
-      (pattern_name.test(this.lastName.value) || this.lastName.value === "")
-    ) {
-      alert("Name is required")
-      if (
-        !pattern_phone.test(this.phone.value) &&
-        this.phone.value !== "" &&
-        !pattern_email.test(this.email.value) &&
-        this.email.value !== ""
-      ) {
-        this.setState({
-          controlId_phone: "formValidationError1",
-          validationState_phone: "error",
-          controlId_email: "formValidationError1",
-          validationState_email: "error",
-        })
-      } else if (
-        (pattern_phone.test(this.phone.value) || this.phone.value === "") &&
-        !pattern_email.test(this.email.value) &&
-        this.email.value !== ""
-      ) {
-        this.setState({
-          controlId_phone: null,
-          validationState_phone: null,
-          controlId_email: "formValidationError1",
-          validationState_email: "error",
-        })
-      } else if (
-        (pattern_email.test(this.email.value) || this.email.value === "") &&
-        !pattern_phone.test(this.phone.value) &&
-        this.phone.value !== ""
-      ) {
-        this.setState({
-          controlId_phone: "formValidationError1",
-          validationState_phone: "error",
-          controlId_email: null,
-          validationState_email: null,
-        })
-      } else
-        this.setState({
-          controlId_phone: null,
-          validationState_phone: null,
-          controlId_email: null,
-          validationState_email: null,
-        })
-    } else if (
-      !pattern_phone.test(this.phone.value) &&
-      this.phone.value !== "" &&
-      !pattern_email.test(this.email.value) &&
-      this.email.value !== ""
-    ) {
-      this.setState({
-        controlId_phone: "formValidationError1",
-        validationState_phone: "error",
-        controlId_email: "formValidationError1",
-        validationState_email: "error",
-      })
-    } else if (
-      (pattern_phone.test(this.phone.value) || this.phone.value === "") &&
-      !pattern_email.test(this.email.value) &&
-      this.email.value !== ""
-    ) {
-      this.setState({
-        controlId_phone: null,
-        validationState_phone: null,
-        controlId_email: "formValidationError1",
-        validationState_email: "error",
-      })
-    } else if (
-      (pattern_email.test(this.email.value) || this.email.value === "") &&
-      !pattern_phone.test(this.phone.value) &&
-      this.phone.value !== ""
-    ) {
-      this.setState({
-        controlId_phone: "formValidationError1",
-        validationState_phone: "error",
-        controlId_email: null,
-        validationState_email: null,
-      })
-    } else {
-      this.setState(
-        {
-          newParent: {
-            firstName: this.firstName.value,
-            lastName: this.lastName.value,
-            phone: this.phone.value,
-            email: this.email.value,
-            birthday: newBirthday,
-            nameday: {
-              nameday_id: this.state.nameday_id,
-              date: this.state.nameday_date,
-            },
-            connections: [],
-          },
-        },
-        function() {
-          AppActions.addParent(this.state.newParent)
-        }
-      )
-
-      this.firstName.value = ""
-      this.lastName.value = ""
-      this.phone.value = ""
-      this.email.value = ""
-
-      this.setState({
-        controlId_phone: null,
-        controlId_email: null,
-        validationState_phone: null,
-        validationState_email: null,
-        nameChange: "",
-      })
+    if (valid_parent !== undefined) {
+      AppActions.addParent(valid_parent)
       this.props.callbackParent()
+    } else {
+      this.setState({ validation_state: invalid })
     }
 
     e.preventDefault()
   }
 
   render() {
+    const {
+      controlId_phone,
+      validationState_phone,
+      controlId_email,
+      validationState_email,
+    } = this.state.validation_state
     return (
       <div>
         <div className="font30">Add a new friend</div>
@@ -235,8 +129,8 @@ class AddParent extends Component {
               </InputGroup>
             </FormGroup>
             <FormGroup
-              controlId={this.state.controlId_phone}
-              validationState={this.state.validationState_phone}
+              controlId={controlId_phone}
+              validationState={validationState_phone}
             >
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
@@ -256,8 +150,8 @@ class AddParent extends Component {
               </InputGroup>
             </FormGroup>
             <FormGroup
-              controlId={this.state.controlId_email}
-              validationState={this.state.validationState_email}
+              controlId={controlId_email}
+              validationState={validationState_email}
             >
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">

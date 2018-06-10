@@ -7,9 +7,9 @@ import {
   FormControl,
 } from "react-bootstrap"
 import Nameday from "./Nameday"
-import update from "react-addons-update"
 import DatePicker from "react-datepicker"
 import { birthdayFormat } from "../utils/birthdayFormat"
+import { validation } from "../utils/validation"
 import "react-datepicker/dist/react-datepicker.css"
 import moment from "moment"
 
@@ -19,9 +19,12 @@ class UpdateParent extends Component {
     this.state = {
       date: this.props.parent.birthday,
       newNamedate: this.props.parent.date, // variable that updates through the 'Nameday' component and fills the form with the current nameday
-      controlId: null,
-      validationState_phone: null,
-      validationState_email: null,
+      validation_state: {
+        controlId_phone: null,
+        controlId_email: null,
+        validationState_phone: null,
+        validationState_email: null,
+      },
       newNameday_id: "",
       nameChange: this.props.parent.firstName, // variable passed to the 'Nameday' component that fills the form with the current name and updates every time the firstName changes
     }
@@ -43,125 +46,36 @@ class UpdateParent extends Component {
   }
 
   handleSubmit = (e, id) => {
-    // name, phone, email validation
-    // FIXME: refactor code to be DRY
-    const pattern_name = /^\s+$/
-    const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
-    const pattern_email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
     // sets the birthday date format to a uniform type of DD/MM/YYYY
     const newBirthday = birthdayFormat(this.state.date)
+    const validatedValues = validation(
+      this.props.parent,
+      this.firstName.value,
+      this.lastName.value,
+      this.phone.value,
+      this.email.value,
+      this.state.newNameday_id,
+      this.state.newNamedate,
+      newBirthday
+    )
+    const invalid = validatedValues.validation_state
+    const valid_parent = validatedValues.parent_updated
 
-    let parent = this.props.parent
-
-    if (
-      (pattern_name.test(this.firstName.value) ||
-        this.firstName.value === "") &&
-      (pattern_name.test(this.lastName.value) || this.lastName.value === "")
-    ) {
-      alert("Name is required")
-      if (
-        !pattern_phone.test(this.phone.value) &&
-        this.phone.value !== "" &&
-        !pattern_email.test(this.email.value) &&
-        this.email.value !== ""
-      ) {
-        this.setState({
-          controlId_phone: "formValidationError1",
-          validationState_phone: "error",
-          controlId_email: "formValidationError1",
-          validationState_email: "error",
-        })
-      } else if (
-        (pattern_phone.test(this.phone.value) || this.phone.value === "") &&
-        !pattern_email.test(this.email.value) &&
-        this.email.value !== ""
-      ) {
-        this.setState({
-          controlId_phone: null,
-          validationState_phone: null,
-          controlId_email: "formValidationError1",
-          validationState_email: "error",
-        })
-      } else if (
-        (pattern_email.test(this.email.value) || this.email.value === "") &&
-        !pattern_phone.test(this.phone.value) &&
-        this.phone.value !== ""
-      ) {
-        this.setState({
-          controlId_phone: "formValidationError1",
-          validationState_phone: "error",
-          controlId_email: null,
-          validationState_email: null,
-        })
-      } else
-        this.setState({
-          controlId_phone: null,
-          validationState_phone: null,
-          controlId_email: null,
-          validationState_email: null,
-        })
-    } else if (
-      !pattern_phone.test(this.phone.value) &&
-      this.phone.value !== "" &&
-      !pattern_email.test(this.email.value) &&
-      this.email.value !== ""
-    ) {
-      this.setState({
-        controlId_phone: "formValidationError1",
-        validationState_phone: "error",
-        controlId_email: "formValidationError1",
-        validationState_email: "error",
-      })
-    } else if (
-      (pattern_phone.test(this.phone.value) || this.phone.value === "") &&
-      !pattern_email.test(this.email.value) &&
-      this.email.value !== ""
-    ) {
-      this.setState({
-        controlId_phone: null,
-        validationState_phone: null,
-        controlId_email: "formValidationError1",
-        validationState_email: "error",
-      })
-    } else if (
-      (pattern_email.test(this.email.value) || this.email.value === "") &&
-      !pattern_phone.test(this.phone.value) &&
-      this.phone.value !== ""
-    ) {
-      this.setState({
-        controlId_phone: "formValidationError1",
-        validationState_phone: "error",
-        controlId_email: null,
-        validationState_email: null,
-      })
-    } else {
-      let newParent = {
-        firstName: this.firstName.value,
-        lastName: this.lastName.value,
-        phone: this.phone.value,
-        email: this.email.value,
-        birthday: newBirthday,
-        nameday: {
-          nameday_id: this.state.newNameday_id,
-          date: this.state.newNamedate,
-        },
-      }
-      parent = update(parent, { $merge: newParent })
-      this.setState({
-        controlId_phone: null,
-        controlId_email: null,
-        validationState_phone: null,
-        validationState_email: null,
-      })
-      this.props.callbackParent(this.props.id, parent)
-    }
+    valid_parent !== undefined
+      ? this.props.callbackParent(this.props.id, valid_parent)
+      : this.setState({ validation_state: invalid })
 
     e.preventDefault()
   }
 
   render() {
     const { parent } = this.props
+    const {
+      controlId_phone,
+      validationState_phone,
+      controlId_email,
+      validationState_email,
+    } = this.state.validation_state
 
     var datePickerDate
     if (this.state.date.length > 0) {
@@ -250,8 +164,8 @@ class UpdateParent extends Component {
               </InputGroup>
             </FormGroup>
             <FormGroup
-              controlId={this.state.controlId_phone}
-              validationState={this.state.validationState_phone}
+              controlId={controlId_phone}
+              validationState={validationState_phone}
             >
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
@@ -272,8 +186,8 @@ class UpdateParent extends Component {
               </InputGroup>
             </FormGroup>
             <FormGroup
-              controlId={this.state.controlId_email}
-              validationState={this.state.validationState_email}
+              controlId={controlId_email}
+              validationState={validationState_email}
             >
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
