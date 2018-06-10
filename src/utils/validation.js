@@ -1,15 +1,13 @@
-import update from "react-addons-update"
-
-export const validation = (
+export const validation = ({
   parent,
   firstName,
   lastName,
-  phone,
-  email,
-  newNameday_id,
-  newNamedate,
-  newBirthday
-) => {
+  phone = "",
+  email = "",
+  newNameday_id = "",
+  newNamedate = "",
+  newBirthday = "",
+}) => {
   const pattern_name = /^\s+$/
   const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
   const pattern_email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -123,7 +121,7 @@ export const validation = (
         date: newNamedate,
       },
     }
-    parent_updated = update(parent, { $merge: newParent })
+    parent_updated = { ...parent, ...newParent }
     validation_state = null
     return { validation_state, parent_updated }
   }

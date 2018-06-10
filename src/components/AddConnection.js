@@ -9,6 +9,7 @@ import {
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
 import { birthdayFormat } from "../utils/birthdayFormat"
+import { validation } from "../utils/validation"
 import "react-datepicker/dist/react-datepicker.css"
 
 class AddConnection extends Component {
@@ -26,10 +27,13 @@ class AddConnection extends Component {
         },
       },
       date: "",
+
       nameday_date: null, // variable that updates through the 'Nameday' component
       newNameday_id: "10",
-      controlId: null,
-      validationState: null,
+      validation_state: {
+        controlId_phone: null,
+        validationState_phone: null,
+      },
       nameChange: "", // variable passed to the 'Nameday' component that updates every time the connection name changes
     }
   }
@@ -41,56 +45,43 @@ class AddConnection extends Component {
   handleNameChange = value => this.setState({ nameChange: this.name.value })
 
   // handler to update the nameday_date variable each time a new date is selected in the 'Nameday' component
-  onNamedayChange = (date, id) =>
-    this.setState({ nameday_date: date, newNameday_id: id })
+  onNamedayChange = (nameday_date, newNameday_id) =>
+    this.setState({ nameday_date, newNameday_id })
 
   handleSubmit = (e, id) => {
-    // name, phone validation
-    // FIXME: refactor code to be DRY
-    const pattern_name = /^\s+$/
-    const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
-
     // sets the birthday date format to a uniform type of DD/MM/YYYY
     const newBirthday = birthdayFormat(this.state.date)
+    const { connections } = this.props.parent
+    const validatedValues = validation({
+      parent: this.state.newConnection,
+      firstName: this.name.value,
+      phone: this.phone.value,
+      newNameday_id: this.state.newNameday_id,
+      newNamedate: this.state.nameday_date,
+      newBirthday,
+    })
+    const invalid = validatedValues.validation_state
+    const valid_parent = validatedValues.parent_updated
 
-    if (pattern_name.test(this.name.value) || this.name.value === "") {
-      alert("Name is required")
-      if (!pattern_phone.test(this.phone.value) && this.phone.value !== "") {
-        this.setState({
-          controlId: "formValidationError1",
-          validationState: "error",
-        })
-      } else {
-        this.setState({ controlId: null, validationState: null })
-      }
-    } else if (
-      !pattern_phone.test(this.phone.value) &&
-      this.phone.value !== ""
-    ) {
-      this.setState({
-        controlId: "formValidationError1",
-        validationState: "error",
-      })
-    } else {
+    if (valid_parent !== undefined) {
+      const { firstName: name, phone, birthday, nameday } = valid_parent
       this.setState(
         {
           newConnection: {
             id:
-              this.props.parent.connections.length === 0
+              connections.length === 0
                 ? 1
-                : this.props.parent.connections[
-                    Object.keys(this.props.parent.connections).length - 1
-                  ].id + 1,
-            name: this.name.value,
-            phone: this.phone.value,
-            birthday: newBirthday,
+                : connections[Object.keys(connections).length - 1].id + 1,
+            name,
+            phone,
+            birthday,
             nameday: {
-              nameday_id: this.state.newNameday_id,
-              date: this.state.nameday_date,
+              nameday_id: nameday.nameday_id,
+              date: nameday.date,
             },
           },
         },
-        function() {
+        () => {
           let connections = [
             ...this.props.parent.connections,
             this.state.newConnection,
@@ -98,24 +89,21 @@ class AddConnection extends Component {
           this.props.callbackParent(this.props.id, connections)
         }
       )
-      this.name.value = ""
-      this.phone.value = ""
-
-      this.setState({
-        controlId: null,
-        validationState: null,
-        nameChange: "",
-      })
+    } else {
+      this.setState({ validation_state: invalid })
     }
-
     e.preventDefault()
   }
 
   render() {
+    const {
+      controlId_phone,
+      validationState_phone,
+    } = this.state.validation_state
     return (
       <div>
         <div className="font30">
-          Add {this.props.parent.firstName}'s Connection
+          Add {this.props.parent.firstName} Connection
         </div>
         <Panel>
           <form onSubmit={this.handleSubmit}>
@@ -139,8 +127,8 @@ class AddConnection extends Component {
               </InputGroup>
             </FormGroup>
             <FormGroup
-              controlId={this.state.controlId}
-              validationState={this.state.validationState}
+              controlId={controlId_phone}
+              validationState={validationState_phone}
             >
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">

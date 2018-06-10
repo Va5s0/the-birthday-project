@@ -48,16 +48,16 @@ class UpdateParent extends Component {
   handleSubmit = (e, id) => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY
     const newBirthday = birthdayFormat(this.state.date)
-    const validatedValues = validation(
-      this.props.parent,
-      this.firstName.value,
-      this.lastName.value,
-      this.phone.value,
-      this.email.value,
-      this.state.newNameday_id,
-      this.state.newNamedate,
-      newBirthday
-    )
+    const validatedValues = validation({
+      parent: this.props.parent,
+      firstName: this.firstName.value,
+      lastName: this.lastName.value,
+      phone: this.phone.value,
+      email: this.email.value,
+      newNameday_id: this.state.newNameday_id,
+      newNamedate: this.state.newNamedate,
+      newBirthday,
+    })
     const invalid = validatedValues.validation_state
     const valid_parent = validatedValues.parent_updated
 
