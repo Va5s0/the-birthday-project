@@ -7,22 +7,27 @@ import {
   FormControl,
 } from "react-bootstrap"
 import Nameday from "./Nameday"
-import update from "react-addons-update"
 import DatePicker from "react-datepicker"
 import { birthdayFormat } from "../utils/birthdayFormat"
+import { validation } from "../utils/validation"
 import "react-datepicker/dist/react-datepicker.css"
 import moment from "moment"
 
 class EditConnection extends Component {
   constructor(props) {
     super(props)
+    const { connections } = this.props.parent
+    const index = this.props.index
     this.state = {
-      date: this.props.parent.connections[this.props.index].birthday,
-      newNamedate: this.props.parent.connections[this.props.index].nameday.date, // variable that updates through the 'Nameday' component and fills the form with the current connection nameday
+      date: connections[index].birthday,
+      newNamedate: connections[index].nameday.date, // variable that updates through the 'Nameday' component and fills the form with the current connection nameday
       controlId: null,
-      validationState: null,
+      validation_state: {
+        controlId_phone: null,
+        validationState_phone: null,
+      },
       newNameday_id: "",
-      nameChange: this.props.parent.connections[this.props.index].name, // variable passed to the 'Nameday' component that fills the form with the current connection name and updates every time the name changes
+      nameChange: connections[index].name, // variable passed to the 'Nameday' component that fills the form with the current connection name and updates every time the name changes
     }
   }
 
@@ -37,53 +42,31 @@ class EditConnection extends Component {
     this.setState({ newNameday_id: id, newNamedate: date })
 
   handleSubmit = e => {
-    // name, phone validation
-    // FIXME: refactor code to be DRY
-    const pattern_name = /^\s+$/
-    const pattern_phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
-
     // sets the birthday date format to a uniform type of DD/MM/YYYY
     const newBirthday = birthdayFormat(this.state.date)
+    const { index } = this.props
+    let connections = this.props.parent.connections
+    const connection = this.props.parent.connections[index]
+    const { id, name: firstName, phone, birthday, nameday } = connection
+    const checkConnection = { id, firstName, phone, birthday, nameday }
+    const validatedValues = validation({
+      parent: checkConnection,
+      firstName: this.name.value,
+      phone: this.phone.value,
+      newNameday_id: this.state.newNameday_id,
+      newNamedate: this.state.newNamedate,
+      newBirthday,
+    })
+    const invalid = validatedValues.validation_state
+    const valid_connection = validatedValues.parent_updated
 
-    let connections
-    if (pattern_name.test(this.name.value) || this.name.value === "") {
-      alert("Name is required")
-      if (!pattern_phone.test(this.phone.value) && this.phone.value !== "") {
-        this.setState({
-          controlId: "formValidationError1",
-          validationState: "error",
-        })
-      } else {
-        this.setState({ controlId: null, validationState: null })
-      }
-    } else if (
-      !pattern_phone.test(this.phone.value) &&
-      this.phone.value !== ""
-    ) {
-      this.setState({
-        controlId: "formValidationError1",
-        validationState: "error",
-      })
-    } else {
-      connections = update(this.props.parent.connections, {
-        $splice: [[this.props.index, 1]],
-      })
-      let newConnection = {
-        id: this.props.parent.connections[this.props.index].id,
-        name: this.name.value,
-        phone: this.phone.value,
-        birthday: newBirthday,
-        nameday: {
-          nameday_id: this.state.newNameday_id,
-          date: this.state.newNamedate,
-        },
-      }
-      connections = [...connections, newConnection]
-      this.setState({
-        controlId: null,
-        validationState: null,
-      })
+    if (valid_connection !== undefined) {
+      const { id, firstName: name, phone, birthday, nameday } = valid_connection
+      const newConnection = { id, name, phone, birthday, nameday }
+      connections[index] = newConnection
       this.props.callbackParent(this.props.id, connections)
+    } else {
+      this.setState({ validation_state: invalid })
     }
     e.preventDefault()
   }
