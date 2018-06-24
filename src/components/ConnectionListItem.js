@@ -73,7 +73,7 @@ class ConnectionListItem extends Component {
                       src="images/phone.png"
                       className="glyph"
                       width="35px"
-                      role="presentation"
+                      alt=""
                     />{" "}
                     {connection.phone}
                   </ListGroupItem>
@@ -82,7 +82,7 @@ class ConnectionListItem extends Component {
                       src="images/cake-layered.png"
                       className="glyph"
                       width="35px"
-                      role="presentation"
+                      alt=""
                     />{" "}
                     {connection.birthday}
                   </ListGroupItem>
@@ -105,7 +105,7 @@ class ConnectionListItem extends Component {
                         src="images/calendar.png"
                         className="glyph"
                         width="35px"
-                        role="presentation"
+                        alt=""
                       />{" "}
                       {connection.nameday.date !== null
                         ? moment(connection.nameday.date).format("DD/MM/YYYY")

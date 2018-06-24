@@ -85,7 +85,7 @@ class UpdateParent extends Component {
             <img
               src="images/cake-layered.png"
               width="20px"
-              role="presentation"
+              alt=""
             />
           </InputGroup.Addon>
           <DatePicker
@@ -104,7 +104,7 @@ class UpdateParent extends Component {
             <img
               src="images/cake-layered.png"
               width="20px"
-              role="presentation"
+              alt=""
             />
           </InputGroup.Addon>
           <DatePicker
@@ -130,7 +130,7 @@ class UpdateParent extends Component {
                   <img
                     src="images/account.png"
                     width="20px"
-                    role="presentation"
+                    alt=""
                   />
                 </InputGroup.Addon>
                 <FormControl
@@ -150,7 +150,7 @@ class UpdateParent extends Component {
                   <img
                     src="images/account.png"
                     width="20px"
-                    role="presentation"
+                    alt=""
                   />
                 </InputGroup.Addon>
                 <FormControl
@@ -172,7 +172,7 @@ class UpdateParent extends Component {
                   <img
                     src="images/phone.png"
                     width="20px"
-                    role="presentation"
+                    alt=""
                   />
                 </InputGroup.Addon>
                 <FormControl
@@ -194,7 +194,7 @@ class UpdateParent extends Component {
                   <img
                     src="images/mail-ru.png"
                     width="20px"
-                    role="presentation"
+                    alt=""
                   />
                 </InputGroup.Addon>
                 <FormControl
@@ -214,7 +214,7 @@ class UpdateParent extends Component {
                   <img
                     src="images/calendar.png"
                     width="20px"
-                    role="presentation"
+                    alt=""
                   />
                 </InputGroup.Addon>
                 <Nameday

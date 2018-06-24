@@ -157,7 +157,7 @@ class NamedayListGroup extends Component {
                 src="images/calendar.png"
                 className="glyph"
                 width="35px"
-                role="presentation"
+                alt=""
               />{" "}
               {dates[this.state.value]}{" "}
             </ListGroupItem>
@@ -170,7 +170,7 @@ class NamedayListGroup extends Component {
                 src="images/calendar.png"
                 className="glyph"
                 width="35px"
-                role="presentation"
+                alt=""
               />{" "}
               {dates[this.state.value]}{" "}
             </ListGroupItem>
@@ -184,7 +184,7 @@ class NamedayListGroup extends Component {
               src="images/calendar.png"
               className="glyph"
               width="35px"
-              role="presentation"
+              alt=""
             />{" "}
             {this.state.newDate}{" "}
           </ListGroupItem>
@@ -204,7 +204,7 @@ class NamedayListGroup extends Component {
                 src="images/calendar.png"
                 className="glyph"
                 width="35px"
-                role="presentation"
+                alt=""
               />{" "}
               {moment(this.state.newDate).format("DD/MM") + "/" + now}{" "}
             </ListGroupItem>
@@ -219,7 +219,7 @@ class NamedayListGroup extends Component {
                 src="images/calendar.png"
                 className="glyph"
                 width="35px"
-                role="presentation"
+                alt=""
               />{" "}
               {moment(this.state.newDate).format("DD/MM") + "/" + now}{" "}
             </ListGroupItem>
@@ -233,7 +233,7 @@ class NamedayListGroup extends Component {
               src="images/calendar.png"
               className="glyph"
               width="35px"
-              role="presentation"
+              alt=""
             />{" "}
             {this.state.newDate}{" "}
           </ListGroupItem>
