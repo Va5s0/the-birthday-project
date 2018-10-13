@@ -137,7 +137,7 @@ class ParentListItem extends Component {
             src="images/calendar.png"
             className="glyph"
             width="35px"
-            role="presentation"
+            alt=""
           />{" "}
           {parent.nameday.date !== null
             ? moment(parent.nameday.date).format("DD/MM/YYYY")
@@ -176,7 +176,8 @@ class ParentListItem extends Component {
                   >
                     {" "}
                     <Glyphicon glyph="glyphicon glyphicon-remove" />{" "}
-                  </Button>&nbsp;
+                  </Button>
+                  &nbsp;
                   <Button className="custom" onClick={this.openUpdate}>
                     {" "}
                     <Glyphicon glyph="glyphicon glyphicon-pencil" />{" "}
@@ -202,7 +203,7 @@ class ParentListItem extends Component {
                         src="images/phone.png"
                         className="glyph"
                         width="35px"
-                        role="presentation"
+                        alt=""
                       />{" "}
                       {parent.phone}
                     </ListGroupItem>
@@ -211,7 +212,7 @@ class ParentListItem extends Component {
                         src="images/mail-ru.png"
                         className="glyph"
                         width="35px"
-                        role="presentation"
+                        alt=""
                       />{" "}
                       {parent.email}
                     </ListGroupItem>
@@ -220,7 +221,7 @@ class ParentListItem extends Component {
                         src="images/cake-layered.png"
                         className="glyph"
                         width="35px"
-                        role="presentation"
+                        alt=""
                       />{" "}
                       {parent.birthday}
                     </ListGroupItem>

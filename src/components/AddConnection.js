@@ -110,11 +110,7 @@ class AddConnection extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/account.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/account.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <FormControl
                   type="text"
@@ -132,11 +128,7 @@ class AddConnection extends Component {
             >
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/phone.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/phone.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <FormControl
                   type="text"
@@ -150,11 +142,7 @@ class AddConnection extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/cake-layered.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/cake-layered.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <DatePicker
                   selected={this.state.date}
@@ -168,11 +156,7 @@ class AddConnection extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/calendar.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/calendar.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <Nameday
                   name={this.state.nameChange}

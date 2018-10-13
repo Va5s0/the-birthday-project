@@ -82,11 +82,7 @@ class UpdateParent extends Component {
       datePickerDate = (
         <InputGroup>
           <InputGroup.Addon className="glyph-input">
-            <img
-              src="images/cake-layered.png"
-              width="20px"
-              role="presentation"
-            />
+            <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
             openToDate={moment(parent.birthday, "DD-MM-YYYY")}
@@ -101,11 +97,7 @@ class UpdateParent extends Component {
       datePickerDate = (
         <InputGroup>
           <InputGroup.Addon className="glyph-input">
-            <img
-              src="images/cake-layered.png"
-              width="20px"
-              role="presentation"
-            />
+            <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
             selected={this.state.date}
@@ -127,11 +119,7 @@ class UpdateParent extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/account.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/account.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <FormControl
                   type="text"
@@ -147,11 +135,7 @@ class UpdateParent extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/account.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/account.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <FormControl
                   type="text"
@@ -169,11 +153,7 @@ class UpdateParent extends Component {
             >
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/phone.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/phone.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <FormControl
                   type="text"
@@ -191,11 +171,7 @@ class UpdateParent extends Component {
             >
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/mail-ru.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/mail-ru.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <FormControl
                   type="text"
@@ -211,11 +187,7 @@ class UpdateParent extends Component {
             <FormGroup>
               <InputGroup>
                 <InputGroup.Addon className="glyph-input">
-                  <img
-                    src="images/calendar.png"
-                    width="20px"
-                    role="presentation"
-                  />
+                  <img src="images/calendar.png" width="20px" alt="" />
                 </InputGroup.Addon>
                 <Nameday
                   name={this.state.nameChange}
