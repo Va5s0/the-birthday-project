@@ -15,15 +15,15 @@ class App extends Component {
     }
   }
 
-  closeAdd() {
+  closeAdd = () => {
     this.setState({ openAdd: false })
   }
 
-  openAdd() {
+  openAdd = () => {
     this.setState({ openAdd: true })
   }
 
-  onParentChanged(id, parent) {
+  onParentChanged = () => {
     this.closeAdd()
   }
 
@@ -38,19 +38,17 @@ class App extends Component {
                 <Button
                   id="addButton"
                   className="custom"
-                  onClick={this.openAdd.bind(this)}
+                  onClick={this.openAdd}
                 >
                   <Glyphicon glyph="glyphicon glyphicon-plus" />
                 </Button>
                 <Modal
                   show={this.state.openAdd}
-                  onHide={this.closeAdd.bind(this)}
+                  onHide={this.closeAdd}
                   keyboard={true}
                 >
                   <Modal.Body className="add-modal">
-                    <AddParent
-                      callbackParent={this.onParentChanged.bind(this)}
-                    />
+                    <AddParent callbackParent={this.onParentChanged} />
                   </Modal.Body>
                 </Modal>
               </div>

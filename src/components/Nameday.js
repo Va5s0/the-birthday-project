@@ -7,13 +7,28 @@ import Easter from "./Easter"
 import moment from "moment"
 import "react-datepicker/dist/react-datepicker.css"
 
+const datePickerComp = (date, handleChange, handleOnBlur, now) => (
+  <DatePicker
+    fixedHeight
+    selected={date}
+    onChange={handleChange}
+    dateFormat="DD/MM/YYYY"
+    isClearable={true}
+    onBlur={handleOnBlur}
+    className="form-control"
+    minDate={new Date(now, 0, 1)}
+    maxDate={new Date(now, 12, 31)}
+    placeholderText="Add NameDay"
+  />
+)
+
 class Nameday extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      saints: AppStore.getNames(),
-      easterSaints: AppStore.getEasterNames(),
-      specialEasterSaints: AppStore.getSpecialEasterNames(),
+      saints: [],
+      easterSaints: [],
+      specialEasterSaints: [],
       newDate: this.props.date,
       value: this.props.dateId,
       onList: this.props.onList,
@@ -76,8 +91,16 @@ class Nameday extends Component {
     this.props.callbackNameday(selected, "10")
   }
 
-  render() {
-    let firstName = this.props.name // updates the first name of the parent or the parent connection
+  selectDate = () => {
+    const { name } = this.props
+    const {
+      saints,
+      easterSaints,
+      specialEasterSaints,
+      value,
+      newDate,
+    } = this.state
+    let firstName = name // updates the first name of the parent or the parent connection
     let dates = []
     let easterDates = []
     let option
@@ -87,7 +110,7 @@ class Nameday extends Component {
     // checks if there is an existing name
     if (firstName !== "") {
       // searches the 'recurring_namedays' json file
-      this.state.saints.forEach((saint, i) => {
+      saints.forEach((saint, i) => {
         saint.names.forEach((name, j) => {
           if (name === firstName) {
             dates.push(saint.date + "/" + now)
@@ -96,7 +119,7 @@ class Nameday extends Component {
         })
       })
       // searches the 'relative_to_easter' json file
-      this.state.easterSaints.forEach((easterSaint, l) => {
+      easterSaints.forEach((easterSaint, l) => {
         easterSaint.variations.forEach((easterName, m) => {
           if (easterName === firstName) {
             easterDates.push(easterSaint.toEaster)
@@ -110,7 +133,7 @@ class Nameday extends Component {
         })
       })
       // searches the 'recurring_special_namedays' json file
-      this.state.specialEasterSaints.forEach((saint, i) => {
+      specialEasterSaints.forEach((saint, i) => {
         saint.names.forEach((name, j) => {
           if (name === firstName) {
             var special_saint = moment([
@@ -160,7 +183,7 @@ class Nameday extends Component {
             className="form-control"
             componentClass="select"
             placeholder="Add NameDay"
-            value={dates[this.state.value]}
+            value={dates[value]}
           >
             {options}
           </FormControl>
@@ -168,55 +191,39 @@ class Nameday extends Component {
       } else {
         // fills the selection when the 'dates' array has only one result
         let selectedDate
-        if (
-          moment(this.state.newDate).year() !== now &&
-          this.state.newDate !== null
-        ) {
+        if (moment(newDate).year() !== now && newDate !== null) {
           selectedDate = moment(
-            moment(this.state.newDate).format("DD/MM") + "/" + now,
+            moment(newDate).format("DD/MM") + "/" + now,
             "DD/MM/YYYY"
           )
-        } else if (this.state.newDate === null) {
-          selectedDate = this.state.newDate
+        } else if (newDate === null) {
+          selectedDate = newDate
         } else {
-          selectedDate = moment(this.state.newDate)
+          selectedDate = moment(newDate)
         }
 
         // activates the DatePicker if no date exists for an unlisted name
-        option = (
-          <DatePicker
-            fixedHeight
-            selected={selectedDate}
-            onChange={this.handleChange}
-            dateFormat="DD/MM/YYYY"
-            isClearable={true}
-            onBlur={this.handleOnBlur}
-            className="form-control"
-            minDate={new Date(now, 0, 1)}
-            maxDate={new Date(now, 12, 31)}
-            placeholderText="Add NameDay"
-          />
+        option = datePickerComp(
+          selectedDate,
+          this.handleChange,
+          this.handleOnBlur,
+          now
         )
       }
     } else {
       // activates the DatePicker for the first time
-      option = (
-        <DatePicker
-          fixedHeight
-          selected={this.state.newDate}
-          onChange={this.handleChange}
-          dateFormat="DD/MM/YYYY"
-          isClearable={true}
-          onBlur={this.handleOnBlur}
-          className="form-control"
-          minDate={new Date(now, 0, 1)}
-          maxDate={new Date(now, 12, 31)}
-          placeholderText="Add NameDay"
-        />
+      option = datePickerComp(
+        newDate,
+        this.handleChange,
+        this.handleOnBlur,
+        now
       )
     }
-
     return option
+  }
+
+  render() {
+    return this.selectDate()
   }
 }
 

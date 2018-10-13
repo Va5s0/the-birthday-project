@@ -8,7 +8,7 @@ class Parents extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      parents: AppStore.getParents(),
+      parents: [],
     }
   }
 
