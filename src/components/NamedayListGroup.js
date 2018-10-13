@@ -6,6 +6,13 @@ import Easter from "./Easter"
 import moment from "moment"
 import "react-datepicker/dist/react-datepicker.css"
 
+const listItem = date => (
+  <ListGroupItem>
+    <img src="images/calendar.png" className="glyph" width="35px" alt="" />{" "}
+    {date}{" "}
+  </ListGroupItem>
+)
+
 class NamedayListGroup extends Component {
   constructor(props) {
     super(props)
@@ -78,17 +85,25 @@ class NamedayListGroup extends Component {
     }
   }
 
-  render() {
-    let firstName = this.props.name // updates the first name of the parent or the parent connection
+  selectDate = () => {
+    const { name, child } = this.props
+    const {
+      value,
+      saints,
+      easterSaints,
+      specialEasterSaints,
+      newDate,
+    } = this.state
+    let firstName = name // updates the first name of the parent or the parent connection
     let dates = []
     let easterDates = []
     let option
     let now = moment().get("year")
 
-    // checks if there is a listed name (this.state.value == '10' --> name isn't listed )
-    if (this.state.value !== "10") {
+    // checks if there is a listed name (value == '10' --> name isn't listed )
+    if (value !== "10") {
       // searches the 'recurring_namedays' json file
-      this.state.saints.forEach((saint, i) => {
+      saints.forEach((saint, i) => {
         saint.names.forEach((name, j) => {
           if (name === firstName) {
             dates.push(saint.date + "/" + now)
@@ -98,7 +113,7 @@ class NamedayListGroup extends Component {
         return null
       })
       // searches the 'relative_to_easter' json file
-      this.state.easterSaints.forEach((easterSaint, l) => {
+      easterSaints.forEach((easterSaint, l) => {
         easterSaint.variations.forEach((easterName, m) => {
           if (easterName === firstName) {
             easterDates.push(easterSaint.toEaster)
@@ -113,7 +128,7 @@ class NamedayListGroup extends Component {
         return null
       })
       // searches the 'recurring_special_namedays' json file
-      this.state.specialEasterSaints.forEach((saint, i) => {
+      specialEasterSaints.forEach((saint, i) => {
         saint.names.forEach((name, j) => {
           if (name === firstName) {
             var special_saint = moment([
@@ -148,100 +163,41 @@ class NamedayListGroup extends Component {
       })
 
       // replaces the existing listed date with the correct one based on the current year results
-      if (this.state.newDate !== "") {
-        if (this.props.child === false) {
-          this.handleGroupItemParent(dates[this.state.value])
-          option = (
-            <ListGroupItem>
-              <img
-                src="images/calendar.png"
-                className="glyph"
-                width="35px"
-                alt=""
-              />{" "}
-              {dates[this.state.value]}{" "}
-            </ListGroupItem>
-          )
+      if (newDate !== "") {
+        if (child === false) {
+          this.handleGroupItemParent(dates[value])
+          option = listItem(dates[value])
         } else {
-          this.handleGroupItemChild(dates[this.state.value])
-          option = (
-            <ListGroupItem>
-              <img
-                src="images/calendar.png"
-                className="glyph"
-                width="35px"
-                alt=""
-              />{" "}
-              {dates[this.state.value]}{" "}
-            </ListGroupItem>
-          )
+          this.handleGroupItemChild(dates[value])
+          option = listItem(dates[value])
         }
         // if there is no existing date, it takes no action
       } else {
-        option = (
-          <ListGroupItem>
-            <img
-              src="images/calendar.png"
-              className="glyph"
-              width="35px"
-              alt=""
-            />{" "}
-            {this.state.newDate}{" "}
-          </ListGroupItem>
-        )
+        option = listItem(newDate)
       }
 
-      // if there is NOT a listed name (this.state.value == '10' --> name isn't listed) replaces ONLY the year of the existing listed date with the current year
+      // if there is NOT a listed name (value == '10' --> name isn't listed) replaces ONLY the year of the existing listed date with the current year
     } else {
-      if (this.state.newDate !== "") {
+      if (newDate !== "") {
         if (this.props.child === false) {
           this.handleGroupItemParent(
-            moment(this.state.newDate).format("DD/MM") + "/" + now
+            moment(newDate).format("DD/MM") + "/" + now
           )
-          option = (
-            <ListGroupItem>
-              <img
-                src="images/calendar.png"
-                className="glyph"
-                width="35px"
-                alt=""
-              />{" "}
-              {moment(this.state.newDate).format("DD/MM") + "/" + now}{" "}
-            </ListGroupItem>
-          )
+          option = listItem(moment(newDate).format("DD/MM") + "/" + now)
         } else {
-          this.handleGroupItemChild(
-            moment(this.state.newDate).format("DD/MM") + "/" + now
-          )
-          option = (
-            <ListGroupItem>
-              <img
-                src="images/calendar.png"
-                className="glyph"
-                width="35px"
-                alt=""
-              />{" "}
-              {moment(this.state.newDate).format("DD/MM") + "/" + now}{" "}
-            </ListGroupItem>
-          )
+          this.handleGroupItemChild(moment(newDate).format("DD/MM") + "/" + now)
+          option = listItem(moment(newDate).format("DD/MM") + "/" + now)
         }
         // if there is no existing date, it takes no action
       } else {
-        option = (
-          <ListGroupItem>
-            <img
-              src="images/calendar.png"
-              className="glyph"
-              width="35px"
-              alt=""
-            />{" "}
-            {this.state.newDate}{" "}
-          </ListGroupItem>
-        )
+        option = listItem(newDate)
       }
+      return option
     }
+  }
 
-    return option
+  render() {
+    return <div>{this.selectDate()}</div>
   }
 }
 

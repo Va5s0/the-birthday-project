@@ -223,7 +223,7 @@ class Nameday extends Component {
   }
 
   render() {
-    return this.selectDate()
+    return <div>{this.selectDate()}</div>
   }
 }
 

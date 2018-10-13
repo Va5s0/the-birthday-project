@@ -3,7 +3,6 @@ import ParentListItem from "./ParentListItem"
 import AppActions from "../actions/AppActions"
 import AppStore from "../stores/AppStore"
 
-// FIXME: remove AppActions from ComponentDidMount
 class Parents extends Component {
   constructor(props) {
     super(props)
