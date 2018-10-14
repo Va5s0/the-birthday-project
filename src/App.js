@@ -98,6 +98,7 @@ class App extends Component {
 
   filterData = () => {
     const { parents, searchField } = this.state
+    // search sanitization
     const sf = searchField.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
     const searchRegex = new RegExp(sf, "gi")
     let p = []
@@ -136,6 +137,7 @@ class App extends Component {
   }
 
   render() {
+    const { openAdd, filteredParents } = this.state
     return (
       <div className="App">
         <Header />
@@ -147,11 +149,7 @@ class App extends Component {
                   <Button className="custom" onClick={this.openAdd}>
                     <Glyphicon glyph="glyphicon glyphicon-plus" />
                   </Button>
-                  <Modal
-                    show={this.state.openAdd}
-                    onHide={this.closeAdd}
-                    keyboard={true}
-                  >
+                  <Modal show={openAdd} onHide={this.closeAdd} keyboard={true}>
                     <Modal.Body className="add-modal">
                       <AddParent callbackParent={this.onParentChanged} />
                     </Modal.Body>
@@ -172,7 +170,7 @@ class App extends Component {
                 </div>
               </div>
               <div>
-                <Parents parents={this.state.filteredParents} />
+                <Parents parents={filteredParents} />
               </div>
             </Col>
           </Row>
