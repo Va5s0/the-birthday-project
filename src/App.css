@@ -77,11 +77,6 @@ h3:hover {
   text-align: center;
 }
 
-#addButton {
-  margin-left: 15px;
-  margin-bottom: 15px;
-}
-
 .panel-default,
 .panel {
   border: 0;
@@ -206,6 +201,7 @@ h3:hover {
 .btn.custom {
   position: relative;
   outline: none !important;
+  height: 36px;
   -moz-box-shadow: inset 0px 39px 0px -24px #444c5c;
   -webkit-box-shadow: inset 0px 39px 0px -24px #444c5c;
   box-shadow: none;
