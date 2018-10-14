@@ -148,7 +148,7 @@ class ParentListItem extends Component {
 
     return (
       <div>
-        <Col xs={6} md={3}>
+        <Col xs={6} md={4} lg={3}>
           <Thumbnail>
             <div className="profile-img-box">
               <img
