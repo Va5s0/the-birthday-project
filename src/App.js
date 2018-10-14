@@ -51,14 +51,14 @@ class App extends Component {
 
   componentDidMount() {
     AppActions.getParents()
-    const { parents, filterData } = this.state
+    const { parents, filteredParents } = this.state
 
-    if (!filterData && parents && parents.length) {
-      this.setState(state => ({ ...state, filterData: parents }))
+    if (!filteredParents && parents && parents.length) {
+      this.setState(state => ({ ...state, filteredParents: parents }))
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevState) {
     const { parents, filteredParents, searchField } = this.state
     const { searchField: pSearchField } = prevState
 
@@ -115,10 +115,24 @@ class App extends Component {
           R.test(searchRegex),
           R.path(["phone"])
         ),
+        R.compose(
+          R.test(searchRegex),
+          R.converge(R.concat, [
+            R.path(["firstName"]),
+            R.compose(
+              R.concat(" "),
+              R.path(["lastName"])
+            ),
+          ])
+        ),
       ]),
       parents
     )
     this.setState(state => ({ ...state, filteredParents: p }))
+  }
+
+  submitHandler = e => {
+    e.preventDefault()
   }
 
   render() {
@@ -144,7 +158,7 @@ class App extends Component {
                   </Modal>
                 </div>
                 <div>
-                  <form>
+                  <form onSubmit={this.submitHandler}>
                     <FormGroup
                       controlId={"formControlsText"}
                       onChange={this.onSearchChange}
