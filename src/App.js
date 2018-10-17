@@ -15,6 +15,7 @@ import AppActions from "./actions/AppActions"
 import AppStore from "./stores/AppStore"
 import AddParent from "./components/AddParent"
 import Parents from "./components/Parents"
+import NavigationBar from "./components/NavigationBar"
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
@@ -139,42 +140,51 @@ class App extends Component {
   render() {
     const { openAdd, filteredParents } = this.state
     return (
-      <div className="App">
-        <Header />
-        <Grid>
-          <Row>
-            <Col xs={12} md={12} lg={12}>
-              <div className={classNames.containerDiv}>
-                <div>
-                  <Button className="custom" onClick={this.openAdd}>
-                    <Glyphicon glyph="glyphicon glyphicon-plus" />
-                  </Button>
-                  <Modal show={openAdd} onHide={this.closeAdd} keyboard={true}>
-                    <Modal.Body className="add-modal">
-                      <AddParent callbackParent={this.onParentChanged} />
-                    </Modal.Body>
-                  </Modal>
-                </div>
-                <div>
-                  <form onSubmit={this.submitHandler}>
-                    <FormGroup
-                      controlId={"formControlsText"}
-                      onChange={this.onSearchChange}
+      <div>
+        <div>
+          <NavigationBar />
+        </div>
+        <div className="App">
+          <Header />
+          <Grid>
+            <Row>
+              <Col xs={12} md={12} lg={12}>
+                <div className={classNames.containerDiv}>
+                  <div>
+                    <Button className="custom" onClick={this.openAdd}>
+                      <Glyphicon glyph="glyphicon glyphicon-plus" />
+                    </Button>
+                    <Modal
+                      show={openAdd}
+                      onHide={this.closeAdd}
+                      keyboard={true}
                     >
-                      <FormControl
-                        className={classNames.formControl}
-                        placeholder="search"
-                      />
-                    </FormGroup>
-                  </form>
+                      <Modal.Body className="add-modal">
+                        <AddParent callbackParent={this.onParentChanged} />
+                      </Modal.Body>
+                    </Modal>
+                  </div>
+                  <div>
+                    <form onSubmit={this.submitHandler}>
+                      <FormGroup
+                        controlId={"formControlsText"}
+                        onChange={this.onSearchChange}
+                      >
+                        <FormControl
+                          className={classNames.formControl}
+                          placeholder="search"
+                        />
+                      </FormGroup>
+                    </form>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <Parents parents={filteredParents} />
-              </div>
-            </Col>
-          </Row>
-        </Grid>
+                <div>
+                  <Parents parents={filteredParents} />
+                </div>
+              </Col>
+            </Row>
+          </Grid>
+        </div>
       </div>
     )
   }
