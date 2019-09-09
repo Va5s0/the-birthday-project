@@ -152,9 +152,9 @@ class ParentListItem extends Component {
           <Thumbnail>
             <div className="profile-img-box">
               <img
+                src="images/avatar.png"
+                alt="Avatar"
                 className="profile-img"
-                src="images/profile-icon-png-d68b89.png"
-                alt="10x10"
               />
             </div>
             <div className="profile-content-box">

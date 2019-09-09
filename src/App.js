@@ -28,7 +28,7 @@ const classNames = {
     margin: 15px;
   `,
   formControl: css`
-    border: 1px solid #668887;
+    border: 1px solid #333;
     height: 36px;
   `,
 }

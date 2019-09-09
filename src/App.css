@@ -46,12 +46,16 @@ h3:hover {
 }
 
 .profile-img {
+  vertical-align: middle;
   width: 100px;
+  height: 100px;
+  border: 1px solid #333;
+  border-radius: 50%;
 }
 
 .profile-img-box {
   padding: 50px;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   text-align: center;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
@@ -68,7 +72,7 @@ h3:hover {
 .profile-content-name {
   padding-bottom: 50px;
   padding-right: 20px;
-  height: 80px;
+  height: 65px;
   text-align: center;
 }
 
@@ -205,7 +209,7 @@ h3:hover {
   -moz-box-shadow: inset 0px 39px 0px -24px #444c5c;
   -webkit-box-shadow: inset 0px 39px 0px -24px #444c5c;
   box-shadow: none;
-  background-color: #668887;
+  background-color: #333;
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   display: inline-block;
@@ -251,8 +255,8 @@ h3:hover {
   position: relative;
   width: 100%;
   outline: none !important;
-  background: -webkit-linear-gradient(top, #557171, #668887);
-  background: linear-gradient(180deg, #557171, #668887);
+  background: -webkit-linear-gradient(top, #557171, #333);
+  background: linear-gradient(180deg, #557171, #333);
   font-size: 18px;
   border: none;
   box-shadow: none;
