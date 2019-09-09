@@ -18,8 +18,9 @@ export default {
       })
       .catch(message => {
         AppDispatcher.dispatch({
-          message: message,
+          message: message.message,
         })
+        console.log("message: ", message)
       })
   },
   addParent: parent => {

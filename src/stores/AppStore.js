@@ -11,6 +11,7 @@ class AppStoreClass extends EventEmitter {
     this.names = []
     this.easterNames = []
     this.specialEasterNames = []
+    this.error = ""
   }
 
   emitChange() {
@@ -53,6 +54,10 @@ class AppStoreClass extends EventEmitter {
 
   getSpecialEasterNames() {
     return this.specialEasterNames
+  }
+
+  getError() {
+    return this.error
   }
 }
 
@@ -110,7 +115,9 @@ AppStore.dispatchToken = AppDispatcher.register(action => {
       break
 
     default: {
-      console.log("No such handler")
+      AppStore.error = action.message
+      AppStore.emitChange()
+      !!AppStore.error ? console.log("error!") : console.log("No such handler")
     }
   }
 })

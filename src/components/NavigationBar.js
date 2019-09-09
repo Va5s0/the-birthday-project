@@ -1,18 +1,18 @@
 import React from "react"
 import { Navbar } from "react-bootstrap"
 
-import { injectGlobal } from "emotion"
+// import { injectGlobal } from "emotion"
 
-injectGlobal`
-  .navbar-inverse {
-      background-color: transparent !important;
-      .navbar-brand {
-        color: #333 !important;
-        font-size: 24px !important;
-        margin-top: 40px;
-      }
-    },
-`
+// injectGlobal`
+//   .navbar-inverse {
+//       background-color: transparent !important;
+//       .navbar-brand {
+//         color: #333 !important;
+//         font-size: 24px !important;
+//         margin-top: 40px;
+//       }
+//     },
+// `
 
 const NavigationBar = () => (
   <Navbar inverse collapseOnSelect>

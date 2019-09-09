@@ -33,16 +33,52 @@ const classNames = {
   `,
 }
 
-let FILTER_TIMER_ID = undefined
+function filterData(searchField, parents) {
+  // search sanitization
+  const sf = searchField
+    ? searchField.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
+    : ""
+  const searchRegex = new RegExp(sf, "gi")
+  let p = []
+  p = R.filter(
+    R.anyPass([
+      R.compose(
+        R.test(searchRegex),
+        R.path(["firstName"])
+      ),
+      R.compose(
+        R.test(searchRegex),
+        R.path(["lastName"])
+      ),
+      R.compose(
+        R.test(searchRegex),
+        R.path(["phone"])
+      ),
+      R.compose(
+        R.test(searchRegex),
+        R.converge(R.concat, [
+          R.path(["firstName"]),
+          R.compose(
+            R.concat(" "),
+            R.path(["lastName"])
+          ),
+        ])
+      ),
+    ]),
+    parents
+  )
+
+  return p
+}
 
 class App extends Component {
   constructor() {
     super()
     this.state = {
-      filteredParents: undefined,
       openAdd: false,
       searchField: "",
       parents: [],
+      error: "",
     }
   }
 
@@ -52,33 +88,17 @@ class App extends Component {
 
   componentDidMount() {
     AppActions.getParents()
-    const { parents, filteredParents } = this.state
-
-    if (!filteredParents && parents && parents.length) {
-      this.setState(state => ({ ...state, filteredParents: parents }))
-    }
-  }
-
-  componentDidUpdate(prevState) {
-    const { parents, filteredParents, searchField } = this.state
-    const { searchField: pSearchField } = prevState
-
-    if (!filteredParents && parents && parents.length) {
-      this.setState(state => ({ ...state, filteredParents: parents }))
-    }
-
-    if (searchField !== pSearchField) {
-      FILTER_TIMER_ID && clearTimeout(FILTER_TIMER_ID)
-      FILTER_TIMER_ID = setTimeout(this.filterData, 300)
-    }
   }
 
   componentWillUnmount() {
     AppStore.removeChangeListener(this.onChange)
-    FILTER_TIMER_ID && clearTimeout(FILTER_TIMER_ID)
   }
 
-  onChange = () => this.setState({ parents: AppStore.getParents() })
+  onChange = () =>
+    this.setState({
+      parents: AppStore.getParents(),
+      error: AppStore.getError(),
+    })
 
   onSearchChange = evt => {
     const searchField = evt.target.value
@@ -97,49 +117,29 @@ class App extends Component {
     this.closeAdd()
   }
 
-  filterData = () => {
-    const { parents, searchField } = this.state
-    // search sanitization
-    const sf = searchField.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
-    const searchRegex = new RegExp(sf, "gi")
-    let p = []
-    p = R.filter(
-      R.anyPass([
-        R.compose(
-          R.test(searchRegex),
-          R.path(["firstName"])
-        ),
-        R.compose(
-          R.test(searchRegex),
-          R.path(["lastName"])
-        ),
-        R.compose(
-          R.test(searchRegex),
-          R.path(["phone"])
-        ),
-        R.compose(
-          R.test(searchRegex),
-          R.converge(R.concat, [
-            R.path(["firstName"]),
-            R.compose(
-              R.concat(" "),
-              R.path(["lastName"])
-            ),
-          ])
-        ),
-      ]),
-      parents
-    )
-    this.setState(state => ({ ...state, filteredParents: p }))
-  }
-
   submitHandler = e => {
     e.preventDefault()
   }
 
   render() {
-    const { openAdd, filteredParents } = this.state
-    return (
+    const { parents, error, openAdd, searchField } = this.state
+    const online = window.navigator.onLine
+
+    function whichErr(err) {
+      if (err === "404") {
+        return <div>This page cannot load</div>
+      } else if (!online) {
+        return <div>Check your internet connection</div>
+      } else if (err === "500") {
+        return <div>Internal server error</div>
+      } else {
+        return <div>Don't know what's happening</div>
+      }
+    }
+
+    return !!error ? (
+      whichErr(error)
+    ) : (
       <div>
         <div>
           <NavigationBar />
@@ -179,7 +179,7 @@ class App extends Component {
                   </div>
                 </div>
                 <div>
-                  <Parents parents={filteredParents} />
+                  <Parents parents={filterData(searchField, parents)} />
                 </div>
               </Col>
             </Row>
