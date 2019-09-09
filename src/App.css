@@ -11,7 +11,7 @@ h3 {
 }
 
 h3:hover {
-  color: #78a5a3;
+  color: #828584;
 }
 
 .navbar-default {
@@ -128,7 +128,7 @@ h3:hover {
 }
 
 .modal-backdrop {
-  background: linear-gradient(50deg, #e8bcbb, #a1e3e2);
+  background: linear-gradient(50deg, #eee, #333);
 }
 
 .modal-header {
@@ -143,7 +143,7 @@ h3:hover {
 
 .card-modal {
   padding: 0;
-  background-color: #d8e8e8;
+  background-color: #fff;
 }
 
 .add-modal {
@@ -174,8 +174,8 @@ h3:hover {
 
 .card-effect {
   padding: 15px 50px;
-  background-color: #f5dedd;
-  box-shadow: 6px 5px 30px -4px rgba(0, 0, 0, 0.55);
+  background-color: #d8d7d7;
+  /* box-shadow: 6px 5px 30px -4px rgba(0, 0, 0, 0.55); */
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
   border-radius: 6px;
@@ -255,8 +255,9 @@ h3:hover {
   position: relative;
   width: 100%;
   outline: none !important;
-  background: -webkit-linear-gradient(top, #557171, #333);
-  background: linear-gradient(180deg, #557171, #333);
+  background-color: #333;
+  /* background: -webkit-linear-gradient(top, #808585, #333);
+  background: linear-gradient(180deg, #333, #333); */
   font-size: 18px;
   border: none;
   box-shadow: none;
