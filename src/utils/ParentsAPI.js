@@ -1,5 +1,4 @@
 import request from "superagent/lib/client"
-//import axios from 'axios';
 
 export default {
   getParents: url => {
