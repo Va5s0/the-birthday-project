@@ -162,7 +162,7 @@ class AddParent extends Component {
                 <DatePicker
                   selected={this.state.date}
                   onChange={this.handleChange}
-                  dateFormat="DD/MM/YYYY"
+                  dateFormat="dd/mm/yyyy"
                   className="form-control"
                   placeholderText="Add Birthday"
                 />

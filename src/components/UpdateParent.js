@@ -88,7 +88,7 @@ class UpdateParent extends Component {
             openToDate={moment(parent.birthday, "DD-MM-YYYY")}
             selected={moment(this.state.date, "DD-MM-YYYY")}
             onChange={this.handleChange}
-            dateFormat="DD/MM/YYYY"
+            dateFormat="dd/mm/yyyy"
             className="form-control"
           />
         </InputGroup>
@@ -102,7 +102,7 @@ class UpdateParent extends Component {
           <DatePicker
             selected={this.state.date}
             onChange={this.handleChange}
-            dateFormat="DD/MM/YYYY"
+            dateFormat="dd/mm/yyyy"
             className="form-control"
             placeholderText="Add Birthday"
           />

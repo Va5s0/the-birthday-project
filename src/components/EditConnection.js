@@ -84,9 +84,9 @@ class EditConnection extends Component {
               this.props.parent.connections[this.props.index].birthday,
               "DD-MM-YYYY"
             )}
-            selected={moment(this.state.date, "DD-MM-YYYY")}
+            selected={Date.parse(moment(this.state.date, "DD-MM-YYYY"))}
             onChange={this.handleChange}
-            dateFormat="DD/MM/YYYY"
+            dateFormat="dd/mm/yyyy"
             className="form-control"
           />
         </InputGroup>
@@ -98,9 +98,9 @@ class EditConnection extends Component {
             <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
-            selected={this.state.date}
+            selected={Date.parse(this.state.date)}
             onChange={this.handleChange}
-            dateFormat="DD/MM/YYYY"
+            dateFormat="dd/mm/yyyy"
             className="form-control"
             placeholderText="Add Connection's Birthday"
           />
