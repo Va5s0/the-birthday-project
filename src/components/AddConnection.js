@@ -147,7 +147,7 @@ class AddConnection extends Component {
                 <DatePicker
                   selected={this.state.date}
                   onChange={this.handleChange}
-                  dateFormat="dd/mm/yyyy"
+                  dateFormat="dd/MM/yyyy"
                   className="form-control"
                   placeholderText="Add Connection's Birthday"
                 />

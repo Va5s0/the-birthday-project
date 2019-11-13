@@ -85,10 +85,10 @@ class UpdateParent extends Component {
             <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
-            openToDate={moment(parent.birthday, "DD-MM-YYYY")}
-            selected={moment(this.state.date, "DD-MM-YYYY")}
+            openToDate={Date.parse(moment(parent.birthday, "DD-MM-YYYY"))}
+            selected={Date.parse(moment(this.state.date, "DD-MM-YYYY"))}
             onChange={this.handleChange}
-            dateFormat="dd/mm/yyyy"
+            dateFormat="dd/MM/yyyy"
             className="form-control"
           />
         </InputGroup>
@@ -100,9 +100,9 @@ class UpdateParent extends Component {
             <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
-            selected={this.state.date}
+            selected={Date.parse(this.state.date)}
             onChange={this.handleChange}
-            dateFormat="dd/mm/yyyy"
+            dateFormat="dd/MM/yyyy"
             className="form-control"
             placeholderText="Add Birthday"
           />

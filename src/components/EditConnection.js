@@ -86,7 +86,7 @@ class EditConnection extends Component {
             )}
             selected={Date.parse(moment(this.state.date, "DD-MM-YYYY"))}
             onChange={this.handleChange}
-            dateFormat="dd/mm/yyyy"
+            dateFormat="dd/MM/yyyy"
             className="form-control"
           />
         </InputGroup>
@@ -100,7 +100,7 @@ class EditConnection extends Component {
           <DatePicker
             selected={Date.parse(this.state.date)}
             onChange={this.handleChange}
-            dateFormat="dd/mm/yyyy"
+            dateFormat="dd/MM/yyyy"
             className="form-control"
             placeholderText="Add Connection's Birthday"
           />

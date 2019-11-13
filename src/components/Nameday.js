@@ -12,7 +12,7 @@ const datePickerComp = (date, handleChange, handleOnBlur, now) => (
     fixedHeight
     selected={Date.parse(date)}
     onChange={handleChange}
-    dateFormat="dd/mm/yyyy"
+    dateFormat="dd/MM/yyyy"
     isClearable={true}
     onBlur={handleOnBlur}
     className="form-control"
