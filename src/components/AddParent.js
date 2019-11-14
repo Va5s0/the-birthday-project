@@ -9,7 +9,6 @@ import {
 import AppActions from "../actions/AppActions"
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
-import { birthdayFormat } from "../utils/birthdayFormat"
 import { validation } from "../utils/validation"
 import "react-datepicker/dist/react-datepicker.css"
 
@@ -55,7 +54,7 @@ class AddParent extends Component {
 
   handleSubmit = e => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY
-    const newBirthday = birthdayFormat(this.state.date)
+    const newBirthday = this.state.date
     const validatedValues = validation({
       parent: this.state.newParent,
       firstName: this.firstName.value,

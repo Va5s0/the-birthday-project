@@ -8,10 +8,9 @@ import {
 } from "react-bootstrap"
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
-import { birthdayFormat } from "../utils/birthdayFormat"
 import { validation } from "../utils/validation"
 import "react-datepicker/dist/react-datepicker.css"
-import moment from "moment"
+import { parseISO } from "date-fns"
 
 class EditConnection extends Component {
   constructor(props) {
@@ -43,7 +42,7 @@ class EditConnection extends Component {
 
   handleSubmit = e => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY
-    const newBirthday = birthdayFormat(this.state.date)
+    const newBirthday = this.state.date
     const { index } = this.props
     let connections = this.props.parent.connections
     const connection = this.props.parent.connections[index]
@@ -73,18 +72,17 @@ class EditConnection extends Component {
 
   render() {
     var datePickerDate
-    if (this.state.date.length > 0) {
+    if (!!this.state.date.length) {
       datePickerDate = (
         <InputGroup>
           <InputGroup.Addon className="glyph-input">
             <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
-            openToDate={moment(
-              this.props.parent.connections[this.props.index].birthday,
-              "DD-MM-YYYY"
+            openToDate={parseISO(
+              this.props.parent.connections[this.props.index].birthday
             )}
-            selected={Date.parse(moment(this.state.date, "DD-MM-YYYY"))}
+            selected={parseISO(this.state.date)}
             onChange={this.handleChange}
             dateFormat="dd/MM/yyyy"
             className="form-control"
@@ -98,7 +96,7 @@ class EditConnection extends Component {
             <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
-            selected={Date.parse(this.state.date)}
+            selected={parseISO(this.state.date)}
             onChange={this.handleChange}
             dateFormat="dd/MM/yyyy"
             className="form-control"

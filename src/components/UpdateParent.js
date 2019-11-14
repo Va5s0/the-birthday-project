@@ -8,10 +8,9 @@ import {
 } from "react-bootstrap"
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
-import { birthdayFormat } from "../utils/birthdayFormat"
 import { validation } from "../utils/validation"
 import "react-datepicker/dist/react-datepicker.css"
-import moment from "moment"
+import { parseISO } from "date-fns"
 
 class UpdateParent extends Component {
   constructor(props) {
@@ -46,8 +45,7 @@ class UpdateParent extends Component {
   }
 
   handleSubmit = (e, id) => {
-    // sets the birthday date format to a uniform type of DD/MM/YYYY
-    const newBirthday = birthdayFormat(this.state.date)
+    const newBirthday = this.state.date
     const validatedValues = validation({
       parent: this.props.parent,
       firstName: this.firstName.value,
@@ -78,15 +76,15 @@ class UpdateParent extends Component {
     } = this.state.validation_state
 
     var datePickerDate
-    if (this.state.date.length > 0) {
+    if (!!this.state.date.length) {
       datePickerDate = (
         <InputGroup>
           <InputGroup.Addon className="glyph-input">
             <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
-            openToDate={Date.parse(moment(parent.birthday, "DD-MM-YYYY"))}
-            selected={Date.parse(moment(this.state.date, "DD-MM-YYYY"))}
+            openToDate={parseISO(parent.birthday)}
+            selected={parseISO(this.state.date)}
             onChange={this.handleChange}
             dateFormat="dd/MM/yyyy"
             className="form-control"

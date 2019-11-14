@@ -25,7 +25,7 @@ class NamedayListGroup extends Component {
     }
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     AppStore.addChangeListener(this.onChange)
   }
 
