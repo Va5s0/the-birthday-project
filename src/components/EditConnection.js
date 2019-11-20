@@ -31,7 +31,9 @@ class EditConnection extends Component {
   }
 
   // handler to control date change of DatePicker
-  handleChange = selected => this.setState({ date: selected })
+  handleChange = selected => {
+    return this.setState({ date: selected.toISOString() })
+  }
 
   // handler to update the nameChange variable every time the connection name changes
   handleNameChange = value => this.setState({ nameChange: this.name.value })
@@ -72,7 +74,7 @@ class EditConnection extends Component {
 
   render() {
     var datePickerDate
-    if (!!this.state.date.length) {
+    if (!!this.state.date) {
       datePickerDate = (
         <InputGroup>
           <InputGroup.Addon className="glyph-input">
@@ -96,7 +98,7 @@ class EditConnection extends Component {
             <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
-            selected={parseISO(this.state.date)}
+            selected={this.state.date}
             onChange={this.handleChange}
             dateFormat="dd/MM/yyyy"
             className="form-control"

@@ -98,7 +98,7 @@ class UpdateParent extends Component {
             <img src="images/cake-layered.png" width="20px" alt="" />
           </InputGroup.Addon>
           <DatePicker
-            selected={Date.parse(this.state.date)}
+            selected={this.state.date}
             onChange={this.handleChange}
             dateFormat="dd/MM/yyyy"
             className="form-control"

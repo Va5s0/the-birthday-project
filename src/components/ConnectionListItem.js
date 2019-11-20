@@ -58,7 +58,10 @@ class ConnectionListItem extends Component {
 
   render() {
     const { connection } = this.props
-    const bdayDate = new Date(connection.birthday)
+    const bdayDate =
+      !!connection && !!connection.birthday
+        ? new Date(connection.birthday).toLocaleDateString("en-GB")
+        : ""
 
     let connectionItem = (
       <div>
@@ -85,7 +88,7 @@ class ConnectionListItem extends Component {
                       width="35px"
                       alt=""
                     />{" "}
-                    {bdayDate.toLocaleDateString("en-GB")}
+                    {bdayDate}
                   </ListGroupItem>
                   {moment(connection.nameday.date)
                     .year()
