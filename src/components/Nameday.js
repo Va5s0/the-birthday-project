@@ -10,9 +10,9 @@ import "react-datepicker/dist/react-datepicker.css"
 const datePickerComp = (date, handleChange, handleOnBlur, now) => (
   <DatePicker
     fixedHeight
-    selected={date}
+    selected={Date.parse(date)}
     onChange={handleChange}
-    dateFormat="DD/MM/YYYY"
+    dateFormat="dd/MM/yyyy"
     isClearable={true}
     onBlur={handleOnBlur}
     className="form-control"
@@ -35,7 +35,7 @@ class Nameday extends Component {
     }
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     AppStore.addChangeListener(this.onChange)
   }
 

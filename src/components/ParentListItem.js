@@ -145,6 +145,9 @@ class ParentListItem extends Component {
         </ListGroupItem>
       )
     }
+    const bdayDate = !!parent.birthday
+      ? new Date(parent.birthday).toLocaleDateString("en-GB")
+      : ""
 
     return (
       <div>
@@ -223,7 +226,7 @@ class ParentListItem extends Component {
                         width="35px"
                         alt=""
                       />{" "}
-                      {parent.birthday}
+                      {bdayDate}
                     </ListGroupItem>
                     {namedayItem}
                   </ListGroup>

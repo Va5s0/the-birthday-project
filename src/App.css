@@ -335,3 +335,9 @@ h3:hover {
   border-left-color: #ccc;
   right: 1em;
 }
+.react-datepicker-popper {
+  z-index: 500;
+}
+.react-datepicker-wrapper {
+  width: 100%;
+}
