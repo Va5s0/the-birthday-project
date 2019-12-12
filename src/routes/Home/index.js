@@ -11,8 +11,6 @@ import {
   FormGroup,
   FormControl,
 } from "react-bootstrap"
-import AppActions from "actions/AppActions"
-import AppStore from "stores/AppStore"
 import AddParent from "components/AddParent"
 import Parents from "components/Parents"
 import NavigationBar from "components/NavigationBar"
@@ -65,7 +63,6 @@ class Home extends Component {
   static contextType = FireBaseContext
   constructor() {
     super()
-    // this.ref = this.context.collection("contacts")
     this.state = {
       openAdd: false,
       searchField: "",
@@ -74,48 +71,12 @@ class Home extends Component {
     }
   }
 
-  UNSAFE_componentWillMount() {
-    AppStore.addChangeListener(this.onChange)
-  }
-
   componentDidMount() {
-    // AppActions.getParents()
-    // this.getContacts = this.context
-    const contacts = this.context.db
-      .collection("contacts")
-      .where("userId", "==", "6XLzALR7LSeGJ1vxyrgnwvMVKGy1")
-    // .doc("f25q9NvpPm7VTaEHDAgd")
-
-    contacts
-      .get()
-      .then(qs => {
-        // if (doc.exists) {
-        //   // this.setState(s => ({
-        //   //   ...s,
-        //   //   parents: doc.data(),
-        //   // }))
-        //   console.log(">>>", doc.exists, "Document data:", doc.data())
-        // } else {
-        //   // doc.data() will be undefined in this case
-        //   console.log("No such document!")
-        // }
-        const docs = qs.docs.map(doc => {
-          console.log(">>>", doc.exists, "Document data:", doc.data())
-          return { id: doc.id, ...doc.data() }
-        })
-        console.log("docs", docs)
-        this.setState(s => ({
-          ...s,
-          parents: docs,
-        }))
-      })
-      .catch(function(error) {
-        console.log("Error getting document:", error)
-      })
     this.unsubscribe = this.context.onAuthUserListener(
       u => {
-        //gdhdgd
-        console.log("user is loggedin")
+        if (u) {
+          this.setState(s => ({ ...s, currentUser: u }))
+        }
       },
       () => {
         this.props.history.replace("/auth/login")
@@ -123,16 +84,33 @@ class Home extends Component {
     )
   }
 
-  componentWillUnmount() {
-    AppStore.removeChangeListener(this.onChange)
-    this.unsubscribe()
+  componentDidUpdate(_, prevState) {
+    if (!prevState.currentUser) {
+      const userId = this.state.currentUser.uid
+      const contacts = this.context.db
+        .collection("contacts")
+        .where("userId", "==", userId)
+
+      contacts.onSnapshot(
+        qs => {
+          const docs = qs.docs.map(doc => {
+            return { id: doc.id, ...doc.data() }
+          })
+          this.setState(s => ({
+            ...s,
+            parents: docs,
+          }))
+        },
+        error => {
+          console.log("Error getting document:", error)
+        }
+      )
+    }
   }
 
-  onChange = () =>
-    this.setState({
-      parents: AppStore.getParents(),
-      error: AppStore.getError(),
-    })
+  componentWillUnmount() {
+    this.unsubscribe()
+  }
 
   onSearchChange = evt => {
     const searchField = evt.target.value

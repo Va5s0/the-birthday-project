@@ -6,7 +6,6 @@ import {
   InputGroup,
   FormControl,
 } from "react-bootstrap"
-import AppActions from "../actions/AppActions"
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
 import { validation } from "../utils/validation"
@@ -44,7 +43,10 @@ class AddParent extends Component {
   static contextType = FireBaseContext
 
   // handler to control date change of DatePicker
-  handleChange = selected => this.setState({ date: selected })
+  handleChange = selected => {
+    // console.log(selected.toISOString())
+    return this.setState({ date: selected })
+  }
 
   // handler to update the nameChange variable every time the first name changes
   handleNameChange = value =>
@@ -57,7 +59,7 @@ class AddParent extends Component {
   handleSubmit = e => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY
     const userId = this.context.auth.W
-    const newBirthday = this.state.date
+    const newBirthday = this.state.date.toISOString()
     const validatedValues = validation({
       parent: this.state.newParent,
       userId,
@@ -75,7 +77,7 @@ class AddParent extends Component {
     if (valid_parent !== undefined) {
       this.context.db.collection("contacts").add(valid_parent)
       // AppActions.addParent(valid_parent)
-      // this.props.callbackParent()
+      this.props.callbackParent()
     } else {
       this.setState({ validation_state: invalid })
     }

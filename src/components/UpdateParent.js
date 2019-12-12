@@ -45,7 +45,8 @@ class UpdateParent extends Component {
   }
 
   handleSubmit = (e, id) => {
-    const newBirthday = this.state.date
+    const { userId } = this.props.parent
+    const newBirthday = this.state.date.toISOString()
     const validatedValues = validation({
       parent: this.props.parent,
       firstName: this.firstName.value,
@@ -55,6 +56,7 @@ class UpdateParent extends Component {
       newNameday_id: this.state.newNameday_id,
       newNamedate: this.state.newNamedate,
       newBirthday,
+      userId,
     })
     const invalid = validatedValues.validation_state
     const valid_parent = validatedValues.parent_updated

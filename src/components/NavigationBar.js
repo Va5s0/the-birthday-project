@@ -4,7 +4,7 @@ import { Navbar, Nav, NavDropdown, MenuItem } from "react-bootstrap"
 
 function NavigationBar() {
   const fire = useFireBaseContext()
-  const u = fire.auth.currentUser && fire.auth.currentUser.email
+  // const u = fire.auth.currentUser && fire.auth.currentUser.email
   return (
     <div>
       <Navbar>

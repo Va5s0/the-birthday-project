@@ -19,7 +19,10 @@ import NamedayListGroup from "./NamedayListGroup"
 import update from "react-addons-update"
 import moment from "moment"
 
+import { FireBaseContext } from "providers/Firebase"
+
 class ParentListItem extends Component {
+  static contextType = FireBaseContext
   constructor(props) {
     super(props)
     this.state = {
@@ -57,6 +60,19 @@ class ParentListItem extends Component {
     AppActions.deleteParent(id)
   }
 
+  updateParent = (id, parent) => {
+    this.context.db
+      .collection("contacts")
+      .doc(id)
+      .set({ ...parent })
+      .then(function() {
+        console.log("Document successfully written!")
+      })
+      .catch(function(error) {
+        console.error("Error writing document: ", error)
+      })
+  }
+
   onChildChanged = (id, connections) => {
     let parent = this.props.parent
     parent.connections = connections
@@ -67,7 +83,7 @@ class ParentListItem extends Component {
   }
 
   onParentChanged = (id, parent) => {
-    AppActions.updateParent(id, parent)
+    this.updateParent(id, parent)
     this.closeUpdate()
   }
 
