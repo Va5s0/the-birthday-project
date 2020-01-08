@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { useState, useContext } from "react"
 import {
   Button,
   ListGroup,
@@ -16,53 +16,52 @@ import AddConnection from "./AddConnection"
 import UpdateParent from "./UpdateParent"
 import ConnectionListItem from "./ConnectionListItem"
 import NamedayListGroup from "./NamedayListGroup"
+import AlertDismissable from "./AlertDismissable"
 import update from "react-addons-update"
 import moment from "moment"
 
 import { FireBaseContext } from "providers/Firebase"
 
-class ParentListItem extends Component {
-  static contextType = FireBaseContext
-  constructor(props) {
-    super(props)
-    this.state = {
-      openUpdate: false,
-      openParent: false,
-      openCon: false,
-      parent: this.props.parent,
-      year: moment()
-        .get("year")
-        .toString(),
-    }
+const ParentListItem = props => {
+  const { db } = useContext(FireBaseContext)
+
+  const [openUpd8, setOpenUpd8] = useState(false)
+  const [openParent, setOpenParent] = useState(false)
+  const [openCon, setOpenCon] = useState(false)
+  const [setParent] = useState(props.parent)
+  const [year] = useState(
+    moment()
+      .get("year")
+      .toString()
+  )
+  const [dltConf, setDltConf] = useState(false)
+
+  const closeParent = () => {
+    setOpenParent(false)
   }
 
-  closeParent = () => {
-    this.setState({ openParent: false })
+  const closeUpdate = () => {
+    setOpenUpd8(false)
   }
 
-  closeUpdate = () => {
-    this.setState({ openUpdate: false })
+  const openUpdate = () => {
+    setOpenUpd8(true)
   }
 
-  openUpdate = () => {
-    this.setState({ openUpdate: true })
+  const closeCon = () => {
+    setOpenCon(false)
   }
 
-  closeCon = () => {
-    this.setState({ openCon: false })
+  const openConnection = () => {
+    setOpenCon(true)
   }
 
-  openCon = () => {
-    this.setState({ openCon: true })
+  const handleDeleteClick = () => {
+    setDltConf(!dltConf)
   }
 
-  handleDeleteClick = id => e => {
-    AppActions.deleteParent(id)
-  }
-
-  updateParent = (id, parent) => {
-    this.context.db
-      .collection("contacts")
+  const updateParent = (id, parent) => {
+    db.collection("contacts")
       .doc(id)
       .set({ ...parent })
       .then(function() {
@@ -73,228 +72,221 @@ class ParentListItem extends Component {
       })
   }
 
-  onChildChanged = (id, connections) => {
-    let parent = this.props.parent
+  let handleDltConf = () => {
+    db.collection("contacts")
+      .doc(parent.id)
+      .delete()
+      .then(() => {
+        console.log("Document successfully deleted!")
+      })
+      .catch(error => {
+        console.error("Error removing document: ", error)
+      })
+    setDltConf(false)
+  }
+
+  const onChildChanged = (id, connections) => {
+    let parent = props.parent
     parent.connections = connections
-    this.setState({ parent: parent }, function() {
-      AppActions.updateParent(id, this.state.parent)
+    setParent(parent, function() {
+      AppActions.updateParent(id, parent)
     })
-    this.closeCon()
+    closeCon()
   }
 
-  onParentChanged = (id, parent) => {
-    this.updateParent(id, parent)
-    this.closeUpdate()
+  const onParentChanged = (id, parent) => {
+    updateParent(id, parent)
+    closeUpdate()
   }
 
-  onNamedayChange = (date, id, parent, index) => {
+  const onNamedayChange = (date, id, parent, index) => {
     let newParent = {
-      firstName: this.props.parent.firstName,
-      lastName: this.props.parent.lastName,
-      phone: this.props.parent.phone,
-      email: this.props.parent.email,
-      birthday: this.props.parent.birthday,
+      firstName: props.parent.firstName,
+      lastName: props.parent.lastName,
+      phone: props.parent.phone,
+      email: props.parent.email,
+      birthday: props.parent.birthday,
       nameday: {
         nameday_id: id,
         date: date,
       },
     }
     AppActions.updateParent(
-      this.props.parent.id,
-      update(this.props.parent, { $merge: newParent })
+      props.parent.id,
+      update(props.parent, { $merge: newParent })
     )
   }
+  const { parent } = props
+  const tooltip = <Tooltip id="modal-tooltip">Add a connection</Tooltip>
 
-  render() {
-    const { parent } = this.props
-    const tooltip = <Tooltip id="modal-tooltip">Add a connection</Tooltip>
-
-    let connectionListItems
-    if (parent.connections.length !== 0) {
-      connectionListItems = parent.connections.map(connection => {
-        return (
-          <ConnectionListItem
-            key={connection.id}
-            connection={connection}
-            index={parent.connections.indexOf(connection)}
-            parent={parent}
-            id={parent.id}
-            callbackParent={this.onChildChanged}
-          />
-        )
-      })
-    } else {
-      connectionListItems = (
-        <ConnectionListItem parent={parent} id={parent.id} />
-      )
-    }
-
-    let namedayItem
-    // checks whether the existing year matches the current year
-    if (
-      moment(parent.nameday.date)
-        .year()
-        .toString() !== this.state.year &&
-      parent.nameday.date !== null
-    ) {
-      namedayItem = (
-        <NamedayListGroup
-          name={parent.firstName}
-          callbackNamedayParent={this.onNamedayChange}
-          date={parent.nameday.date}
-          dateId={parent.nameday.nameday_id}
-          child={false}
+  let connectionListItems
+  if (parent.connections.length !== 0) {
+    connectionListItems = parent.connections.map(connection => {
+      return (
+        <ConnectionListItem
+          key={connection.id}
+          connection={connection}
+          index={parent.connections.indexOf(connection)}
+          parent={parent}
+          id={parent.id}
+          callbackParent={onChildChanged}
         />
       )
-    } else {
-      namedayItem = (
-        <ListGroupItem>
-          <img
-            src="images/calendar.png"
-            className="glyph"
-            width="35px"
-            alt=""
-          />{" "}
-          {parent.nameday.date !== null
-            ? moment(parent.nameday.date).format("DD/MM/YYYY")
-            : parent.nameday.date}
-        </ListGroupItem>
-      )
-    }
-    const bdayDate = !!parent.birthday
-      ? new Date(parent.birthday).toLocaleDateString("en-GB")
-      : ""
+    })
+  } else {
+    connectionListItems = <ConnectionListItem parent={parent} id={parent.id} />
+  }
 
-    return (
-      <div>
-        <Col xs={6} md={4} lg={3}>
-          <Thumbnail>
-            <div className="profile-img-box">
-              <img
-                src="images/avatar.png"
-                alt="Avatar"
-                className="profile-img"
-              />
-            </div>
-            <div className="profile-content-box">
-              <div className="profile-content-name">
-                <h3
-                  style={{ cursor: "pointer" }}
-                  onClick={() =>
-                    this.setState({ openParent: !this.state.openParent })
-                  }
-                >
-                  {parent.firstName} {parent.lastName}
-                </h3>
-              </div>
-              <div className="profile-content-buttons">
-                <p>
-                  <Button
-                    className="custom"
-                    onClick={this.handleDeleteClick(parent.id)}
-                  >
-                    {" "}
-                    <Glyphicon glyph="glyphicon glyphicon-remove" />{" "}
-                  </Button>
-                  &nbsp;
-                  <Button className="custom" onClick={this.openUpdate}>
-                    {" "}
-                    <Glyphicon glyph="glyphicon glyphicon-pencil" />{" "}
-                  </Button>
-                </p>
-              </div>
-            </div>
-            <Modal
-              show={this.state.openParent}
-              onHide={this.closeParent}
-              keyboard={true}
-            >
-              <Modal.Header>
-                <Modal.Title>
-                  {parent.firstName} {parent.lastName}
-                </Modal.Title>
-              </Modal.Header>
-              <Modal.Body className="card-modal">
-                <div className="parent_card">
-                  <ListGroup>
-                    <ListGroupItem>
-                      <img
-                        src="images/phone.png"
-                        className="glyph"
-                        width="35px"
-                        alt=""
-                      />{" "}
-                      {parent.phone}
-                    </ListGroupItem>
-                    <ListGroupItem>
-                      <img
-                        src="images/mail-ru.png"
-                        className="glyph"
-                        width="35px"
-                        alt=""
-                      />{" "}
-                      {parent.email}
-                    </ListGroupItem>
-                    <ListGroupItem>
-                      <img
-                        src="images/cake-layered.png"
-                        className="glyph"
-                        width="35px"
-                        alt=""
-                      />{" "}
-                      {bdayDate}
-                    </ListGroupItem>
-                    {namedayItem}
-                  </ListGroup>
-                </div>
-
-                <Row>
-                  <div>{connectionListItems}</div>
-                </Row>
-              </Modal.Body>
-              <Modal.Footer>
-                <OverlayTrigger placement="left" overlay={tooltip}>
-                  <Button
-                    className="connection-button custom"
-                    onClick={this.openCon}
-                  >
-                    <Glyphicon glyph="glyphicon glyphicon-plus" />
-                  </Button>
-                </OverlayTrigger>
-                <Button className="custom" onClick={this.closeParent}>
-                  Close
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          </Thumbnail>
-        </Col>
-
-        <Modal
-          show={this.state.openUpdate}
-          onHide={this.closeUpdate}
-          keyboard={true}
-        >
-          <Modal.Body className="add-modal">
-            <UpdateParent
-              id={parent.id}
-              parent={parent}
-              callbackParent={this.onParentChanged}
-            />
-          </Modal.Body>
-        </Modal>
-
-        <Modal show={this.state.openCon} onHide={this.closeCon} keyboard={true}>
-          <Modal.Body className="add-modal">
-            <AddConnection
-              id={parent.id}
-              parent={parent}
-              callbackParent={this.onChildChanged}
-            />
-          </Modal.Body>
-        </Modal>
-      </div>
+  let namedayItem
+  // checks whether the existing year matches the current year
+  if (
+    moment(parent.nameday.date)
+      .year()
+      .toString() !== year &&
+    parent.nameday.date !== null
+  ) {
+    namedayItem = (
+      <NamedayListGroup
+        name={parent.firstName}
+        callbackNamedayParent={onNamedayChange}
+        date={parent.nameday.date}
+        dateId={parent.nameday.nameday_id}
+        child={false}
+      />
+    )
+  } else {
+    namedayItem = (
+      <ListGroupItem>
+        <img src="images/calendar.png" className="glyph" width="35px" alt="" />{" "}
+        {parent.nameday.date !== null
+          ? moment(parent.nameday.date).format("DD/MM/YYYY")
+          : parent.nameday.date}
+      </ListGroupItem>
     )
   }
+  const bdayDate = !!parent.birthday
+    ? new Date(parent.birthday).toLocaleDateString("en-GB")
+    : ""
+
+  return (
+    <div>
+      <Col xs={6} md={4} lg={3}>
+        <Thumbnail>
+          <div className="profile-img-box">
+            <img src="images/avatar.png" alt="Avatar" className="profile-img" />
+          </div>
+          <div className="profile-content-box">
+            <div className="profile-content-name">
+              <h3
+                style={{ cursor: "pointer" }}
+                onClick={() => setOpenParent(!openParent)}
+              >
+                {parent.firstName} {parent.lastName}
+              </h3>
+            </div>
+            <div className="profile-content-buttons">
+              <p>
+                <Button className="custom" onClick={handleDeleteClick}>
+                  {" "}
+                  <Glyphicon glyph="glyphicon glyphicon-remove" />{" "}
+                </Button>
+                {dltConf ? (
+                  <AlertDismissable
+                    show={dltConf}
+                    handleDltConf={handleDltConf}
+                    handleDeleteClick={handleDeleteClick}
+                  />
+                ) : null}
+                &nbsp;
+                <Button className="custom" onClick={openUpdate}>
+                  {" "}
+                  <Glyphicon glyph="glyphicon glyphicon-pencil" />{" "}
+                </Button>
+              </p>
+            </div>
+          </div>
+          <Modal show={openParent} onHide={closeParent} keyboard={true}>
+            <Modal.Header>
+              <Modal.Title>
+                {parent.firstName} {parent.lastName}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="card-modal">
+              <div className="parent_card">
+                <ListGroup>
+                  <ListGroupItem>
+                    <img
+                      src="images/phone.png"
+                      className="glyph"
+                      width="35px"
+                      alt=""
+                    />{" "}
+                    {parent.phone}
+                  </ListGroupItem>
+                  <ListGroupItem>
+                    <img
+                      src="images/mail-ru.png"
+                      className="glyph"
+                      width="35px"
+                      alt=""
+                    />{" "}
+                    {parent.email}
+                  </ListGroupItem>
+                  <ListGroupItem>
+                    <img
+                      src="images/cake-layered.png"
+                      className="glyph"
+                      width="35px"
+                      alt=""
+                    />{" "}
+                    {bdayDate}
+                  </ListGroupItem>
+                  {namedayItem}
+                </ListGroup>
+              </div>
+
+              <Row>
+                <div>{connectionListItems}</div>
+              </Row>
+            </Modal.Body>
+            <Modal.Footer>
+              <OverlayTrigger placement="left" overlay={tooltip}>
+                <Button
+                  className="connection-button custom"
+                  onClick={openConnection}
+                >
+                  <Glyphicon glyph="glyphicon glyphicon-plus" />
+                </Button>
+              </OverlayTrigger>
+              <Button className="custom" onClick={closeParent}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </Thumbnail>
+      </Col>
+
+      <Modal show={openUpd8} onHide={closeUpdate} keyboard={true}>
+        <Modal.Body className="add-modal">
+          <UpdateParent
+            id={parent.id}
+            parent={parent}
+            callbackParent={onParentChanged}
+          />
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={openCon} onHide={closeCon} keyboard={true}>
+        <Modal.Body className="add-modal">
+          <AddConnection
+            id={parent.id}
+            parent={parent}
+            callbackParent={onChildChanged}
+          />
+        </Modal.Body>
+      </Modal>
+    </div>
+  )
 }
 
 export default ParentListItem
