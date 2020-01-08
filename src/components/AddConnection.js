@@ -8,7 +8,6 @@ import {
 } from "react-bootstrap"
 import Nameday from "./Nameday"
 import DatePicker from "react-datepicker"
-import { birthdayFormat } from "../utils/birthdayFormat"
 import { validation } from "../utils/validation"
 import "react-datepicker/dist/react-datepicker.css"
 
@@ -50,7 +49,7 @@ class AddConnection extends Component {
 
   handleSubmit = (e, id) => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY
-    const newBirthday = birthdayFormat(this.state.date)
+    const newBirthday = this.state.date.toISOString()
     const { connections } = this.props.parent
     const validatedValues = validation({
       parent: this.state.newConnection,

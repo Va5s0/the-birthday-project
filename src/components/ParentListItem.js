@@ -28,7 +28,6 @@ const ParentListItem = props => {
   const [openUpd8, setOpenUpd8] = useState(false)
   const [openParent, setOpenParent] = useState(false)
   const [openCon, setOpenCon] = useState(false)
-  const [setParent] = useState(props.parent)
   const [year] = useState(
     moment()
       .get("year")
@@ -88,9 +87,7 @@ const ParentListItem = props => {
   const onChildChanged = (id, connections) => {
     let parent = props.parent
     parent.connections = connections
-    setParent(parent, function() {
-      AppActions.updateParent(id, parent)
-    })
+    updateParent(id, parent)
     closeCon()
   }
 

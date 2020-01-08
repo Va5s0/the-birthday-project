@@ -43,10 +43,7 @@ class AddParent extends Component {
   static contextType = FireBaseContext
 
   // handler to control date change of DatePicker
-  handleChange = selected => {
-    // console.log(selected.toISOString())
-    return this.setState({ date: selected })
-  }
+  handleChange = selected => this.setState({ date: selected })
 
   // handler to update the nameChange variable every time the first name changes
   handleNameChange = value =>
