@@ -77,7 +77,7 @@ class NamedayListGroup extends Component {
   handleGroupItemChild = changedDate => {
     if (changedDate) {
       this.props.callbackNamedayChild(
-        moment(changedDate, "DD/MM/YYYY"),
+        moment(changedDate, "DD/MM/YYYY").toISOString(),
         this.props.dateId,
         this.props.parent,
         this.props.index
@@ -179,13 +179,15 @@ class NamedayListGroup extends Component {
       // if there is NOT a listed name (value == '10' --> name isn't listed) replaces ONLY the year of the existing listed date with the current year
     } else {
       if (newDate !== "") {
-        if (this.props.child === false) {
+        if (child === false) {
           this.handleGroupItemParent(
             moment(newDate).format("DD/MM") + "/" + now
           )
           option = listItem(moment(newDate).format("DD/MM") + "/" + now)
         } else {
-          this.handleGroupItemChild(moment(newDate).format("DD/MM") + "/" + now)
+          this.handleGroupItemChild(
+            moment(moment(newDate).format("DD/MM") + "/" + now).toISOString()
+          )
           option = listItem(moment(newDate).format("DD/MM") + "/" + now)
         }
         // if there is no existing date, it takes no action

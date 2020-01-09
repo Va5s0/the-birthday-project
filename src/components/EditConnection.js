@@ -32,7 +32,7 @@ class EditConnection extends Component {
 
   // handler to control date change of DatePicker
   handleChange = selected => {
-    return this.setState({ date: selected.toISOString() })
+    return this.setState({ date: selected && selected.toISOString() })
   }
 
   // handler to update the nameChange variable every time the connection name changes
@@ -40,7 +40,11 @@ class EditConnection extends Component {
 
   // handler to update the newNamedate variable each time a new date is selected in the 'Nameday' component
   onNamedayChange = (date, id) =>
-    this.setState({ newNameday_id: id, newNamedate: date })
+    this.setState({
+      newNameday_id: id,
+      newNamedate:
+        typeof date === "string" || date === null ? date : date.toISOString(),
+    })
 
   handleSubmit = e => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY

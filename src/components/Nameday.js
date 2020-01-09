@@ -79,7 +79,10 @@ class Nameday extends Component {
           break
         }
       }
-      this.props.callbackNameday(moment(e.target.value, "DD/MM/YYYY"), id)
+      this.props.callbackNameday(
+        moment(e.target.value, "DD/MM/YYYY").toISOString(),
+        id
+      )
     } else {
       this.props.callbackNameday("", "10")
     }
@@ -168,13 +171,11 @@ class Nameday extends Component {
 
       // fills the dropdown selection form dynamically, based on the 'dates' array for more than one results
       if (dates.length > 0) {
-        options = dates.map((date, k) => {
-          return (
-            <option key={k} data-id={k} value={date}>
-              {date}
-            </option>
-          )
-        })
+        options = dates.map((date, k) => (
+          <option key={k} data-id={k} value={date}>
+            {date}
+          </option>
+        ))
         option = (
           <FormControl
             onChange={this.handleOption}
@@ -185,6 +186,9 @@ class Nameday extends Component {
             placeholder="Add NameDay"
             value={dates[value]}
           >
+            <option key={10} data-id={10} value={""}>
+              {""}
+            </option>
             {options}
           </FormControl>
         )
@@ -195,13 +199,12 @@ class Nameday extends Component {
           selectedDate = moment(
             moment(newDate).format("DD/MM") + "/" + now,
             "DD/MM/YYYY"
-          )
+          ).toISOString()
         } else if (newDate === null) {
-          selectedDate = newDate
+          selectedDate = ""
         } else {
-          selectedDate = moment(newDate)
+          selectedDate = moment(newDate).toISOString()
         }
-
         // activates the DatePicker if no date exists for an unlisted name
         option = datePickerComp(
           selectedDate,

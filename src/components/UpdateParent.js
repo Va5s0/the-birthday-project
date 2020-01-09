@@ -17,7 +17,7 @@ class UpdateParent extends Component {
     super(props)
     this.state = {
       date: this.props.parent.birthday,
-      newNamedate: this.props.parent.date, // variable that updates through the 'Nameday' component and fills the form with the current nameday
+      newNamedate: this.props.parent.nameday.date, // variable that updates through the 'Nameday' component and fills the form with the current nameday
       validation_state: {
         controlId_phone: null,
         controlId_email: null,
@@ -30,7 +30,8 @@ class UpdateParent extends Component {
   }
 
   // handler to control date change of DatePicker
-  handleChange = selected => this.setState({ date: selected })
+  handleChange = selected =>
+    this.setState({ date: selected && selected.toISOString() })
 
   // handler to update the nameChange variable every time the first name changes
   handleNameChange = value =>
@@ -40,13 +41,15 @@ class UpdateParent extends Component {
   onNamedayChange = (date, id) => {
     this.setState({
       newNameday_id: id,
-      newNamedate: date,
+      newNamedate:
+        typeof date === "string" || date === null ? date : date.toISOString(),
     })
   }
 
-  handleSubmit = (e, id) => {
+  handleSubmit = e => {
     const { userId } = this.props.parent
-    const newBirthday = this.state.date.toISOString()
+    const namedayDate = this.state.newNamedate
+    const newBirthday = this.state.date
     const validatedValues = validation({
       parent: this.props.parent,
       firstName: this.firstName.value,
@@ -54,7 +57,7 @@ class UpdateParent extends Component {
       phone: this.phone.value,
       email: this.email.value,
       newNameday_id: this.state.newNameday_id,
-      newNamedate: this.state.newNamedate,
+      newNamedate: namedayDate,
       newBirthday,
       userId,
     })
@@ -64,7 +67,6 @@ class UpdateParent extends Component {
     valid_parent !== undefined
       ? this.props.callbackParent(this.props.id, valid_parent)
       : this.setState({ validation_state: invalid })
-
     e.preventDefault()
   }
 
@@ -78,7 +80,7 @@ class UpdateParent extends Component {
     } = this.state.validation_state
 
     var datePickerDate
-    if (!!this.state.date.length) {
+    if (this.state.date && !!this.state.date.length) {
       datePickerDate = (
         <InputGroup>
           <InputGroup.Addon className="glyph-input">
@@ -109,7 +111,6 @@ class UpdateParent extends Component {
         </InputGroup>
       )
     }
-
     return (
       <div>
         <div className="font30">Edit</div>

@@ -49,7 +49,7 @@ class AddConnection extends Component {
 
   handleSubmit = (e, id) => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY
-    const newBirthday = this.state.date.toISOString()
+    const newBirthday = this.state.date && this.state.date.toISOString()
     const { connections } = this.props.parent
     const validatedValues = validation({
       parent: this.state.newConnection,

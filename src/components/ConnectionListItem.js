@@ -8,7 +8,6 @@ import {
   Glyphicon,
 } from "react-bootstrap"
 import EditConnection from "./EditConnection"
-import AppActions from "../actions/AppActions"
 import update from "react-addons-update"
 import moment from "moment"
 import NamedayListGroup from "./NamedayListGroup"
@@ -26,7 +25,7 @@ class ConnectionListItem extends Component {
     }
   }
 
-  handleDeleteClick = (index, id) => {
+  handleDeleteClick = index => {
     let connections = update(this.props.parent.connections, {
       $splice: [[index, 1]],
     })
@@ -53,7 +52,7 @@ class ConnectionListItem extends Component {
     newParent.connections = [
       update(parent.connections[index], { $merge: newConnection }),
     ]
-    AppActions.updateParent(parent.id, newParent)
+    this.props.updateParent(parent.id, newParent)
   }
 
   render() {
@@ -62,7 +61,6 @@ class ConnectionListItem extends Component {
       !!connection && !!connection.birthday
         ? new Date(connection.birthday).toLocaleDateString("en-GB")
         : ""
-
     let connectionItem = (
       <div>
         {" "}
@@ -81,15 +79,17 @@ class ConnectionListItem extends Component {
                     />{" "}
                     {connection.phone}
                   </ListGroupItem>
-                  <ListGroupItem>
-                    <img
-                      src="images/cake-layered.png"
-                      className="glyph"
-                      width="35px"
-                      alt=""
-                    />{" "}
-                    {bdayDate}
-                  </ListGroupItem>
+                  {!!bdayDate ? (
+                    <ListGroupItem>
+                      <img
+                        src="images/cake-layered.png"
+                        className="glyph"
+                        width="35px"
+                        alt=""
+                      />{" "}
+                      {bdayDate}
+                    </ListGroupItem>
+                  ) : null}
                   {moment(connection.nameday.date)
                     .year()
                     .toString() !== this.state.year &&
@@ -103,7 +103,7 @@ class ConnectionListItem extends Component {
                       index={this.props.index}
                       child={true}
                     />
-                  ) : (
+                  ) : connection.nameday.date !== null ? (
                     <ListGroupItem>
                       <img
                         src="images/calendar.png"
@@ -111,16 +111,14 @@ class ConnectionListItem extends Component {
                         width="35px"
                         alt=""
                       />{" "}
-                      {connection.nameday.date !== null
-                        ? moment(connection.nameday.date).format("DD/MM/YYYY")
-                        : connection.nameday.date}
+                      {moment(connection.nameday.date).format("DD/MM/YYYY")}
                     </ListGroupItem>
-                  )}
+                  ) : null}
                 </ListGroup>
               </div>
               <Button
                 className="custom bottomMargin"
-                onClick={this.handleDeleteClick.bind(this, this.props.index)}
+                onClick={this.handleDeleteClick}
               >
                 <Glyphicon glyph="glyphicon glyphicon-remove" />
               </Button>
@@ -139,7 +137,7 @@ class ConnectionListItem extends Component {
                     id={this.props.parent.id}
                     parent={this.props.parent}
                     index={this.props.index}
-                    callbackParent={this.handleEditClick.bind(this)}
+                    callbackParent={this.handleEditClick}
                   />
                 </div>
               </Collapse>

@@ -56,7 +56,7 @@ class AddParent extends Component {
   handleSubmit = e => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY
     const userId = this.context.auth.W
-    const newBirthday = this.state.date.toISOString()
+    const newBirthday = this.state.date && this.state.date.toISOString()
     const validatedValues = validation({
       parent: this.state.newParent,
       userId,
@@ -73,12 +73,10 @@ class AddParent extends Component {
 
     if (valid_parent !== undefined) {
       this.context.db.collection("contacts").add(valid_parent)
-      // AppActions.addParent(valid_parent)
       this.props.callbackParent()
     } else {
       this.setState({ validation_state: invalid })
     }
-
     e.preventDefault()
   }
 

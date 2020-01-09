@@ -11,7 +11,6 @@ import {
   Tooltip,
   OverlayTrigger,
 } from "react-bootstrap"
-import AppActions from "../actions/AppActions"
 import AddConnection from "./AddConnection"
 import UpdateParent from "./UpdateParent"
 import ConnectionListItem from "./ConnectionListItem"
@@ -108,10 +107,7 @@ const ParentListItem = props => {
         date: date,
       },
     }
-    AppActions.updateParent(
-      props.parent.id,
-      update(props.parent, { $merge: newParent })
-    )
+    updateParent(props.parent.id, update(props.parent, { $merge: newParent }))
   }
   const { parent } = props
   const tooltip = <Tooltip id="modal-tooltip">Add a connection</Tooltip>
@@ -127,6 +123,7 @@ const ParentListItem = props => {
           parent={parent}
           id={parent.id}
           callbackParent={onChildChanged}
+          updateParent={updateParent}
         />
       )
     })
@@ -135,18 +132,19 @@ const ParentListItem = props => {
   }
 
   let namedayItem
+  const parentNameday = parent.nameday.date
   // checks whether the existing year matches the current year
   if (
-    moment(parent.nameday.date)
+    moment(parentNameday)
       .year()
       .toString() !== year &&
-    parent.nameday.date !== null
+    parentNameday !== null
   ) {
     namedayItem = (
       <NamedayListGroup
         name={parent.firstName}
         callbackNamedayParent={onNamedayChange}
-        date={parent.nameday.date}
+        date={parentNameday}
         dateId={parent.nameday.nameday_id}
         child={false}
       />
@@ -155,9 +153,9 @@ const ParentListItem = props => {
     namedayItem = (
       <ListGroupItem>
         <img src="images/calendar.png" className="glyph" width="35px" alt="" />{" "}
-        {parent.nameday.date !== null
-          ? moment(parent.nameday.date).format("DD/MM/YYYY")
-          : parent.nameday.date}
+        {parentNameday !== null
+          ? moment(parentNameday).format("DD/MM/YYYY")
+          : parentNameday}
       </ListGroupItem>
     )
   }
@@ -229,16 +227,18 @@ const ParentListItem = props => {
                     />{" "}
                     {parent.email}
                   </ListGroupItem>
-                  <ListGroupItem>
-                    <img
-                      src="images/cake-layered.png"
-                      className="glyph"
-                      width="35px"
-                      alt=""
-                    />{" "}
-                    {bdayDate}
-                  </ListGroupItem>
-                  {namedayItem}
+                  {bdayDate ? (
+                    <ListGroupItem>
+                      <img
+                        src="images/cake-layered.png"
+                        className="glyph"
+                        width="35px"
+                        alt=""
+                      />{" "}
+                      {bdayDate}
+                    </ListGroupItem>
+                  ) : null}
+                  {!!parentNameday ? namedayItem : null}
                 </ListGroup>
               </div>
 
