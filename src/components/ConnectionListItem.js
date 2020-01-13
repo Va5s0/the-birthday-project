@@ -8,6 +8,7 @@ import {
   Glyphicon,
 } from "react-bootstrap"
 import EditConnection from "./EditConnection"
+import AlertDismissable from "./AlertDismissable"
 import update from "react-addons-update"
 import moment from "moment"
 import NamedayListGroup from "./NamedayListGroup"
@@ -19,12 +20,18 @@ const ConnectionListItem = props => {
       .get("year")
       .toString()
   )
+  const [dltConf, setDltConf] = useState(false)
 
-  const handleDeleteClick = index => {
+  const handleDeleteClick = () => {
+    setDltConf(!dltConf)
+  }
+
+  const handleDltConf = index => {
     let connections = update(props.parent.connections, {
       $splice: [[index, 1]],
     })
     props.callbackParent(props.id, connections)
+    setDltConf(false)
   }
 
   const handleEditClick = (id, connections) => {
@@ -112,6 +119,13 @@ const ConnectionListItem = props => {
             <Button className="custom bottomMargin" onClick={handleDeleteClick}>
               <Glyphicon glyph="glyphicon glyphicon-remove" />
             </Button>
+            {dltConf ? (
+              <AlertDismissable
+                show={dltConf}
+                handleDltConf={handleDltConf}
+                handleDeleteClick={handleDeleteClick}
+              />
+            ) : null}
             &nbsp;
             <Button
               className="custom bottomMargin"

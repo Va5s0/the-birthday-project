@@ -45,7 +45,13 @@ class AddConnection extends Component {
 
   // handler to update the nameday_date variable each time a new date is selected in the 'Nameday' component
   onNamedayChange = (nameday_date, newNameday_id) =>
-    this.setState({ nameday_date, newNameday_id })
+    this.setState({
+      nameday_date:
+        typeof nameday_date === "string" || nameday_date === null
+          ? nameday_date
+          : nameday_date.toISOString(),
+      newNameday_id,
+    })
 
   handleSubmit = (e, id) => {
     // sets the birthday date format to a uniform type of DD/MM/YYYY
