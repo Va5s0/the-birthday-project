@@ -7,7 +7,7 @@ import Easter from "./Easter"
 import moment from "moment"
 import "react-datepicker/dist/react-datepicker.css"
 
-const datePickerComp = (date, handleChange, handleOnBlur, now) => (
+const datePickerFunc = (date, handleChange, handleOnBlur, now) => (
   <DatePicker
     fixedHeight
     selected={Date.parse(date)}
@@ -206,7 +206,7 @@ class Nameday extends Component {
           selectedDate = moment(newDate).toISOString()
         }
         // activates the DatePicker if no date exists for an unlisted name
-        option = datePickerComp(
+        option = datePickerFunc(
           selectedDate,
           this.handleChange,
           this.handleOnBlur,
@@ -215,7 +215,7 @@ class Nameday extends Component {
       }
     } else {
       // activates the DatePicker for the first time
-      option = datePickerComp(
+      option = datePickerFunc(
         newDate,
         this.handleChange,
         this.handleOnBlur,

@@ -1,15 +1,12 @@
 import React from "react"
 import ParentListItem from "./ParentListItem"
 
-const Parents = ({ parents }) => {
-  let parentListItems
-
-  if (parents) {
-    parentListItems = parents.map(parent => {
+const Parents = ({ parents }) => (
+  <div>
+    {(parents || []).map(parent => {
       return <ParentListItem key={parent.id} parent={parent} />
-    })
-  }
-  return <div>{parentListItems}</div>
-}
+    })}
+  </div>
+)
 
 export default Parents

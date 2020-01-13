@@ -22,7 +22,7 @@ const ConnectionListItem = props => {
   )
   const [dltConf, setDltConf] = useState(false)
 
-  const handleDeleteClick = () => {
+  const handleClose = () => {
     setDltConf(!dltConf)
   }
 
@@ -116,15 +116,25 @@ const ConnectionListItem = props => {
                 ) : null}
               </ListGroup>
             </div>
-            <Button className="custom bottomMargin" onClick={handleDeleteClick}>
+            <Button className="custom bottomMargin" onClick={handleClose}>
               <Glyphicon glyph="glyphicon glyphicon-remove" />
             </Button>
             {dltConf ? (
               <AlertDismissable
-                show={dltConf}
-                handleDltConf={handleDltConf}
-                handleDeleteClick={handleDeleteClick}
-              />
+                open={dltConf}
+                handleClose={handleClose}
+                modalContent="Do you really want to delete this contact?"
+              >
+                <Button
+                  className="connection-button custom"
+                  onClick={handleDltConf}
+                >
+                  Delete
+                </Button>
+                <Button className="custom" onClick={handleClose}>
+                  Cancel
+                </Button>
+              </AlertDismissable>
             ) : null}
             &nbsp;
             <Button

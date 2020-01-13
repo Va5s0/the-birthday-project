@@ -54,7 +54,7 @@ const ParentListItem = props => {
     setOpenCon(true)
   }
 
-  const handleDeleteClick = () => {
+  const handleClose = () => {
     setDltConf(!dltConf)
   }
 
@@ -181,16 +181,26 @@ const ParentListItem = props => {
             </div>
             <div className="profile-content-buttons">
               <p>
-                <Button className="custom" onClick={handleDeleteClick}>
+                <Button className="custom" onClick={handleClose}>
                   {" "}
                   <Glyphicon glyph="glyphicon glyphicon-remove" />{" "}
                 </Button>
                 {dltConf ? (
                   <AlertDismissable
-                    show={dltConf}
-                    handleDltConf={handleDltConf}
-                    handleDeleteClick={handleDeleteClick}
-                  />
+                    open={dltConf}
+                    handleClose={handleClose}
+                    modalContent="Do you really want to delete this contact?"
+                  >
+                    <Button
+                      className="connection-button custom"
+                      onClick={handleDltConf}
+                    >
+                      Delete
+                    </Button>
+                    <Button className="custom" onClick={handleClose}>
+                      Cancel
+                    </Button>
+                  </AlertDismissable>
                 ) : null}
                 &nbsp;
                 <Button className="custom" onClick={openUpdate}>

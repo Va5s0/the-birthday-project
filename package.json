@@ -15,6 +15,7 @@
     "typescript": "^3.7.0"
   },
   "dependencies": {
+    "@types/react-bootstrap": "^0.32.20",
     "bootstrap": "^3.4.1",
     "date-fns": "^2.9.0",
     "emotion": "^9.2.12",

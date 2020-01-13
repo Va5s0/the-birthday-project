@@ -1,18 +1,11 @@
 import React from "react"
-import { Modal, Button } from "react-bootstrap"
+import { Modal } from "react-bootstrap"
 
-const AlertDismissable = ({ show, handleDltConf, handleDeleteClick }) => {
+const AlertDismissable = ({ open, handleClose, modalContent, children }) => {
   return (
-    <Modal show={show} onHide={handleDeleteClick} keyboard={true}>
-      <Modal.Body>Do you really want to delete this contact?</Modal.Body>
-      <Modal.Footer>
-        <Button className="connection-button custom" onClick={handleDltConf}>
-          Delete
-        </Button>
-        <Button className="custom" onClick={handleDeleteClick}>
-          Cancel
-        </Button>
-      </Modal.Footer>
+    <Modal show={open} onHide={handleClose} keyboard={true}>
+      <Modal.Body>{modalContent}</Modal.Body>
+      <Modal.Footer>{children}</Modal.Footer>
     </Modal>
   )
 }
