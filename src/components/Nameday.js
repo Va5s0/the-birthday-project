@@ -22,16 +22,59 @@ const datePickerFunc = (date, handleChange, handleOnBlur, now) => (
   />
 )
 
+// async function searchNames(name = "") {
+//   fetch("https://namedays.vassog.now.sh/api/nameday?name=" + name, {
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   })
+//     .then(response => {
+//       if (response.status !== 200) {
+//         console.log(
+//           "Looks like there was a problem. Status Code: " + response.status
+//         )
+//         return
+//       }
+
+//       // Examine the text in the response
+//       // response.json().then(names => {
+//       //   console.log(names)
+//       // })
+//       console.log("success!")
+//     })
+//     .catch(err => {
+//       console.log("Fetch Error :-S", err)
+//     })
+//   return
+// }
+
+async function searchNames(name = "") {
+  const proxyurl = "https://cors-anywhere.herokuapp.com/"
+  let response = await fetch(
+    proxyurl + `https://namedays.vassog.now.sh/api/nameday?name=` + name
+  )
+  let names = await response.json()
+  return names
+}
+
+// getUserAsync("yourUsernameHere").then(data => console.log(data))
+
+// searchNames("https://example.com/answer", { answer: 42 }).then(data => {
+//   console.log(data) // JSON data parsed by `response.json()` call
+// })
+
 class Nameday extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      value: props.value || new Date(),.. || props.value < now 
       saints: [],
       easterSaints: [],
       specialEasterSaints: [],
       newDate: this.props.date,
       value: this.props.dateId,
       onList: this.props.onList,
+      options: [new Date().toISOString()],
     }
   }
 
@@ -88,11 +131,29 @@ class Nameday extends Component {
     }
   }
 
+  handleOnBlur = evt => {
+    let now = moment().get("year")
+    let v = evt.target.value
+    if (v !== "") {
+      searchNames(v).then(names => {
+        const dates = names.list.map((name, i) => {
+          return name.day + "/" + name.month + "/" + now
+        })
+        this.setState(s => ({ ...s, options: s.options.concat(dates) }))
+      })
+    }
+  }
+
   // handler to control date change of DatePicker
   handleChange = selected => {
     this.setState({ newDate: selected })
     this.props.callbackNameday(selected, "10")
   }
+
+  // aaa = searchNames("Βάσω").then(res =>
+  //   console.log(res).catch(err => console.log(err))
+  // )
+  // aaa = searchNames("Μαρία").then(names => console.log(names))
 
   selectDate = () => {
     const { name } = this.props
@@ -111,63 +172,81 @@ class Nameday extends Component {
     let now = moment().get("year")
 
     // checks if there is an existing name
+    // if (firstName !== "") {
+    //   searchNames(firstName).then(names => forEach((name, i) => {
+    //     dates.push(name.day+name.month+now)
+    //   }))
+    // }
+    // if (firstName !== "") {
+    //   searchNames(firstName).then(names =>
+    //     names.list.forEach((name, i) => {
+    //       dates.push(name.day + "/" + name.month + "/" + now)
+    //     })
+    //   )
+    // }
     if (firstName !== "") {
-      // searches the 'recurring_namedays' json file
-      saints.forEach((saint, i) => {
-        saint.names.forEach((name, j) => {
-          if (name === firstName) {
-            dates.push(saint.date + "/" + now)
-          }
-          return dates
+      searchNames(firstName).then(names =>
+        names.list.forEach((name, i) => {
+          dates.push(name.day + "/" + name.month + "/" + now)
         })
-      })
-      // searches the 'relative_to_easter' json file
-      easterSaints.forEach((easterSaint, l) => {
-        easterSaint.variations.forEach((easterName, m) => {
-          if (easterName === firstName) {
-            easterDates.push(easterSaint.toEaster)
-            dates.push(
-              moment(Easter(now).props.children)
-                .add(easterDates[0], "day")
-                .format("DD/MM/YYYY")
-            )
-          }
-          return dates
-        })
-      })
-      // searches the 'recurring_special_namedays' json file
-      specialEasterSaints.forEach((saint, i) => {
-        saint.names.forEach((name, j) => {
-          if (name === firstName) {
-            var special_saint = moment([
-              moment().get("year"),
-              0,
-              parseInt(saint.date.slice(0, 2), 10),
-            ])
-            var easter = moment([
-              moment().get("year"),
-              0,
-              parseInt(
-                moment(Easter(now).props.children)
-                  .format("DD/MM/YYYY")
-                  .slice(0, 2),
-                10
-              ),
-            ])
-            if (easter.diff(special_saint, "days") >= 0) {
-              easterDates.push(saint.toEaster)
-              dates.push(
-                moment(Easter(now).props.children)
-                  .add(easterDates[0], "day")
-                  .format("DD/MM/YYYY")
-              )
-            } else {
-              dates.push(saint.date + "/" + now)
-            }
-          }
-          return dates
-        })
-      })
+      )
+      console.log({ dates })
+      // // searches the 'recurring_namedays' json file
+      // saints.forEach((saint, i) => {
+      //   saint.names.forEach((name, j) => {
+      //     if (name === firstName) {
+      //       dates.push(saint.date + "/" + now)
+      //     }
+      //     return dates
+      //   })
+      // })
+      // // searches the 'relative_to_easter' json file
+      // easterSaints.forEach((easterSaint, l) => {
+      //   easterSaint.variations.forEach((easterName, m) => {
+      //     if (easterName === firstName) {
+      //       easterDates.push(easterSaint.toEaster)
+      //       dates.push(
+      //         moment(Easter(now).props.children)
+      //           .add(easterDates[0], "day")
+      //           .format("DD/MM/YYYY")
+      //       )
+      //     }
+      //     return dates
+      //   })
+      // })
+      // // searches the 'recurring_special_namedays' json file
+      // specialEasterSaints.forEach((saint, i) => {
+      //   saint.names.forEach((name, j) => {
+      //     if (name === firstName) {
+      //       var special_saint = moment([
+      //         moment().get("year"),
+      //         0,
+      //         parseInt(saint.date.slice(0, 2), 10),
+      //       ])
+      //       var easter = moment([
+      //         moment().get("year"),
+      //         0,
+      //         parseInt(
+      //           moment(Easter(now).props.children)
+      //             .format("DD/MM/YYYY")
+      //             .slice(0, 2),
+      //           10
+      //         ),
+      //       ])
+      //       if (easter.diff(special_saint, "days") >= 0) {
+      //         easterDates.push(saint.toEaster)
+      //         dates.push(
+      //           moment(Easter(now).props.children)
+      //             .add(easterDates[0], "day")
+      //             .format("DD/MM/YYYY")
+      //         )
+      //       } else {
+      //         dates.push(saint.date + "/" + now)
+      //       }
+      //     }
+      //     return dates
+      //   })
+      // })
 
       // fills the dropdown selection form dynamically, based on the 'dates' array for more than one results
       if (dates.length > 0) {
@@ -226,7 +305,29 @@ class Nameday extends Component {
   }
 
   render() {
-    return <div>{this.selectDate()}</div>
+    let options = this.state.options
+    return (
+      <div>
+        <FormControl
+          onChange={this.handleOption}
+          onFocus={this.handleOption}
+          onBlur={this.handleOnBlur}
+          className="form-control"
+          componentClass="select"
+          placeholder="Add NameDay"
+          value={options[value]}
+        >
+          {/* <option key={10} data-id={10} value={""}>
+              {""}
+            </option> */}
+          {options.map((date, k) => (
+            <option key={k} data-id={k} value={date}>
+              {date}
+            </option>
+          ))}
+        </FormControl>
+      </div>
+    )
   }
 }
 
