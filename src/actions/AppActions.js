@@ -7,35 +7,34 @@ import secrets from "../secrets"
 export default {
   getParents: () => {
     ParentsAPI.getParents(
-      "https://api.mlab.com/api/1/databases/birthdayproject/collections/parents?apiKey=" +
-        secrets.token
+      "https://bday-59dee.firebaseio.com/users/vassog/contacts.json"
     )
-      .then(parents => {
+      .then((parents) => {
         AppDispatcher.dispatch({
           actionType: AppConstants.GET_PARENTS,
           parents: parents,
         })
       })
-      .catch(message => {
+      .catch((message) => {
         AppDispatcher.dispatch({
           message: message.message,
         })
         console.log("message: ", message)
       })
   },
-  addParent: parent => {
+  addParent: (parent) => {
     ParentsAPI.addParent(
       "https://api.mlab.com/api/1/databases/birthdayproject/collections/parents?apiKey=" +
         secrets.token,
       parent
     )
-      .then(parent => {
+      .then((parent) => {
         AppDispatcher.dispatch({
           actionType: AppConstants.ADD_PARENT,
           parent: parent,
         })
       })
-      .catch(message => {
+      .catch((message) => {
         AppDispatcher.dispatch({
           message: message,
         })
@@ -49,33 +48,33 @@ export default {
         secrets.token,
       parent
     )
-      .then(parent => {
+      .then((parent) => {
         AppDispatcher.dispatch({
           actionType: AppConstants.UPDATE_PARENT,
           id: id,
           parent: parent,
         })
       })
-      .catch(message => {
+      .catch((message) => {
         AppDispatcher.dispatch({
           message: message,
         })
       })
   },
-  deleteParent: id => {
+  deleteParent: (id) => {
     ParentsAPI.deleteParent(
       "https://api.mlab.com/api/1/databases/birthdayproject/collections/parents/" +
         id +
         "?apiKey=" +
         secrets.token
     )
-      .then(parent => {
+      .then((parent) => {
         AppDispatcher.dispatch({
           actionType: AppConstants.DELETE_PARENT,
           id: id,
         })
       })
-      .catch(message => {
+      .catch((message) => {
         AppDispatcher.dispatch({
           message: message,
         })
@@ -83,13 +82,13 @@ export default {
   },
   getNames: () => {
     NamesAPI.getNames("names/recurring_namedays.json")
-      .then(names => {
+      .then((names) => {
         AppDispatcher.dispatch({
           actionType: AppConstants.GET_NAMES,
           names: names.data,
         })
       })
-      .catch(message => {
+      .catch((message) => {
         AppDispatcher.dispatch({
           message: message,
         })
@@ -97,13 +96,13 @@ export default {
   },
   getEasterNames: () => {
     NamesAPI.getNames("names/relative_to_easter.json")
-      .then(easterNames => {
+      .then((easterNames) => {
         AppDispatcher.dispatch({
           actionType: AppConstants.GET_EASTERNAMES,
           easterNames: easterNames.special,
         })
       })
-      .catch(message => {
+      .catch((message) => {
         AppDispatcher.dispatch({
           message: message,
         })
@@ -111,13 +110,13 @@ export default {
   },
   getSpecialEasterNames: () => {
     NamesAPI.getNames("names/recurring_special_namedays.json")
-      .then(specialEasterNames => {
+      .then((specialEasterNames) => {
         AppDispatcher.dispatch({
           actionType: AppConstants.GET_SPECIALEASTERNAMES,
           specialEasterNames: specialEasterNames.data,
         })
       })
-      .catch(message => {
+      .catch((message) => {
         AppDispatcher.dispatch({
           message: message,
         })

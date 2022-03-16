@@ -27,9 +27,7 @@ class ParentListItem extends Component {
       openParent: false,
       openCon: false,
       parent: this.props.parent,
-      year: moment()
-        .get("year")
-        .toString(),
+      year: moment().get("year").toString(),
     }
   }
 
@@ -53,14 +51,14 @@ class ParentListItem extends Component {
     this.setState({ openCon: true })
   }
 
-  handleDeleteClick = id => e => {
+  handleDeleteClick = (id) => (e) => {
     AppActions.deleteParent(id)
   }
 
   onChildChanged = (id, connections) => {
     let parent = this.props.parent
     parent.connections = connections
-    this.setState({ parent: parent }, function() {
+    this.setState({ parent: parent }, function () {
       AppActions.updateParent(id, this.state.parent)
     })
     this.closeCon()
@@ -84,7 +82,7 @@ class ParentListItem extends Component {
       },
     }
     AppActions.updateParent(
-      this.props.parent._id.$oid,
+      this.props.parent.id,
       update(this.props.parent, { $merge: newParent })
     )
   }
@@ -95,30 +93,28 @@ class ParentListItem extends Component {
 
     let connectionListItems
     if (parent.connections.length !== 0) {
-      connectionListItems = parent.connections.map(connection => {
+      connectionListItems = parent.connections.map((connection) => {
         return (
           <ConnectionListItem
             key={connection.id}
             connection={connection}
             index={parent.connections.indexOf(connection)}
             parent={parent}
-            id={parent._id.$oid}
+            id={parent.id}
             callbackParent={this.onChildChanged}
           />
         )
       })
     } else {
       connectionListItems = (
-        <ConnectionListItem parent={parent} id={parent._id.$oid} />
+        <ConnectionListItem parent={parent} id={parent.id} />
       )
     }
 
     let namedayItem
     // checks whether the existing year matches the current year
     if (
-      moment(parent.nameday.date)
-        .year()
-        .toString() !== this.state.year &&
+      moment(parent.nameday.date).year().toString() !== this.state.year &&
       parent.nameday.date !== null
     ) {
       namedayItem = (
@@ -175,7 +171,7 @@ class ParentListItem extends Component {
                 <p>
                   <Button
                     className="custom"
-                    onClick={this.handleDeleteClick(parent._id.$oid)}
+                    onClick={this.handleDeleteClick(parent.id)}
                   >
                     {" "}
                     <Glyphicon glyph="glyphicon glyphicon-remove" />{" "}
@@ -260,7 +256,7 @@ class ParentListItem extends Component {
         >
           <Modal.Body className="add-modal">
             <UpdateParent
-              id={parent._id.$oid}
+              id={parent.id}
               parent={parent}
               callbackParent={this.onParentChanged}
             />
@@ -270,7 +266,7 @@ class ParentListItem extends Component {
         <Modal show={this.state.openCon} onHide={this.closeCon} keyboard={true}>
           <Modal.Body className="add-modal">
             <AddConnection
-              id={parent._id.$oid}
+              id={parent.id}
               parent={parent}
               callbackParent={this.onChildChanged}
             />
