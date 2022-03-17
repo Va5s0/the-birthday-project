@@ -4,15 +4,18 @@ import { FirebaseContext } from "./context/FirebaseContext"
 import { firebase } from "./firebase/config"
 import Base from "./routes/Base"
 import { history } from "./my-history"
+import { Theme } from "providers/Theme"
 
 export function App() {
   return (
-    <FirebaseContext.Provider value={{ firebase }}>
-      <ProvideAuth>
-        <Router history={history}>
-          <Base />
-        </Router>
-      </ProvideAuth>
-    </FirebaseContext.Provider>
+    <Theme>
+      <FirebaseContext.Provider value={{ firebase }}>
+        <ProvideAuth>
+          <Router history={history}>
+            <Base />
+          </Router>
+        </ProvideAuth>
+      </FirebaseContext.Provider>
+    </Theme>
   )
 }

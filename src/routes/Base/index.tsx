@@ -3,9 +3,7 @@ import { Route, Switch } from "react-router-dom"
 import { Loading } from "components/Loading"
 
 // Cards
-const Cards = React.lazy(
-  () => import(/* webpackChunkName: 'Cards' */ "./Cards")
-)
+const Cards = React.lazy(() => import("./Cards"))
 
 export default function Base() {
   return (

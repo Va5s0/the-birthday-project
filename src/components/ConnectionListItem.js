@@ -20,9 +20,7 @@ class ConnectionListItem extends Component {
       connections: this.props.parent.connections,
       parent: this.props.parent,
       openEdit: false,
-      year: moment()
-        .get("year")
-        .toString(),
+      year: moment().get("year").toString(),
     }
   }
 
@@ -65,11 +63,10 @@ class ConnectionListItem extends Component {
 
     let connectionItem = (
       <div>
-        {" "}
-        {this.props.parent.connections.length !== 0 ? (
+        {this.props.parent?.connections?.length !== 0 ? (
           <Col xs={12}>
             <div className="card-effect">
-              <h4>{connection.name}</h4>
+              <h4>{connection?.name}</h4>
               <div>
                 <ListGroup>
                   <ListGroupItem>
@@ -79,7 +76,7 @@ class ConnectionListItem extends Component {
                       width="35px"
                       alt=""
                     />{" "}
-                    {connection.phone}
+                    {connection?.phone}
                   </ListGroupItem>
                   <ListGroupItem>
                     <img
@@ -90,15 +87,13 @@ class ConnectionListItem extends Component {
                     />{" "}
                     {bdayDate}
                   </ListGroupItem>
-                  {moment(connection.nameday.date)
-                    .year()
-                    .toString() !== this.state.year &&
-                  connection.nameday.date !== null ? (
+                  {moment(connection?.nameday.date).year().toString() !==
+                    this.state.year && connection?.nameday.date !== null ? (
                     <NamedayListGroup
-                      name={connection.name}
+                      name={connection?.name}
                       callbackNamedayChild={this.onNamedayChange}
-                      date={connection.nameday.date}
-                      dateId={connection.nameday.nameday_id}
+                      date={connection?.nameday.date}
+                      dateId={connection?.nameday.nameday_id}
                       parent={this.props.parent}
                       index={this.props.index}
                       child={true}
@@ -111,9 +106,9 @@ class ConnectionListItem extends Component {
                         width="35px"
                         alt=""
                       />{" "}
-                      {connection.nameday.date !== null
-                        ? moment(connection.nameday.date).format("DD/MM/YYYY")
-                        : connection.nameday.date}
+                      {connection?.nameday.date !== null
+                        ? moment(connection?.nameday.date).format("DD/MM/YYYY")
+                        : connection?.nameday.date}
                     </ListGroupItem>
                   )}
                 </ListGroup>
@@ -136,7 +131,7 @@ class ConnectionListItem extends Component {
               <Collapse in={this.state.openEdit} mountOnEnter={true}>
                 <div>
                   <EditConnection
-                    id={this.props.parent._id.$oid}
+                    id={this.props.parent?.id}
                     parent={this.props.parent}
                     index={this.props.index}
                     callbackParent={this.handleEditClick.bind(this)}
