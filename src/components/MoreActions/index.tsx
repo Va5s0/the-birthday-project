@@ -60,9 +60,7 @@ function MoreActions(props: Props & IconButtonProps) {
               setAnchorEl(null)
             }}
           >
-            <ListItemIcon style={{ minWidth: "var(--spacing-xxl-2)" }}>
-              {obj.icon}
-            </ListItemIcon>
+            <ListItemIcon className={styles.listItem}>{obj.icon}</ListItemIcon>
           </MenuItem>
         ))}
       </Menu>
@@ -76,5 +74,12 @@ const styles = {
   more: css`
     width: 20px;
     height: 20px;
+  `,
+  listItem: css`
+    min-width: 20px;
+    > svg {
+      width: 20px;
+      height: 20px;
+    }
   `,
 }

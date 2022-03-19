@@ -1,4 +1,4 @@
-interface Common {
+export interface Common {
   id?: string
   firstName?: string
   lastName?: string

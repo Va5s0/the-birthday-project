@@ -49,9 +49,22 @@ injectGlobal`
     align-items: center;
   }
 
+  .MuiInputBase-root.MuiInputBase-marginDense {
+    padding-left: 8px;
+    .MuiSvgIcon-root {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
   .MuiOutlinedInput-input {
     padding: 16px;
     height: 16px;
+  }
+
+  .MuiOutlinedInput-input.MuiOutlinedInput-inputMarginDense {
+    padding: 12px 0;
+    font-size: 12px;
   }
 
   .MuiInputLabel-outlined {
@@ -67,6 +80,21 @@ injectGlobal`
     transform: translate(15px, -6px) scale(0.75);
   }
 
+  .MuiInputAdornment-root {
+    .MuiSvgIcon-root {
+      width: 24px;
+      height: 24px;
+      color: var(--secondary-main);
+    }
+  }
+
+  .MuiInputAdornment-marginDense {
+    .MuiSvgIcon-root {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
   .MuiFormControl-marginNormal {
     height: fit-content;
   }
@@ -80,7 +108,7 @@ injectGlobal`
     font-style: normal;
     line-height: normal;
     letter-spacing: normal;
-    color: #808080;
+    color: var(--dark-grey);
   }
 
   .MuiTypography-body2 {
@@ -91,7 +119,7 @@ injectGlobal`
     font-style: normal;
     line-height: normal;
     letter-spacing: normal;
-    color: #808080;
+    color: var(--dark-grey);
   }
 
   .MuiTypography-caption {
@@ -102,7 +130,15 @@ injectGlobal`
     font-style: normal;
     line-height: normal;
     letter-spacing: normal;
-    color: #808080;
+    color: var(--dark-grey);
+  }
+
+  /* Datepicker */
+  .MuiPickersDay-daySelected {
+    background-color: var(--primary-light);
+    :hover {
+      background-color: var(--primary-dark);
+    }
   }
 
 `

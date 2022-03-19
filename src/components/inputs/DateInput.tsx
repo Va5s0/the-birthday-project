@@ -19,6 +19,7 @@ export type DateInputProps = {
   value: string | Date | undefined
   dropdownIcon?: boolean
   icon?: React.ReactNode
+  errorMessage?: string
 } & Omit<DatePickerProps, "name" | "onChange">
 
 export function DateInput(props: DateInputProps) {
@@ -29,8 +30,11 @@ export function DateInput(props: DateInputProps) {
     dropdownIcon,
     InputProps,
     error,
+    errorMessage,
     fullWidth = true,
     icon,
+    margin = "normal",
+    size = "medium",
     ...rest
   } = props
   const [open, setOpen] = React.useState<boolean>(false)
@@ -61,11 +65,12 @@ export function DateInput(props: DateInputProps) {
         {...rest}
         name={name}
         value={value || null}
-        margin="normal"
-        size="medium"
+        margin={margin}
+        size={size}
         onChange={handleChange}
         onOpen={handleOpen}
         onClose={handleOpen}
+        helperText={errorMessage}
         rightArrowButtonProps={{ classes: { root: styles.arrow } }}
         leftArrowButtonProps={{ classes: { root: styles.arrow } }}
         InputProps={{
@@ -100,7 +105,7 @@ const styles = {
     > svg {
       width: 24px;
       height: 24px;
-      color: grey;
+      color: var(--secondary-main);
       margin-right: 8px;
     }
   `,
@@ -109,7 +114,7 @@ const styles = {
       > svg {
         width: 24px;
         height: 24px;
-        color: grey;
+        color: var(--secondary-main);
       }
     }
   `,

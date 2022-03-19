@@ -1,5 +1,5 @@
-import React from "react"
-import { doc, deleteDoc } from "firebase/firestore"
+import React, { ChangeEvent } from "react"
+import { doc, deleteDoc, updateDoc } from "firebase/firestore"
 import { db } from "firebase/config"
 import {
   Accordion,
@@ -9,36 +9,92 @@ import {
   IconButton,
 } from "@material-ui/core"
 import { css, cx } from "emotion"
-import { Contact } from "models/contact"
+import { Contact, Common } from "models/contact"
 import AccountCircleIcon from "@material-ui/icons/AccountCircle"
 import EmojiPeopleIcon from "@material-ui/icons/EmojiPeople"
 import DeleteIcon from "@material-ui/icons/Delete"
 import EditIcon from "@material-ui/icons/Edit"
+import CloseIcon from "@material-ui/icons/Close"
+import CheckIcon from "@material-ui/icons/Check"
 import { CardInfo } from "./CardInfo"
 import MoreActions from "components/MoreActions"
+import ConfirmationModal, { ModalInfo } from "components/ConfirmationModal"
+import GhostTextInput from "components/inputs/GhostTextInput"
+import { get, set } from "lodash/fp"
 
 type Props = {
   contact: Contact
 }
 
+const nameFields = [
+  { value: "firstName", label: "First Name" },
+  { value: "lastName", label: "Last Name" },
+]
+
 const Card = (props: Props) => {
   const { contact } = props
+  const [state, setState] = React.useState<Contact>(contact)
+  const [errors, setErrors] = React.useState<Record<string, any>>()
   const [expanded, setExpanded] = React.useState<string>()
   const [open, setOpen] = React.useState<boolean>(false)
+  const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
+  const [editable, setEditable] = React.useState<boolean>(false)
 
-  const handleChange =
+  const editFbDoc = async () => {
+    const contactRef = doc(db, `contacts/${contact?.id}`)
+    await updateDoc(contactRef, { ...state }).catch((e) => setErrors(e))
+    setEditable(false)
+  }
+
+  const deleteFbDoc = async () => {
+    const contactRef = doc(db, `contacts/${contact?.id}`)
+    await deleteDoc(contactRef)
+    setModalInfo(undefined)
+  }
+
+  const handleChange = (
+    evt: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const { name, value } = evt.target
+    const updated = set(name, value, contact)
+    setState(updated)
+  }
+
+  const handleClick = (evt: React.MouseEvent<HTMLInputElement>) =>
+    evt?.stopPropagation()
+
+  const handleDateChange = (date: Date | null, name: string) => {
+    const updated = set(name, date?.toISOString(), contact)
+    setState(updated)
+  }
+
+  const onExpand =
     (id?: string) => (_: React.ChangeEvent<{}>, newExpanded: boolean) => {
       setExpanded(newExpanded ? id : undefined)
     }
 
   const onOpen = () => setOpen(!open)
 
-  const onEdit = (id?: string) => {}
-
-  const onDelete = async (id?: string) => {
-    const contactRef = doc(db, `contacts/${id}`)
-    await deleteDoc(contactRef)
+  const onEdit = () => {
+    setEditable(true)
+    setOpen(true)
   }
+
+  const onDelete = async () => {
+    setModalInfo({
+      title: "Delete Contact",
+      type: "destructive",
+      description: "Are you sure you want to delete this contact",
+      confirmLabel: "Delete",
+      onSubmit: deleteFbDoc,
+    })
+  }
+
+  const onCancelEdit = () => setEditable(false)
+
+  const isModalOpen = Boolean(modalInfo)
+
+  React.useEffect(() => setState(() => contact), [contact])
 
   return (
     <div className={cx(styles.wrapper, { [styles.elevated]: open })}>
@@ -48,32 +104,73 @@ const Card = (props: Props) => {
         elevation={6}
       >
         <div className={styles.content}>
-          <div className={styles.nameRow}>
-            <div className={styles.avatarContainer}>
+          <div className={styles.firstRowContainer}>
+            <div
+              className={cx(styles.avatarContainer, {
+                [styles.avatarContainerGap]: !editable,
+              })}
+            >
               <AccountCircleIcon className={styles.avatar} />
-              <div
-                className={styles.name}
-              >{`${contact?.firstName} ${contact.lastName}`}</div>
+              {editable ? (
+                <div className={styles.ghostContainer}>
+                  {nameFields.map((nf, idx) => (
+                    <GhostTextInput
+                      key={idx}
+                      name={nf?.value}
+                      placeholder={nf?.label}
+                      value={
+                        (state[nf?.value as keyof Contact] as string) || ""
+                      }
+                      onChange={handleChange}
+                      error={!!errors && !!errors[nf?.value]}
+                      errorMessage={!!errors ? errors[nf?.value] : ""}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div
+                  className={styles.name}
+                >{`${state?.firstName} ${state.lastName}`}</div>
+              )}
             </div>
-            <MoreActions
-              options={[
-                // EDIT
-                {
-                  label: "edit",
-                  icon: <EditIcon />,
-                  onClick: () => onEdit(contact?.id),
-                },
-                // DELETE
-                {
-                  label: "delete",
-                  icon: <DeleteIcon />,
-                  onClick: () => onDelete(contact?.id),
-                },
-              ]}
-            />
+            {editable ? (
+              <div>
+                <IconButton aria-label="close" onClick={onCancelEdit}>
+                  <CloseIcon className={styles.cancelIcon} />
+                </IconButton>
+                <IconButton onClick={editFbDoc}>
+                  <CheckIcon
+                    className={cx(styles.cancelIcon, styles.blueIcon)}
+                  />
+                </IconButton>
+              </div>
+            ) : (
+              <MoreActions
+                options={[
+                  // EDIT
+                  {
+                    label: "edit",
+                    icon: <EditIcon />,
+                    onClick: onEdit,
+                  },
+                  // DELETE
+                  {
+                    label: "delete",
+                    icon: <DeleteIcon className={styles.deleteIcon} />,
+                    onClick: onDelete,
+                  },
+                ]}
+              />
+            )}
           </div>
-          <CardInfo contact={contact} />
-          {!!contact?.connections?.length ? (
+          <CardInfo
+            contact={state}
+            editable={editable}
+            errors={errors}
+            handleChange={handleChange}
+            handleDateChange={handleDateChange}
+          />
+          {!!state?.connections?.length ? (
             <div className={styles.connectionsRow}>
               <IconButton onClick={onOpen}>
                 <EmojiPeopleIcon className={styles.blueIcon} />
@@ -83,13 +180,13 @@ const Card = (props: Props) => {
         </div>
       </MUICard>
       <div className={styles.connectionsContainer}>
-        {!!contact?.connections?.length
-          ? contact?.connections?.map((c, cidx) => (
+        {!!state?.connections?.length
+          ? state?.connections?.map((c, cidx) => (
               <Accordion
                 key={cidx}
                 square
                 expanded={expanded === c?.id || false}
-                onChange={handleChange(c?.id)}
+                onChange={onExpand(c?.id)}
                 classes={{
                   root: cx(styles.accordion, { [styles.invisible]: !open }),
                 }}
@@ -102,15 +199,48 @@ const Card = (props: Props) => {
                     content: styles.summaryContent,
                   }}
                 >
-                  {`${c?.firstName} ${c?.lastName}`}
+                  {editable
+                    ? nameFields.map((nf, idx) => (
+                        <GhostTextInput
+                          key={idx}
+                          name={`connections.${cidx}.${nf?.value}`}
+                          placeholder={nf?.label}
+                          value={(c[nf?.value as keyof Common] as string) || ""}
+                          onChange={handleChange}
+                          onClick={handleClick}
+                          className={styles.ghostConnectionInput}
+                          error={
+                            !!errors &&
+                            !!get(`connections.${cidx}.${nf?.value}`, errors)
+                          }
+                          errorMessage={
+                            !!errors
+                              ? get(`connections.${cidx}.${nf?.value}`, errors)
+                              : ""
+                          }
+                        />
+                      ))
+                    : `${c?.firstName} ${c?.lastName}`}
                 </AccordionSummary>
                 <AccordionDetails classes={{ root: styles.detailsRoot }}>
-                  <CardInfo contact={c} />
+                  <CardInfo
+                    contact={c}
+                    editable={editable}
+                    errors={errors}
+                    handleChange={handleChange}
+                    handleDateChange={handleDateChange}
+                    index={String(cidx)}
+                  />
                 </AccordionDetails>
               </Accordion>
             ))
           : null}
       </div>
+      <ConfirmationModal
+        open={isModalOpen}
+        onCancel={() => setModalInfo(undefined)}
+        {...modalInfo}
+      />
     </div>
   )
 }
@@ -134,19 +264,31 @@ const styles = {
     flex-direction: column;
     grid-row-gap: 20px;
   `,
-  nameRow: css`
+  firstRowContainer: css`
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 48px;
   `,
   avatarContainer: css`
     display: flex;
     align-items: center;
+  `,
+  avatarContainerGap: css`
     grid-column-gap: 16px;
   `,
   avatar: css`
     width: 48px;
     height: 48px;
+    color: var(--dark-grey);
+  `,
+  ghostContainer: css`
+    display: flex;
+    flex-direction: column;
+    max-width: 148px;
+  `,
+  ghostConnectionInput: css`
+    max-width: 120px;
   `,
   name: css`
     font-size: 16px;
@@ -166,14 +308,18 @@ const styles = {
   accordion: css`
     border-top: none;
     box-shadow: none;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
     opacity: 1;
     transition: 0.5s opacity ease;
     box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%),
       0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%);
+    :last-child {
+      margin-bottom: 50px;
+    }
     &.Mui-expanded {
       margin: 0;
+    }
+    &.Mui-expanded:last-child {
+      margin-bottom: 50px;
     }
   `,
   invisible: css`
@@ -183,10 +329,13 @@ const styles = {
   `,
   summaryRoot: css`
     min-height: 36px;
-    background-color: #f72585;
+    background-color: var(--secondary-main);
     color: white;
     &.Mui-expanded {
       min-height: 36px;
+    }
+    &.Mui-focused {
+      background-color: var(--secondary-main);
     }
   `,
   summaryContent: css`
@@ -202,6 +351,13 @@ const styles = {
     z-index: 500;
   `,
   blueIcon: css`
-    color: #4361ee;
+    color: var(--primary-main);
+  `,
+  deleteIcon: css`
+    color: var(--red);
+  `,
+  cancelIcon: css`
+    width: 36px;
+    height: 36px;
   `,
 }

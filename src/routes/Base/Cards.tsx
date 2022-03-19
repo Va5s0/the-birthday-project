@@ -48,11 +48,11 @@ const styles = {
     margin-bottom: 20px;
   `,
   formControl: css`
-    border: 1px solid #333;
+    border: 1px solid var(--dark-grey-2);
     height: 36px;
   `,
   addButton: css`
     font-size: 54px;
-    color: #4361ee;
+    color: var(--primary-main);
   `,
 }
