@@ -152,8 +152,8 @@ const styles = {
   title: css`
     margin: 0;
     line-height: 22px;
-    font-size: 24px;
-    color: grey;
+    font-size: 18px;
+    font-weight: bold;
   `,
   close: css`
     top: 8px;
@@ -169,10 +169,8 @@ const styles = {
     justify-content: center;
   `,
   footer: css`
-    background-color: #eee;
     padding: 24px;
     display: flex;
-
     align-items: center;
     justify-content: flex-end;
   `,
@@ -189,9 +187,12 @@ const styles = {
     font-size: 13px;
   `,
   contained: css`
-    background-color: grey;
+    background-color: var(--primary-main);
     color: white;
     text-transform: capitalize;
     font-size: 13px;
+    :hover {
+      background-color: var(--primary-dark);
+    }
   `,
 }

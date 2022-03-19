@@ -22,7 +22,7 @@ const styles = {
     box-shadow: none;
   `,
   brand: css`
-    color: #333;
+    color: var(--dark-grey-2);
     font-size: 24px;
   `,
 }

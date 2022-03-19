@@ -1,6 +1,5 @@
 import { InputAdornment } from "@material-ui/core"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
-import { css } from "emotion"
 import { ReactNode } from "react"
 
 type Extra = {
@@ -38,22 +37,10 @@ export function TextInput(props: TextInputProps) {
       type={isPhone ? "number" : "text"}
       InputProps={{
         startAdornment: (
-          <InputAdornment position="start" className={styles.adornment}>
-            {icon}
-          </InputAdornment>
+          <InputAdornment position="start">{icon}</InputAdornment>
         ),
       }}
       {...rest}
     />
   )
-}
-
-const styles = {
-  adornment: css`
-    > svg {
-      width: 24px;
-      height: 24px;
-      color: grey;
-    }
-  `,
 }
