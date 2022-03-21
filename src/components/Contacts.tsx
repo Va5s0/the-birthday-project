@@ -13,7 +13,7 @@ import { css } from "emotion"
 
 const Contacts = () => {
   const [contacts, setContacts] = React.useState<Contact[]>([])
-  const [error, setError] = React.useState<FirestoreError>()
+  const [, setError] = React.useState<FirestoreError>()
 
   const contactsRef = query(collection(db, "contacts"))
 

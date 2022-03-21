@@ -11,7 +11,6 @@ import AddIcon from "@material-ui/icons/Add"
 
 const Cards = () => {
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
-  // const [error, setError] = React.useState<string | undefined>()
 
   const onOpen = () => setOpenAdd(true)
   const onClose = () => setOpenAdd(false)
@@ -28,7 +27,7 @@ const Cards = () => {
           </div>
         </div>
         <Contacts />
-        <AddContact open={openAdd} onClose={onClose} />
+        <AddContact open={openAdd} onClose={onClose} type="contact" />
       </div>
     </div>
   )
