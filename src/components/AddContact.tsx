@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from "react"
-import { doc, setDoc } from "firebase/firestore"
+import { doc, setDoc, updateDoc, collection } from "firebase/firestore"
 import MUIDialog from "@material-ui/core/Dialog"
 import IconButton from "@material-ui/core/IconButton"
 import CloseIcon from "@material-ui/icons/Close"
@@ -20,6 +20,8 @@ import { v1 as getUuid } from "uuid"
 type Props = {
   open: boolean
   onClose: VoidFunction
+  type: "contact" | "connection"
+  contact?: Contact
 }
 
 const contactFields = [
@@ -31,29 +33,42 @@ const contactFields = [
 ]
 
 const AddContact = (props: Props) => {
-  const { open, onClose } = props
-  const [contact, setContact] = React.useState<Contact>({})
+  const { open, onClose, type, contact } = props
+  const [state, setState] = React.useState<Contact>({})
   const [errors, setErrors] = React.useState<Record<string, string>>()
 
   const handleChange = (
     evt: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
     const { name, value } = evt.target
-    setContact((c) => ({ ...c, [name]: value }))
+    setState((s) => ({ ...s, [name]: value }))
   }
 
   const handleDateChange = (date: Date | null, name: string) => {
-    setContact((c) => ({ ...c, [name]: date?.toISOString() }))
+    setState((s) => ({ ...s, [name]: date?.toISOString() }))
   }
 
   const handleSubmit = () => {
-    const contactsRef = doc(db, "contacts", getUuid())
-    setDoc(contactsRef, contact).catch((err) => setErrors(err))
+    const updatedContact = {
+      ...contact,
+      connections: [
+        ...(contact?.connections || []),
+        { ...state, id: getUuid() },
+      ],
+    }
+    !!contact
+      ? updateDoc(doc(db, `contacts/${contact?.id}`), updatedContact).catch(
+          (err) => setErrors(err)
+        )
+      : setDoc(doc(collection(db, "contacts")), {
+          ...state,
+          connections: [],
+        }).catch((err) => setErrors(err))
     handleClose()
   }
 
   const handleClose = () => {
-    setContact({})
+    setState({})
     onClose()
   }
 
@@ -69,7 +84,7 @@ const AddContact = (props: Props) => {
     >
       <div data-dialog-header className={styles.header}>
         <div id={id} className={styles.title}>
-          Add a new contact
+          {`Add a new ${type}`}
         </div>
         <div data-dialog-close-button className={styles.close}>
           <IconButton aria-label="close" onClick={handleClose}>
@@ -86,7 +101,7 @@ const AddContact = (props: Props) => {
               name={cf?.value}
               label={cf?.label}
               placeholder={cf?.label}
-              value={contact[cf?.value as keyof Contact] || ""}
+              value={state[cf?.value as keyof Contact] || ""}
               onChange={handleChange}
               error={!!errors && !!errors[cf?.value]}
               errorMessage={!!errors ? errors[cf?.value] : ""}
@@ -97,7 +112,7 @@ const AddContact = (props: Props) => {
             name="birthday"
             label={"Birthday"}
             placeholder={"Birthday"}
-            value={contact?.birthday || ""}
+            value={state?.birthday || ""}
             onChange={handleDateChange}
             icon={<CakeIcon />}
           />
@@ -105,7 +120,7 @@ const AddContact = (props: Props) => {
             name="nameday"
             label={"Nameday"}
             placeholder={"Nameday"}
-            value={contact?.nameday?.date || ""}
+            value={state?.nameday?.date || ""}
             onChange={handleDateChange}
             icon={<PermContactCalendarIcon />}
           />

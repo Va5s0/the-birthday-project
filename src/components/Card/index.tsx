@@ -1,26 +1,23 @@
 import React, { ChangeEvent } from "react"
 import { doc, deleteDoc, updateDoc } from "firebase/firestore"
 import { db } from "firebase/config"
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Card as MUICard,
-  IconButton,
-} from "@material-ui/core"
+import { Card as MUICard, IconButton } from "@material-ui/core"
 import { css, cx } from "emotion"
-import { Contact, Common } from "models/contact"
+import { Contact } from "models/contact"
 import AccountCircleIcon from "@material-ui/icons/AccountCircle"
 import EmojiPeopleIcon from "@material-ui/icons/EmojiPeople"
 import DeleteIcon from "@material-ui/icons/Delete"
 import EditIcon from "@material-ui/icons/Edit"
 import CloseIcon from "@material-ui/icons/Close"
 import CheckIcon from "@material-ui/icons/Check"
+import AddIcon from "@material-ui/icons/Add"
 import { CardInfo } from "./CardInfo"
 import MoreActions from "components/MoreActions"
 import ConfirmationModal, { ModalInfo } from "components/ConfirmationModal"
 import GhostTextInput from "components/inputs/GhostTextInput"
-import { get, set } from "lodash/fp"
+import { set } from "lodash/fp"
+import AddContact from "components/AddContact"
+import Connections from "components/Connections"
 
 type Props = {
   contact: Contact
@@ -35,8 +32,8 @@ const Card = (props: Props) => {
   const { contact } = props
   const [state, setState] = React.useState<Contact>(contact)
   const [errors, setErrors] = React.useState<Record<string, any>>()
-  const [expanded, setExpanded] = React.useState<string>()
   const [open, setOpen] = React.useState<boolean>(false)
+  const [openAdd, setOpenAdd] = React.useState<boolean>(false)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
   const [editable, setEditable] = React.useState<boolean>(false)
 
@@ -44,11 +41,22 @@ const Card = (props: Props) => {
     const contactRef = doc(db, `contacts/${contact?.id}`)
     await updateDoc(contactRef, { ...state }).catch((e) => setErrors(e))
     setEditable(false)
+    setOpen(false)
   }
 
   const deleteFbDoc = async () => {
     const contactRef = doc(db, `contacts/${contact?.id}`)
     await deleteDoc(contactRef)
+    setModalInfo(undefined)
+  }
+
+  const deleteConnection = async (id?: string) => {
+    const updatedContact = {
+      ...contact,
+      connections: contact?.connections?.filter((c) => c?.id !== id),
+    }
+    const contactRef = doc(db, `contacts/${contact?.id}`)
+    await updateDoc(contactRef, updatedContact)
     setModalInfo(undefined)
   }
 
@@ -60,27 +68,22 @@ const Card = (props: Props) => {
     setState(updated)
   }
 
-  const handleClick = (evt: React.MouseEvent<HTMLInputElement>) =>
-    evt?.stopPropagation()
-
   const handleDateChange = (date: Date | null, name: string) => {
     const updated = set(name, date?.toISOString(), contact)
     setState(updated)
   }
 
-  const onExpand =
-    (id?: string) => (_: React.ChangeEvent<{}>, newExpanded: boolean) => {
-      setExpanded(newExpanded ? id : undefined)
-    }
-
   const onOpen = () => setOpen(!open)
+
+  const onOpenAdd = () => setOpenAdd(true)
+  const onCloseAdd = () => setOpenAdd(false)
 
   const onEdit = () => {
     setEditable(true)
     setOpen(true)
   }
 
-  const onDelete = async () => {
+  const onDelete = async () =>
     setModalInfo({
       title: "Delete Contact",
       type: "destructive",
@@ -88,9 +91,20 @@ const Card = (props: Props) => {
       confirmLabel: "Delete",
       onSubmit: deleteFbDoc,
     })
-  }
 
-  const onCancelEdit = () => setEditable(false)
+  const onDeleteConnection = async (id?: string) =>
+    setModalInfo({
+      title: "Delete Connection",
+      type: "destructive",
+      description: "Are you sure you want to delete this connection",
+      confirmLabel: "Delete",
+      onSubmit: () => deleteConnection(id),
+    })
+
+  const onCancelEdit = () => {
+    setEditable(false)
+    setOpen(false)
+  }
 
   const isModalOpen = Boolean(modalInfo)
 
@@ -140,13 +154,19 @@ const Card = (props: Props) => {
                 </IconButton>
                 <IconButton onClick={editFbDoc}>
                   <CheckIcon
-                    className={cx(styles.cancelIcon, styles.blueIcon)}
+                    className={cx(styles.cancelIcon, styles.primaryIcon)}
                   />
                 </IconButton>
               </div>
             ) : (
               <MoreActions
                 options={[
+                  // ADD
+                  {
+                    label: "add",
+                    icon: <AddIcon className={styles.primaryIcon} />,
+                    onClick: onOpenAdd,
+                  },
                   // EDIT
                   {
                     label: "edit",
@@ -173,73 +193,31 @@ const Card = (props: Props) => {
           {!!state?.connections?.length ? (
             <div className={styles.connectionsRow}>
               <IconButton onClick={onOpen}>
-                <EmojiPeopleIcon className={styles.blueIcon} />
+                <EmojiPeopleIcon className={styles.primaryIcon} />
               </IconButton>
             </div>
           ) : null}
         </div>
       </MUICard>
-      <div className={styles.connectionsContainer}>
-        {!!state?.connections?.length
-          ? state?.connections?.map((c, cidx) => (
-              <Accordion
-                key={cidx}
-                square
-                expanded={expanded === c?.id || false}
-                onChange={onExpand(c?.id)}
-                classes={{
-                  root: cx(styles.accordion, { [styles.invisible]: !open }),
-                }}
-              >
-                <AccordionSummary
-                  aria-controls="panel1d-content"
-                  id="panel1d-header"
-                  classes={{
-                    root: styles.summaryRoot,
-                    content: styles.summaryContent,
-                  }}
-                >
-                  {editable
-                    ? nameFields.map((nf, idx) => (
-                        <GhostTextInput
-                          key={idx}
-                          name={`connections.${cidx}.${nf?.value}`}
-                          placeholder={nf?.label}
-                          value={(c[nf?.value as keyof Common] as string) || ""}
-                          onChange={handleChange}
-                          onClick={handleClick}
-                          className={styles.ghostConnectionInput}
-                          error={
-                            !!errors &&
-                            !!get(`connections.${cidx}.${nf?.value}`, errors)
-                          }
-                          errorMessage={
-                            !!errors
-                              ? get(`connections.${cidx}.${nf?.value}`, errors)
-                              : ""
-                          }
-                        />
-                      ))
-                    : `${c?.firstName} ${c?.lastName}`}
-                </AccordionSummary>
-                <AccordionDetails classes={{ root: styles.detailsRoot }}>
-                  <CardInfo
-                    contact={c}
-                    editable={editable}
-                    errors={errors}
-                    handleChange={handleChange}
-                    handleDateChange={handleDateChange}
-                    index={String(cidx)}
-                  />
-                </AccordionDetails>
-              </Accordion>
-            ))
-          : null}
-      </div>
+      <Connections
+        connections={state?.connections}
+        open={open}
+        editable={editable}
+        handleChange={handleChange}
+        handleDateChange={handleDateChange}
+        onDelete={onDeleteConnection}
+        errors={errors}
+      />
       <ConfirmationModal
         open={isModalOpen}
         onCancel={() => setModalInfo(undefined)}
         {...modalInfo}
+      />
+      <AddContact
+        open={openAdd}
+        onClose={onCloseAdd}
+        type="connection"
+        contact={contact}
       />
     </div>
   )
@@ -287,9 +265,6 @@ const styles = {
     flex-direction: column;
     max-width: 148px;
   `,
-  ghostConnectionInput: css`
-    max-width: 120px;
-  `,
   name: css`
     font-size: 16px;
   `,
@@ -301,56 +276,10 @@ const styles = {
     display: flex;
     justify-content: flex-end;
   `,
-  connectionsContainer: css`
-    position: absolute;
-    width: 100%;
-  `,
-  accordion: css`
-    border-top: none;
-    box-shadow: none;
-    opacity: 1;
-    transition: 0.5s opacity ease;
-    box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%),
-      0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%);
-    :last-child {
-      margin-bottom: 50px;
-    }
-    &.Mui-expanded {
-      margin: 0;
-    }
-    &.Mui-expanded:last-child {
-      margin-bottom: 50px;
-    }
-  `,
-  invisible: css`
-    opacity: 0;
-    transition: 0.5s opacity ease;
-    box-shadow: none;
-  `,
-  summaryRoot: css`
-    min-height: 36px;
-    background-color: var(--secondary-main);
-    color: white;
-    &.Mui-expanded {
-      min-height: 36px;
-    }
-    &.Mui-focused {
-      background-color: var(--secondary-main);
-    }
-  `,
-  summaryContent: css`
-    margin: 8px 0;
-    &.Mui-expanded {
-      margin: 8px 0;
-    }
-  `,
-  detailsRoot: css`
-    padding: 8px 16px 8px;
-  `,
   elevated: css`
     z-index: 500;
   `,
-  blueIcon: css`
+  primaryIcon: css`
     color: var(--primary-main);
   `,
   deleteIcon: css`
