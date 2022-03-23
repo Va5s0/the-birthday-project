@@ -1,5 +1,4 @@
-import React, { ChangeEvent } from "react"
-import { Common } from "models/contact"
+import React from "react"
 import {
   Accordion,
   AccordionDetails,
@@ -7,21 +6,22 @@ import {
   IconButton,
 } from "@material-ui/core"
 import { css, cx } from "emotion"
+import { Common, Contact } from "models/contact"
 import GhostTextInput from "./inputs/GhostTextInput"
 import { get } from "lodash/fp"
 import { CardInfo } from "./Card/CardInfo"
 import CloseIcon from "@material-ui/icons/Close"
 
 type Props = {
-  connections?: Common[]
+  contact?: Contact
   open: boolean
   editable: boolean
-  handleChange: (
-    evt: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => void
-  handleDateChange: (date: Date | null, name: string) => void
   onDelete: (id?: string) => Promise<void>
   errors?: Record<string, any>
+  handleChange: (
+    evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => void
+  onContactChange: (contact?: Contact) => void
 }
 
 const nameFields = [
@@ -31,13 +31,14 @@ const nameFields = [
 
 const Connections = (props: Props) => {
   const {
-    connections,
+    contact,
     open,
     editable,
-    handleChange,
-    handleDateChange,
     onDelete,
     errors,
+    handleChange,
+    onContactChange,
+    ...rest
   } = props
   const [expanded, setExpanded] = React.useState<string>()
 
@@ -59,8 +60,8 @@ const Connections = (props: Props) => {
 
   return (
     <div className={styles.connectionsContainer}>
-      {!!connections?.length
-        ? connections?.map((c, cidx) => (
+      {!!contact?.connections?.length
+        ? contact?.connections?.map((c, cidx) => (
             <Accordion
               key={cidx}
               square
@@ -113,12 +114,12 @@ const Connections = (props: Props) => {
               </AccordionSummary>
               <AccordionDetails classes={{ root: styles.detailsRoot }}>
                 <CardInfo
-                  contact={c}
+                  contact={contact}
                   editable={editable}
                   errors={errors}
-                  handleChange={handleChange}
-                  handleDateChange={handleDateChange}
                   index={String(cidx)}
+                  onContactChange={onContactChange}
+                  {...rest}
                 />
               </AccordionDetails>
             </Accordion>

@@ -37,6 +37,8 @@ injectGlobal`
   }
 
   .MuiOutlinedInput-input.MuiOutlinedInput-inputMarginDense {
+    display: flex;
+      align-items: center;
     padding: 12px 0;
     font-size: 12px;
   }
@@ -58,7 +60,12 @@ injectGlobal`
     .MuiSvgIcon-root {
       width: 24px;
       height: 24px;
-      color: var(--secondary-main);
+    }
+  }
+
+  .MuiInputBase-adornedStart {
+    .MuiSelect-icon {
+      margin-top: 5px;
     }
   }
 
@@ -71,6 +78,14 @@ injectGlobal`
 
   .MuiFormControl-marginNormal {
     height: fit-content;
+  }
+
+  .MuiSelect-outlined.MuiSelect-outlined {
+    color: var(--black);
+  }
+
+  .MuiSelect-select:focus {
+    background-color: transparent;
   }
 
   /*  Typo */
@@ -112,6 +127,13 @@ injectGlobal`
     background-color: var(--primary-light);
     :hover {
       background-color: var(--primary-dark);
+    }
+  }
+  .MuiPickersDay-dayDisabled {
+    .MuiIconButton-label {
+      .MuiTypography-body2 {
+        color: var(--light-grey-2)
+      }
     }
   }
 
