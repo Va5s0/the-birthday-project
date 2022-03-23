@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react"
+import React from "react"
 import { doc, deleteDoc, updateDoc } from "firebase/firestore"
 import { db } from "firebase/config"
 import { Card as MUICard, IconButton } from "@material-ui/core"
@@ -15,13 +15,15 @@ import { CardInfo } from "./CardInfo"
 import MoreActions from "components/MoreActions"
 import ConfirmationModal, { ModalInfo } from "components/ConfirmationModal"
 import GhostTextInput from "components/inputs/GhostTextInput"
-import { set } from "lodash/fp"
 import AddContact from "components/AddContact"
 import Connections from "components/Connections"
+import { set } from "lodash/fp"
 
 type Props = {
   contact: Contact
 }
+
+type Name = { firstName?: string; lastName?: string }
 
 const nameFields = [
   { value: "firstName", label: "First Name" },
@@ -30,8 +32,8 @@ const nameFields = [
 
 const Card = (props: Props) => {
   const { contact } = props
-  const [state, setState] = React.useState<Contact>(contact)
   const [errors, setErrors] = React.useState<Record<string, any>>()
+  const [updatedContact, setUpdatedContact] = React.useState<Contact>(contact)
   const [open, setOpen] = React.useState<boolean>(false)
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
@@ -39,10 +41,15 @@ const Card = (props: Props) => {
 
   const editFbDoc = async () => {
     const contactRef = doc(db, `contacts/${contact?.id}`)
-    await updateDoc(contactRef, { ...state }).catch((e) => setErrors(e))
+    await updateDoc(contactRef, { ...updatedContact }).catch((e) =>
+      setErrors(e)
+    )
     setEditable(false)
     setOpen(false)
   }
+
+  const onContactChange = (contact?: Contact) =>
+    setUpdatedContact(contact || {})
 
   const deleteFbDoc = async () => {
     const contactRef = doc(db, `contacts/${contact?.id}`)
@@ -60,19 +67,6 @@ const Card = (props: Props) => {
     setModalInfo(undefined)
   }
 
-  const handleChange = (
-    evt: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    const { name, value } = evt.target
-    const updated = set(name, value, contact)
-    setState(updated)
-  }
-
-  const handleDateChange = (date: Date | null, name: string) => {
-    const updated = set(name, date?.toISOString(), contact)
-    setState(updated)
-  }
-
   const onOpen = () => setOpen(!open)
 
   const onOpenAdd = () => setOpenAdd(true)
@@ -81,6 +75,14 @@ const Card = (props: Props) => {
   const onEdit = () => {
     setEditable(true)
     setOpen(true)
+  }
+
+  const handleChange = (
+    evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const { name, value } = evt.target
+    const updated = set(name, value, updatedContact)
+    setUpdatedContact(updated)
   }
 
   const onDelete = async () =>
@@ -108,7 +110,7 @@ const Card = (props: Props) => {
 
   const isModalOpen = Boolean(modalInfo)
 
-  React.useEffect(() => setState(() => contact), [contact])
+  React.useEffect(() => setUpdatedContact(contact), [contact])
 
   return (
     <div className={cx(styles.wrapper, { [styles.elevated]: open })}>
@@ -133,7 +135,8 @@ const Card = (props: Props) => {
                       name={nf?.value}
                       placeholder={nf?.label}
                       value={
-                        (state[nf?.value as keyof Contact] as string) || ""
+                        (updatedContact[nf?.value as keyof Name] as string) ||
+                        ""
                       }
                       onChange={handleChange}
                       error={!!errors && !!errors[nf?.value]}
@@ -144,7 +147,7 @@ const Card = (props: Props) => {
               ) : (
                 <div
                   className={styles.name}
-                >{`${state?.firstName} ${state.lastName}`}</div>
+                >{`${contact?.firstName} ${contact.lastName}`}</div>
               )}
             </div>
             {editable ? (
@@ -152,9 +155,14 @@ const Card = (props: Props) => {
                 <IconButton aria-label="close" onClick={onCancelEdit}>
                   <CloseIcon className={styles.cancelIcon} />
                 </IconButton>
-                <IconButton onClick={editFbDoc}>
+                <IconButton
+                  onClick={editFbDoc}
+                  disabled={!updatedContact["firstName"]}
+                >
                   <CheckIcon
-                    className={cx(styles.cancelIcon, styles.primaryIcon)}
+                    className={cx(styles.cancelIcon, styles.primaryIcon, {
+                      [styles.disabledIcon]: !updatedContact["firstName"],
+                    })}
                   />
                 </IconButton>
               </div>
@@ -184,13 +192,12 @@ const Card = (props: Props) => {
             )}
           </div>
           <CardInfo
-            contact={state}
+            contact={updatedContact}
             editable={editable}
             errors={errors}
-            handleChange={handleChange}
-            handleDateChange={handleDateChange}
+            onContactChange={onContactChange}
           />
-          {!!state?.connections?.length ? (
+          {!!contact?.connections?.length ? (
             <div className={styles.connectionsRow}>
               <IconButton onClick={onOpen}>
                 <EmojiPeopleIcon className={styles.primaryIcon} />
@@ -200,13 +207,13 @@ const Card = (props: Props) => {
         </div>
       </MUICard>
       <Connections
-        connections={state?.connections}
+        contact={updatedContact}
         open={open}
         editable={editable}
-        handleChange={handleChange}
-        handleDateChange={handleDateChange}
         onDelete={onDeleteConnection}
         errors={errors}
+        handleChange={handleChange}
+        onContactChange={onContactChange}
       />
       <ConfirmationModal
         open={isModalOpen}
@@ -288,5 +295,8 @@ const styles = {
   cancelIcon: css`
     width: 36px;
     height: 36px;
+  `,
+  disabledIcon: css`
+    color: rgba(0, 0, 0, 0.26);
   `,
 }

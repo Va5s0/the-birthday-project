@@ -1,16 +1,14 @@
 import React from "react"
 
 import {
-  DatePicker,
   DatePickerProps,
+  KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers"
 import { css, cx } from "@emotion/css"
 
 import DateFnsUtils from "@date-io/date-fns"
 import DropdownIcon from "@material-ui/icons/KeyboardArrowDown"
-import IconButton from "@material-ui/core/IconButton"
-import InputAdornment from "@material-ui/core/InputAdornment"
 import { startOfDay } from "date-fns"
 
 export type DateInputProps = {
@@ -54,13 +52,11 @@ export function DateInput(props: DateInputProps) {
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <DatePicker
-        format="P"
+      <KeyboardDatePicker
+        format="dd/MM/yyyy"
         variant="inline"
         inputVariant="outlined"
         fullWidth={fullWidth}
-        disableToolbar={true}
-        allowKeyboardControl={true}
         error={error}
         {...rest}
         name={name}
@@ -73,20 +69,16 @@ export function DateInput(props: DateInputProps) {
         helperText={errorMessage}
         rightArrowButtonProps={{ classes: { root: styles.arrow } }}
         leftArrowButtonProps={{ classes: { root: styles.arrow } }}
+        keyboardIcon={<DropdownIcon />}
+        InputAdornmentProps={{
+          className: styles.icon,
+        }}
         InputProps={{
           classes: {
             notchedOutline: cx({ [styles.focusedError]: open && !!error }),
             adornedStart: styles.startAdornment,
           },
           startAdornment: icon,
-          endAdornment: dropdownIcon ? (
-            <InputAdornment position="end">
-              <IconButton size="small" classes={{ root: styles.btn }}>
-                <DropdownIcon />
-              </IconButton>
-            </InputAdornment>
-          ) : undefined,
-          ...InputProps,
         }}
       />
     </MuiPickersUtilsProvider>
@@ -99,6 +91,11 @@ const styles = {
   `,
   focusedError: css`
     border: 2px solid red;
+  `,
+  icon: css`
+    .MuiIconButton-root {
+      padding: 0;
+    }
   `,
   startAdornment: css`
     padding: 0 16px;

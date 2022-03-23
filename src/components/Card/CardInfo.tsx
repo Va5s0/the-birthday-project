@@ -1,26 +1,24 @@
-import React, { ChangeEvent } from "react"
-import { Contact } from "models/contact"
+import React from "react"
+import { Contact, Common } from "models/contact"
 import PhoneIcon from "@material-ui/icons/Phone"
 import PhoneIphoneIcon from "@material-ui/icons/PhoneIphone"
 import AlternateEmailIcon from "@material-ui/icons/AlternateEmail"
 import CakeIcon from "@material-ui/icons/Cake"
 import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar"
-import { dateFormatter } from "utils/dateFormatter"
+import { dateFormatter } from "utils/index"
 import { css } from "@emotion/css"
 import { TextInput } from "components/inputs/TextInput"
 import { cx } from "emotion"
 import { DateInput } from "components/inputs/DateInput"
-import { get } from "lodash/fp"
+import { get, set } from "lodash/fp"
+import Nameday from "components/Nameday"
 
 type Props = {
   contact: Contact
-  handleChange: (
-    evt: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => void
-  handleDateChange: (date: Date | null, name: string) => void
   editable: boolean
   index?: string
   errors?: Record<string, string>
+  onContactChange: (contact?: Contact) => void
 }
 
 const contactFields = [
@@ -30,8 +28,20 @@ const contactFields = [
 ]
 
 export const CardInfo = (props: Props) => {
-  const { contact, editable, errors, handleChange, handleDateChange, index } =
-    props
+  const { contact, editable, errors, index, onContactChange } = props
+
+  const handleChange = (
+    evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const { name, value } = evt.target
+    const updated = set(name, value, contact)
+    onContactChange(updated)
+  }
+
+  const handleDateChange = (date: Date | null, name: string) => {
+    const updated = set(name, date?.toISOString(), contact)
+    onContactChange(updated)
+  }
 
   const hasError = (value?: string, index?: string) =>
     !!errors &&
@@ -46,6 +56,8 @@ export const CardInfo = (props: Props) => {
         : get(`connections.${index}.${value}`, errors)
       : ""
 
+  const value = !index ? contact : (contact?.connections || [])[Number(index)]
+
   return (
     <div className={cx(styles.wrapper, { [styles.narrow]: editable })}>
       <div className={styles.commonRow}>
@@ -59,17 +71,17 @@ export const CardInfo = (props: Props) => {
               margin="dense"
               size="small"
               placeholder={cf?.label}
-              value={contact[cf?.value as keyof Contact] || ""}
+              value={value[cf?.value as keyof Common] || ""}
               onChange={handleChange}
               error={hasError(cf?.value, index)}
               errorMessage={errorMsg(cf?.value, index)}
-              icon={<Cmp />}
+              icon={<Cmp className={styles.commonIcon} />}
               fullWidth
             />
-          ) : !!contact[cf.value as keyof Contact] ? (
+          ) : !!value[cf.value as keyof Common] ? (
             <div className={styles.commonContainer} key={idx}>
               <Cmp className={styles.commonIcon} />
-              <div>{contact[cf.value as keyof Contact]}</div>
+              <div>{value[cf.value as keyof Common]}</div>
             </div>
           ) : null
         })}
@@ -80,37 +92,32 @@ export const CardInfo = (props: Props) => {
             name={!index ? "birthday" : `connections.${index}.birthday`}
             label={"Birthday"}
             placeholder={"Birthday"}
-            value={contact?.birthday || ""}
+            value={value?.birthday || ""}
             margin="dense"
             size="small"
             onChange={handleDateChange}
             icon={<CakeIcon />}
-            error={hasError(contact?.birthday, index)}
-            errorMessage={errorMsg(contact?.birthday, index)}
+            error={hasError(value?.birthday, index)}
+            errorMessage={errorMsg(value?.birthday, index)}
           />
-        ) : !!contact?.birthday ? (
+        ) : !!value?.birthday ? (
           <div className={styles.commonContainer}>
             <CakeIcon className={styles.commonIcon} />
-            <div>{dateFormatter(contact?.birthday)}</div>
+            <div>{dateFormatter(value?.birthday)}</div>
           </div>
         ) : null}
         {editable ? (
-          <DateInput
-            name={!index ? "nameday" : `connections.${index}.nameday`}
-            label={"Nameday"}
-            placeholder={"Nameday"}
-            value={contact?.nameday?.date || ""}
-            margin="dense"
-            size="small"
-            onChange={handleDateChange}
-            icon={<PermContactCalendarIcon />}
-            error={hasError(contact?.nameday?.date, index)}
-            errorMessage={errorMsg(contact?.nameday?.date, index)}
+          <Nameday
+            index={index}
+            contact={contact}
+            hasError={hasError}
+            errorMsg={errorMsg}
+            onContactChange={onContactChange}
           />
-        ) : !!contact?.nameday?.date ? (
+        ) : !!value?.nameday?.date ? (
           <div className={styles.commonContainer}>
             <PermContactCalendarIcon className={styles.commonIcon} />
-            <div>{dateFormatter(contact?.nameday?.date)}</div>
+            <div>{dateFormatter(value?.nameday?.date)}</div>
           </div>
         ) : null}
       </div>

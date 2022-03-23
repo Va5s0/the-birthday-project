@@ -8,7 +8,6 @@ import PhoneIcon from "@material-ui/icons/Phone"
 import PhoneIphoneIcon from "@material-ui/icons/PhoneIphone"
 import AlternateEmailIcon from "@material-ui/icons/AlternateEmail"
 import CakeIcon from "@material-ui/icons/Cake"
-import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar"
 import { css } from "@emotion/css"
 import { Button, FormControl } from "@material-ui/core"
 import { TextInput } from "./inputs/TextInput"
@@ -16,6 +15,7 @@ import { Contact } from "models/contact"
 import { DateInput } from "./inputs/DateInput"
 import { db } from "firebase/config"
 import { v1 as getUuid } from "uuid"
+import Nameday from "components/Nameday"
 
 type Props = {
   open: boolean
@@ -25,11 +25,11 @@ type Props = {
 }
 
 const contactFields = [
-  { label: "First Name", value: "firstName", icon: <AccountBoxIcon /> },
-  { label: "Last Name", value: "lastName", icon: <AccountBoxIcon /> },
-  { label: "Phone", value: "phone", icon: <PhoneIcon /> },
-  { label: "Mobile", value: "mobile", icon: <PhoneIphoneIcon /> },
-  { label: "Email", value: "email", icon: <AlternateEmailIcon /> },
+  { label: "First Name", value: "firstName", icon: AccountBoxIcon },
+  { label: "Last Name", value: "lastName", icon: AccountBoxIcon },
+  { label: "Phone", value: "phone", icon: PhoneIcon },
+  { label: "Mobile", value: "mobile", icon: PhoneIphoneIcon },
+  { label: "Email", value: "email", icon: AlternateEmailIcon },
 ]
 
 const AddContact = (props: Props) => {
@@ -47,6 +47,8 @@ const AddContact = (props: Props) => {
   const handleDateChange = (date: Date | null, name: string) => {
     setState((s) => ({ ...s, [name]: date?.toISOString() }))
   }
+
+  const handleSelectChange = (contact?: Contact) => setState(contact || {})
 
   const handleSubmit = () => {
     const updatedContact = {
@@ -95,19 +97,22 @@ const AddContact = (props: Props) => {
 
       <div data-dialog-content className={styles.content}>
         <FormControl fullWidth>
-          {contactFields.map((cf, idx) => (
-            <TextInput
-              key={idx}
-              name={cf?.value}
-              label={cf?.label}
-              placeholder={cf?.label}
-              value={state[cf?.value as keyof Contact] || ""}
-              onChange={handleChange}
-              error={!!errors && !!errors[cf?.value]}
-              errorMessage={!!errors ? errors[cf?.value] : ""}
-              icon={cf?.icon}
-            />
-          ))}
+          {contactFields.map((cf, idx) => {
+            const Cmp = cf?.icon
+            return (
+              <TextInput
+                key={idx}
+                name={cf?.value}
+                label={cf?.label}
+                placeholder={cf?.label}
+                value={state[cf?.value as keyof Contact] || ""}
+                onChange={handleChange}
+                error={!!errors && !!errors[cf?.value]}
+                errorMessage={!!errors ? errors[cf?.value] : ""}
+                icon={<Cmp className={styles.commonIcon} />}
+              />
+            )
+          })}
           <DateInput
             name="birthday"
             label={"Birthday"}
@@ -116,13 +121,13 @@ const AddContact = (props: Props) => {
             onChange={handleDateChange}
             icon={<CakeIcon />}
           />
-          <DateInput
-            name="nameday"
-            label={"Nameday"}
-            placeholder={"Nameday"}
-            value={state?.nameday?.date || ""}
-            onChange={handleDateChange}
-            icon={<PermContactCalendarIcon />}
+          <Nameday
+            contact={state}
+            hasError={() => !!errors && !!errors["nameday"]}
+            errorMsg={() => (!!errors ? errors["nameday"] : "")}
+            onContactChange={handleSelectChange}
+            margin="normal"
+            size="medium"
           />
         </FormControl>
       </div>
@@ -144,6 +149,7 @@ const AddContact = (props: Props) => {
             disableElevation
             size="large"
             onClick={handleSubmit}
+            disabled={!state["firstName"]}
             classes={{ containedSizeLarge: styles.contained }}
           >
             Submit
@@ -209,5 +215,8 @@ const styles = {
     :hover {
       background-color: var(--primary-dark);
     }
+  `,
+  commonIcon: css`
+    color: var(--secondary-main);
   `,
 }
