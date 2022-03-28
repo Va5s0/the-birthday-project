@@ -116,7 +116,9 @@ const Card = (props: Props) => {
     <div className={cx(styles.wrapper, { [styles.elevated]: open })}>
       <MUICard
         variant={open ? "elevation" : "outlined"}
-        className={styles.cardContainer}
+        className={cx(styles.cardContainer, {
+          [styles.paddingBottom]: !contact?.connections?.length,
+        })}
         elevation={6}
       >
         <div className={styles.content}>
@@ -172,7 +174,11 @@ const Card = (props: Props) => {
                   // ADD
                   {
                     label: "add",
-                    icon: <AddIcon className={styles.primaryIcon} />,
+                    icon: (
+                      <AddIcon
+                        className={cx(styles.primaryIcon, styles.smallIcon)}
+                      />
+                    ),
                     onClick: onOpenAdd,
                   },
                   // EDIT
@@ -200,7 +206,9 @@ const Card = (props: Props) => {
           {!!contact?.connections?.length ? (
             <div className={styles.connectionsRow}>
               <IconButton onClick={onOpen}>
-                <EmojiPeopleIcon className={styles.primaryIcon} />
+                <EmojiPeopleIcon
+                  className={cx(styles.primaryIcon, styles.smallIcon)}
+                />
               </IconButton>
             </div>
           ) : null}
@@ -239,7 +247,6 @@ const styles = {
   `,
   cardContainer: css`
     width: 350px;
-    min-height: 187px;
     padding: 16px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -289,6 +296,10 @@ const styles = {
   primaryIcon: css`
     color: var(--primary-main);
   `,
+  smallIcon: css`
+    width: 16px;
+    height: 16px;
+  `,
   deleteIcon: css`
     color: var(--red);
   `,
@@ -298,5 +309,8 @@ const styles = {
   `,
   disabledIcon: css`
     color: rgba(0, 0, 0, 0.26);
+  `,
+  paddingBottom: css`
+    padding-bottom: 32px;
   `,
 }

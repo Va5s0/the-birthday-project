@@ -126,9 +126,7 @@ const Nameday = (props: Props) => {
         onChange={onSelectChange}
         startAdornment={
           <PermContactCalendarIcon
-            className={cx(styles.commonIcon, {
-              [styles.adornment]: margin === "normal",
-            })}
+            className={cx(styles.commonIcon, styles.adornment)}
           />
         }
         IconComponent={() => (

@@ -136,13 +136,17 @@ const styles = {
   commonRow: css`
     display: flex;
     flex-direction: column;
-    grid-row-gap: 4px;
+    grid-row-gap: 8px;
     width: 100%;
   `,
   commonContainer: css`
     display: flex;
     align-items: center;
     grid-column-gap: 12px;
+    > svg {
+      width: 16px;
+      height: 16px;
+    }
   `,
   commonIcon: css`
     color: var(--secondary-main);
