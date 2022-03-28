@@ -239,7 +239,7 @@ const styles = {
   `,
   cardContainer: css`
     width: 350px;
-    min-height: 200px;
+    min-height: 187px;
     padding: 16px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
