@@ -143,6 +143,10 @@ const styles = {
     display: flex;
     align-items: center;
     grid-column-gap: 12px;
+    > svg {
+      width: 16px;
+      height: 16px;
+    }
   `,
   commonIcon: css`
     color: var(--secondary-main);

@@ -116,7 +116,9 @@ const Card = (props: Props) => {
     <div className={cx(styles.wrapper, { [styles.elevated]: open })}>
       <MUICard
         variant={open ? "elevation" : "outlined"}
-        className={styles.cardContainer}
+        className={cx(styles.cardContainer, {
+          [styles.paddingBottom]: !contact?.connections?.length,
+        })}
         elevation={6}
       >
         <div className={styles.content}>
@@ -239,7 +241,6 @@ const styles = {
   `,
   cardContainer: css`
     width: 350px;
-    min-height: 187px;
     padding: 16px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -288,6 +289,8 @@ const styles = {
   `,
   primaryIcon: css`
     color: var(--primary-main);
+    width: 16px;
+    height: 16px;
   `,
   deleteIcon: css`
     color: var(--red);
@@ -298,5 +301,8 @@ const styles = {
   `,
   disabledIcon: css`
     color: rgba(0, 0, 0, 0.26);
+  `,
+  paddingBottom: css`
+    padding-bottom: 32px;
   `,
 }
