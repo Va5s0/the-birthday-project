@@ -88,6 +88,11 @@ injectGlobal`
     background-color: transparent;
   }
 
+  .MuiSvgIcon-root {
+    width: 16px;
+    height: 16px;
+  }
+
   /*  Typo */
   .MuiTypography-body1 {
     line-height: 1rem;

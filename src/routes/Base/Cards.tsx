@@ -2,7 +2,6 @@ import React from "react"
 import AddContact from "components/AddContact"
 import Contacts from "components/Contacts"
 
-import "bootstrap/dist/css/bootstrap.min.css"
 import "App.css"
 import { css } from "emotion"
 import NavigationBar from "components/NavigationBar"

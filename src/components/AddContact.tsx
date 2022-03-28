@@ -168,13 +168,11 @@ const styles = {
     display: flex;
     align-items: center;
     font-size: 18px;
-    font-weight: bold;
   `,
   title: css`
     margin: 0;
     line-height: 22px;
     font-size: 18px;
-    font-weight: bold;
   `,
   close: css`
     top: 8px;
