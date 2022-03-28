@@ -26,10 +26,6 @@ injectGlobal`
   .MuiInputBase-root.MuiInputBase-marginDense {
     padding-left: 8px;
     height: 40px;
-    .MuiSvgIcon-root {
-      width: 16px;
-      height: 16px;
-    }
   }
 
   .MuiOutlinedInput-input {

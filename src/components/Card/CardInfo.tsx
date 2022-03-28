@@ -136,7 +136,7 @@ const styles = {
   commonRow: css`
     display: flex;
     flex-direction: column;
-    grid-row-gap: 4px;
+    grid-row-gap: 8px;
     width: 100%;
   `,
   commonContainer: css`

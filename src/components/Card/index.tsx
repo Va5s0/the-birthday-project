@@ -174,7 +174,11 @@ const Card = (props: Props) => {
                   // ADD
                   {
                     label: "add",
-                    icon: <AddIcon className={styles.primaryIcon} />,
+                    icon: (
+                      <AddIcon
+                        className={cx(styles.primaryIcon, styles.smallIcon)}
+                      />
+                    ),
                     onClick: onOpenAdd,
                   },
                   // EDIT
@@ -202,7 +206,9 @@ const Card = (props: Props) => {
           {!!contact?.connections?.length ? (
             <div className={styles.connectionsRow}>
               <IconButton onClick={onOpen}>
-                <EmojiPeopleIcon className={styles.primaryIcon} />
+                <EmojiPeopleIcon
+                  className={cx(styles.primaryIcon, styles.smallIcon)}
+                />
               </IconButton>
             </div>
           ) : null}
@@ -289,6 +295,8 @@ const styles = {
   `,
   primaryIcon: css`
     color: var(--primary-main);
+  `,
+  smallIcon: css`
     width: 16px;
     height: 16px;
   `,
