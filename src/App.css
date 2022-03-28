@@ -1,329 +1,35 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: tahoma,sans-serif;
+  font-family: tahoma, sans-serif;
   background-color: #fcfcfc;
   /*background-image: url('/images/exclusive_paper.png');*/
 }
 
-h3 {
-  font-size: 22px;
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
 }
 
-h3:hover {
-  color: #78A5A3;
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
-.navbar-default {
-  background-color: rgba(0, 0, 0, 0.0);
-}
+:root {
+  /* colors */
 
-.navbar {
-  border: 0;
-  border-radius: 0;
-}
+  --black: #000000;
+  --white: #ffffff;
+  --primary-main: #4361ee;
+  --primary-light: #4cc9f0;
+  --primary-dark: #3a0ca3;
+  --secondary-main: #f72585;
 
-.navbar-default .navbar-brand {
-  color: #ffffff;
-}
+  --red: #d93845;
+  --light-red: #e96e78;
 
-.font30 {
-  font-size: 30px;
-  margin: 15px auto;
-  padding-left: 9px;
-}
-
-.thumbnail {
-  background-color: #eee;
-  padding: 0px;
-  height: 350px;
-  border-color: #c6c6c6;
-}
-
-.thumbnail .caption {
-    padding: 0px;
-  }
-
-.profile-img {
-  width: 100px;
-}
-
-.profile-img-box {
-  padding: 50px;
-  background-color: #ffffff;
-  text-align: center;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  -webkit-border-top-left-radius: 4px;
-  -webkit-border-top-right-radius: 4px;
-  -moz-border-radius-topleft: 4px;
-  -moz-border-radius-topright: 4px;
-}
-
-.profile-content-box {
-  padding: 10px 0px 0 20px;
-}
-
-.profile-content-name {
-  padding-bottom: 50px;
-  padding-right: 20px;
-  height: 80px;
-  text-align: center;
-}
-
-.profile-content-buttons {
-  padding-right: 20px;
-  text-align: center;
-}
-
-#addButton {
-  margin-left: 15px;
-  margin-bottom: 15px;
-}
-
-.panel-default, .panel{
-  border: 0;
-  box-shadow: none;
-  background-color: inherit;
-}
-
-.panel-body {
-  padding: 15px 0;
-}
-
-.glyph {
-    padding: 5px 16px 6px 0px;
-    text-align: center;
-    margin-right: 8px;
-  }
-
-.glyph-input {
-  padding: 6px 9px 6px 0;
-  }
-
-.input-group-addon {
-  background-color: transparent;
-  border: 0;
-}
-
-.input-group .form-control:last-child {
-  border: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-}
-
-.form-control {
-  box-shadow: none;
-  border-radius: 0;
-  border: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-}
-
-.form-control:focus {
-  box-shadow: none;
-}
-
-.modal-backdrop.in {
-  opacity: 0.9;
-}
-
-.modal-backdrop {
-  background: linear-gradient(50deg, #e8bcbb, #a1e3e2);
-}
-
-.modal-header {
-  padding: 20px;
-  border-bottom: 0;
-}
-
-.modal-title {
-  font-size: 30px;
-  padding-left: 5px;
-}
-
-.card-modal {
-  padding: 0;
-  background-color: #d8e8e8;
-}
-
-.add-modal {
-  padding: 15px 45px;
-}
-
-.modal-content {
-  border-radius: 15px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  border: 0;
-}
-
-.modal-footer {
-  /*background-color: #F5F5F5;*/
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
-  -webkit-border-bottom-left-radius: 15px;
-  -webkit-border-bottom-right-radius: 15px;
-  -moz-border-radius-bottomleft: 15px;
-  -moz-border-radius-bottomright: 15px;
-  border-top: 0;
-  padding: 25px 20px 20px 20px;
-}
-
-.parent_card {
-  padding: 0 25px;
-}
-
-.card-effect {
-  padding: 15px 50px;
-  background-color: #f5dedd;
-  box-shadow: 6px 5px 30px -4px rgba(0, 0, 0, 0.55);
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  margin: 0 -15px 15px -15px;
-}
-
-.card-effect h4 {
-  font-size: 25px;
-  margin-bottom: 15px;
-}
-
-.card-effect .panel {
-  margin-bottom: 0;
-}
-
-.list-group {
-  margin: 0 0 15px 0;
-}
-
-.list-group-item {
-  border: 0;
-  background-color: transparent;
-  padding: 10px 0px;
-  border-bottom: 1px solid #b4b7bd;
-}
-
-.btn.custom {
-  position: relative;
-  outline: none !important;
-  -moz-box-shadow:inset 0px 39px 0px -24px #444c5c;
-	-webkit-box-shadow:inset 0px 39px 0px -24px #444c5c;
-	box-shadow:none;
-  background-color: #668887;
-	-moz-border-radius:0;
-	-webkit-border-radius:0;
-	display:inline-block;
-	cursor:pointer;
-	color:#ffffff;
-	font-family:Arial;
-	font-size:18px;
-	padding:5px 42px;
-	text-decoration:none;
-	text-shadow:0 1px 2px rgba(0, 0, 0, 0.2);
-  border: none;
-  }
-
-.btn.bottomMargin {
-  margin: 15px 0 16px 0;
-  padding: 5px 10px;
-}
-
-.btn.custom:after {
-  content:'\A';
-  position: absolute;
-  width:100%; height:100%;
-  top:0; left:0;
-  background:rgba(0,0,0,0.2);
-  opacity:0;
-  transition: all 0.5s;
-  -webkit-transition: all 0.5s;
-}
-
-.btn.custom:hover:after {
-  opacity:1;
-}
-
-.btn-default:active:hover {
-  color: #ffffff;
-  background-color: #444c5c;
-  border-color: transparent;
-}
-
-.btn.custom-submit {
-  position: relative;
-  width: 100%;
-  outline: none !important;
-  background: -webkit-linear-gradient(top, #557171, #668887);
-  background: linear-gradient(180deg, #557171, #668887);
-  font-size: 18px;
-  border: none;
-  box-shadow: none;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  color: white;
-  margin-top: 15px;
-  padding: 10px;
-}
-
-.btn.custom-submit:after {
-  content:'\A';
-  position: absolute;
-  width:100%; height:100%;
-  top:0; left:0;
-  background:rgba(0,0,0,0.2);
-  opacity:0;
-  transition: all 0.5s;
-  -webkit-transition: all 0.5s;
-}
-
-.btn.custom-submit:hover:after {
-    opacity:1;
-}
-
-.btn.connection-button {
-  padding-bottom: 4px;
-}
-
-.btn.button-margin-top {
-  margin-top: 15px;
-}
-
-.glyphicon {
-  position: inherit;
-  vertical-align: middle;
-  line-height: inherit;
-  top: 0;
-}
-
-/* react-datepicker */
-
-.react-datepicker__input-container {
-  display: block;
-}
-.react-datepicker {
-  font-size: 1em;
-}
-.react-datepicker__header {
-  padding-top: 0.8em;
-}
-.react-datepicker__month {
-  margin: 0.4em 1em;
-}
-.react-datepicker__day-name, .react-datepicker__day {
-  width: 1.9em;
-  line-height: 1.9em;
-  margin: 0.166em;
-}
-.react-datepicker__current-month {
-  font-size: 1em;
-}
-.react-datepicker__navigation {
-  top: 1em;
-  line-height: 1.7em;
-  border: 0.45em solid transparent;
-}
-.react-datepicker__navigation--previous {
-  border-right-color: #ccc;
-  left: 1em;
-}
-.react-datepicker__navigation--next {
-  border-left-color: #ccc;
-  right: 1em;
+  --light-grey: #eee;
+  --light-grey-2: #c0bebe;
+  --dark-grey: #808080;
+  --dark-grey-2: #333;
 }
