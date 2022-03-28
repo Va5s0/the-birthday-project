@@ -16,5 +16,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+.eslintcache
+
 # secrets
 src/secrets.js
+
+#vscode
+.vscode
+
+
