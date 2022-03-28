@@ -25,6 +25,7 @@ injectGlobal`
 
   .MuiInputBase-root.MuiInputBase-marginDense {
     padding-left: 8px;
+    height: 40px;
     .MuiSvgIcon-root {
       width: 16px;
       height: 16px;
@@ -82,15 +83,11 @@ injectGlobal`
 
   .MuiSelect-outlined.MuiSelect-outlined {
     color: var(--black);
+    padding: 8px 0;
   }
 
   .MuiSelect-select:focus {
     background-color: transparent;
-  }
-
-  .MuiSvgIcon-root {
-    width: 16px;
-    height: 16px;
   }
 
   /*  Typo */
