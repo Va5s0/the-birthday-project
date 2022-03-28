@@ -9,7 +9,7 @@ export default function Base() {
   return (
     <React.Suspense fallback={<Loading />}>
       <Switch>
-        <Route path="/cards" component={Cards} />
+        <Route path="/" component={Cards} />
       </Switch>
     </React.Suspense>
   )

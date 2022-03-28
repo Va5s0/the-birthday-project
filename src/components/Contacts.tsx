@@ -32,7 +32,9 @@ const Contacts = () => {
         }))
         setContacts(_contacts)
       },
-      (err) => setError(err)
+      (err) => {
+        setError(err)
+      }
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser])
