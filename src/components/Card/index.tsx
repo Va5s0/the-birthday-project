@@ -1,6 +1,6 @@
 import React from "react"
 import { doc, deleteDoc, updateDoc } from "firebase/firestore"
-import { db } from "firebase/config"
+import { db } from "firebase/fbConfig"
 import { Card as MUICard, IconButton } from "@material-ui/core"
 import { css, cx } from "emotion"
 import { Contact } from "models/contact"

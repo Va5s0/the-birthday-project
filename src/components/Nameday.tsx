@@ -1,6 +1,6 @@
 import React from "react"
 import { ref, onValue, query } from "firebase/database"
-import { rldb } from "firebase/config"
+import { rldb } from "firebase/fbConfig"
 import { Contact } from "models/contact"
 import {
   FormControl,

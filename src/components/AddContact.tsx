@@ -13,7 +13,7 @@ import { Button, FormControl } from "@material-ui/core"
 import { TextInput } from "./inputs/TextInput"
 import { Contact } from "models/contact"
 import { DateInput } from "./inputs/DateInput"
-import { db } from "firebase/config"
+import { db } from "firebase/fbConfig"
 import { v1 as getUuid } from "uuid"
 import Nameday from "components/Nameday"
 

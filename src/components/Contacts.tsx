@@ -6,7 +6,7 @@ import {
   FirestoreError,
 } from "firebase/firestore"
 import { Contact } from "models/contact"
-import { db } from "firebase/config"
+import { db } from "firebase/fbConfig"
 import { useAuth } from "context/AuthContext"
 import Card from "./Card/index"
 import { css } from "emotion"
