@@ -25,8 +25,8 @@ React.js - Typescript - Material UI project. Firebase Realtime and Firestore Dat
 
 - Clone this repo
 - Run `yarn`
-- In order to use the application, you must sign up at https://firebase.google.com/ and request an API access key
-- Store your API key at secrets.mine.js inside the token variable and rename the file to secrets.js
+- In order to use the application, you must sign up at https://firebase.google.com/, initialize Firebase and find your Firebase configuration.
+- Store your configuration at a secrets.js file inside the src dir.
 - You're all set!
 
 ### Development server
@@ -36,11 +36,13 @@ React.js - Typescript - Material UI project. Firebase Realtime and Firestore Dat
 
 ### Dependencies
 
-- React ^15.4.2
-- Flux ^3.1.3
-- jQuery ^3.2.1
-- react-bootstrap ^0.30.10
-- react-dom ^15.4.2
+- react: 17.0.2
+- react-dom: 17.0.2",
+- typescript: 4.0.3
+- material-ui: 4.12.3
+- firebase: 9.6.8
+- react-router-dom: 5.3.0
+- lodash: 4.17.21
 
 ### License
 
