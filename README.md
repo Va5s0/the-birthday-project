@@ -19,30 +19,28 @@ In the end your friend's card will look like this:
 ...and all your friends cards like this:
 ![alt text](screenshots/GeneralLayout.png "General Layout")
 
-
-The app is built with React and Flux. The project is written in ES6 syntax.
+React.js - Typescript - Material UI project. Firebase Realtime and Firestore Database CRUD.
 
 ## Installation & setup
 
-* Clone this repo
-* Run `npm install`
-* In order to use the application, you must sign up at https://mlab.com/ and request an API access key
-* Store your API key at secrets.mine.js inside the token variable and rename the file to secrets.js
-* You're all set!
+- Clone this repo
+- Run `yarn`
+- In order to use the application, you must sign up at https://firebase.google.com/ and request an API access key
+- Store your API key at secrets.mine.js inside the token variable and rename the file to secrets.js
+- You're all set!
 
 ### Development server
 
-* Start the development server with `npm start`
-* Point your browser at http://localhost:3000
+- Start the development server with `npm start`
+- Point your browser at http://localhost:3000
 
 ### Dependencies
 
-* React ^15.4.2
-* Flux ^3.1.3
-* jQuery ^3.2.1
-* react-bootstrap ^0.30.10
-* react-dom ^15.4.2
-
+- React ^15.4.2
+- Flux ^3.1.3
+- jQuery ^3.2.1
+- react-bootstrap ^0.30.10
+- react-dom ^15.4.2
 
 ### License
 
