@@ -37,7 +37,7 @@ React.js - Typescript - Material UI project. Firebase Realtime and Firestore Dat
 ### Dependencies
 
 - react: 17.0.2
-- react-dom: 17.0.2",
+- react-dom: 17.0.2,
 - typescript: 4.0.3
 - material-ui: 4.12.3
 - firebase: 9.6.8
