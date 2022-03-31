@@ -120,6 +120,14 @@ injectGlobal`
     color: var(--dark-grey);
   }
 
+  .MuiTab-textColorPrimary.Mui-selected {
+    color: var(--primary-main);
+  }
+
+  .MuiButton-containedPrimary {
+    background-color: var(--primary-main);
+  }
+
   /* Datepicker */
   .MuiPickersDay-daySelected {
     background-color: var(--primary-light);

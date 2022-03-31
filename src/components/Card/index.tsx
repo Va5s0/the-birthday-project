@@ -18,6 +18,7 @@ import GhostTextInput from "components/inputs/GhostTextInput"
 import AddContact from "components/AddContact"
 import Connections from "components/Connections"
 import { set } from "lodash/fp"
+import { getAuth } from "firebase/auth"
 
 type Props = {
   contact: Contact
@@ -38,9 +39,14 @@ const Card = (props: Props) => {
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
   const [editable, setEditable] = React.useState<boolean>(false)
+  const auth = getAuth()
+  const { currentUser } = auth
 
   const editFbDoc = async () => {
-    const contactRef = doc(db, `contacts/${contact?.id}`)
+    const contactRef = doc(
+      db,
+      `users/${currentUser?.uid}/contacts/${contact?.id}`
+    )
     await updateDoc(contactRef, { ...updatedContact }).catch((e) =>
       setErrors(e)
     )
@@ -52,7 +58,10 @@ const Card = (props: Props) => {
     setUpdatedContact(contact || {})
 
   const deleteFbDoc = async () => {
-    const contactRef = doc(db, `contacts/${contact?.id}`)
+    const contactRef = doc(
+      db,
+      `users/${currentUser?.uid}/contacts/${contact?.id}`
+    )
     await deleteDoc(contactRef)
     setModalInfo(undefined)
   }
@@ -62,7 +71,10 @@ const Card = (props: Props) => {
       ...contact,
       connections: contact?.connections?.filter((c) => c?.id !== id),
     }
-    const contactRef = doc(db, `contacts/${contact?.id}`)
+    const contactRef = doc(
+      db,
+      `users/${currentUser?.uid}/contacts/${contact?.id}`
+    )
     await updateDoc(contactRef, updatedContact)
     setModalInfo(undefined)
   }

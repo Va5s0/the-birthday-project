@@ -1,18 +1,24 @@
-// import { FirebaseApp } from "firebase/app"
 import React, { ReactNode } from "react"
-import { FirebaseContext } from "./FirebaseContext"
+import {
+  getAuth,
+  User,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+  UserCredential,
+} from "firebase/auth"
 
 type AuthContextType = {
-  // isLoading: boolean
-  user: any
-  signin: ({ email, password, callback }: Sign) => void
-  signup: ({ email, password, callback }: Sign) => void
-  signout: () => void
-  sendPasswordResetEmail: (email: string) => void
-  confirmPasswordReset: (code: string, password: string) => void
+  register: ({ email, password }: Sign) => Promise<UserCredential>
+  login: ({ email, password }: Sign) => Promise<User>
+  logout: () => Promise<void>
+  sendPswdResetEmail: (email: string) => Promise<boolean>
+  confirmPswdReset: (code: string, password: string) => Promise<boolean>
 }
 
-type Sign = {
+export type Sign = {
   email: string
   password: string
   callback: VoidFunction
@@ -30,78 +36,34 @@ export const useAuth = () => {
 }
 
 function useProvideAuth() {
-  // const [isLoading, setIsLoading] = React.useState(true)
-  const [user, setUser] = React.useState(null)
-  const { firebase } = React.useContext(FirebaseContext) ?? {}
+  const auth = getAuth()
 
-  const signin = ({ email, password, callback }: Sign) => {
-    return firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then((response: any) => {
-        setUser(response.user)
-        callback()
-        return response.user
-      })
-  }
+  const register = ({ email, password }: Sign) =>
+    createUserWithEmailAndPassword(auth, email, password).then((user) => user)
 
-  const signup = ({ email, password, callback }: Sign) => {
-    return firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((response: any) => {
-        setUser(response.user)
-        callback()
-        return response.user
-      })
-  }
+  const login = ({ email, password }: Sign) =>
+    signInWithEmailAndPassword(auth, email, password).then((response) => {
+      const { user } = response
+      return user
+    })
 
-  const signout = () => {
-    return firebase
-      .auth()
-      .signOut()
-      .then(() => {
-        setUser(null)
-      })
-  }
+  const logout = () => signOut(auth)
 
-  const sendPasswordResetEmail = (email: string) => {
-    return firebase
-      .auth()
-      .sendPasswordResetEmail(email)
-      .then(() => {
-        return true
-      })
-  }
+  const sendPswdResetEmail = (email: string) =>
+    sendPasswordResetEmail(auth, email).then(() => {
+      return true
+    })
 
-  const confirmPasswordReset = (code: string, password: string) => {
-    return firebase
-      .auth()
-      .confirmPasswordReset(code, password)
-      .then(() => {
-        return true
-      })
-  }
-
-  // React.useEffect(() => {
-  //   const unsubscribe = firebase.auth().onAuthStateChanged((user: User) => {
-  //     if (user) {
-  //       setUser(user)
-  //     } else {
-  //       setUser(null)
-  //     }
-  //     setIsLoading(false)
-  //   })
-  //   return () => unsubscribe()
-  // }, [firebase])
+  const confirmPswdReset = (code: string, password: string) =>
+    confirmPasswordReset(auth, code, password).then(() => {
+      return true
+    })
 
   return {
-    // isLoading,
-    user,
-    signin,
-    signup,
-    signout,
-    sendPasswordResetEmail,
-    confirmPasswordReset,
+    register,
+    login,
+    logout,
+    sendPswdResetEmail,
+    confirmPswdReset,
   }
 }

@@ -1,13 +1,23 @@
 import { css } from "emotion"
-import { AppBar, Box } from "@material-ui/core"
+import { Box, Button } from "@material-ui/core"
+import { useAuth } from "context/AuthContext"
+import { useHistory } from "react-router-dom"
 
-const NavigationBar = () => (
-  <Box className={styles.container}>
-    <AppBar position="static" className={styles.navbar}>
+const NavigationBar = () => {
+  const { logout } = useAuth() ?? {}
+  const history = useHistory()
+
+  const handleClick = () => {
+    logout && logout()
+    history.push("/login")
+  }
+  return (
+    <Box className={styles.container}>
       <div className={styles.brand}>The Birthday Project</div>
-    </AppBar>
-  </Box>
-)
+      <Button onClick={handleClick}>Logout</Button>
+    </Box>
+  )
+}
 
 export default NavigationBar
 
@@ -16,10 +26,7 @@ const styles = {
     display: flex;
     height: 80px;
     align-items: center;
-  `,
-  navbar: css`
-    background-color: transparent;
-    box-shadow: none;
+    justify-content: space-between;
   `,
   brand: css`
     color: var(--dark-grey-2);

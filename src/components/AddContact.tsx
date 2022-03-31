@@ -1,5 +1,6 @@
 import React, { ChangeEvent } from "react"
 import { doc, setDoc, updateDoc, collection } from "firebase/firestore"
+import { getAuth } from "firebase/auth"
 import MUIDialog from "@material-ui/core/Dialog"
 import IconButton from "@material-ui/core/IconButton"
 import CloseIcon from "@material-ui/icons/Close"
@@ -36,6 +37,8 @@ const AddContact = (props: Props) => {
   const { open, onClose, type, contact } = props
   const [state, setState] = React.useState<Contact>({})
   const [errors, setErrors] = React.useState<Record<string, string>>()
+  const auth = getAuth()
+  const { currentUser } = auth
 
   const handleChange = (
     evt: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -59,10 +62,11 @@ const AddContact = (props: Props) => {
       ],
     }
     !!contact
-      ? updateDoc(doc(db, `contacts/${contact?.id}`), updatedContact).catch(
-          (err) => setErrors(err)
-        )
-      : setDoc(doc(collection(db, "contacts")), {
+      ? updateDoc(
+          doc(db, `users/${currentUser?.uid}/contacts/${contact?.id}`),
+          updatedContact
+        ).catch((err) => setErrors(err))
+      : setDoc(doc(collection(db, `users/${currentUser?.uid}/contacts`)), {
           ...state,
           connections: [],
         }).catch((err) => setErrors(err))
