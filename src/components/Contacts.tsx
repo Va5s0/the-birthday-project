@@ -7,17 +7,19 @@ import {
 } from "firebase/firestore"
 import { Contact } from "models/contact"
 import { db } from "firebase/fbConfig"
-import { useAuth } from "context/AuthContext"
 import Card from "./Card/index"
 import { css } from "emotion"
+import { getAuth } from "firebase/auth"
 
 const Contacts = () => {
   const [contacts, setContacts] = React.useState<Contact[]>([])
   const [, setError] = React.useState<FirestoreError>()
+  const auth = getAuth()
+  const { currentUser } = auth
 
-  const contactsRef = query(collection(db, "contacts"))
-
-  const currentUser = useAuth()
+  const contactsRef = query(
+    collection(db, `users/${currentUser?.uid}/contacts`)
+  )
 
   React.useEffect(() => {
     if (currentUser == null) {

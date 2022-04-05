@@ -33,4 +33,6 @@ input[type="number"] {
   --light-grey-2: #c0bebe;
   --dark-grey: #808080;
   --dark-grey-2: #333;
+
+  --warning: #ffcc00;
 }

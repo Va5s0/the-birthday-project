@@ -75,6 +75,7 @@ injectGlobal`
 
   .MuiFormControl-marginNormal {
     height: fit-content;
+    background-color: #fcfcfc;
   }
 
   .MuiSelect-outlined.MuiSelect-outlined {
@@ -118,6 +119,14 @@ injectGlobal`
     line-height: normal;
     letter-spacing: normal;
     color: var(--dark-grey);
+  }
+
+  .MuiTab-textColorPrimary.Mui-selected {
+    color: var(--primary-main);
+  }
+
+  .MuiButton-containedPrimary {
+    background-color: var(--primary-main);
   }
 
   /* Datepicker */

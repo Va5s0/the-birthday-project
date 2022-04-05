@@ -1,6 +1,7 @@
 import React from "react"
 import { ref, onValue, query } from "firebase/database"
 import { rldb } from "firebase/fbConfig"
+import { getAuth } from "firebase/auth"
 import { Contact } from "models/contact"
 import {
   FormControl,
@@ -12,7 +13,6 @@ import {
 import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar"
 import DropdownIcon from "@material-ui/icons/KeyboardArrowDown"
 import { dateFormatter, easter, getFullYearDate } from "utils/index"
-import { useAuth } from "context/AuthContext"
 import { css, cx } from "emotion"
 import { DateInput } from "./inputs/DateInput"
 import { set } from "lodash/fp"
@@ -55,7 +55,8 @@ const Nameday = (props: Props) => {
     margin = "dense",
     size = "small",
   } = props
-  const currentUser = useAuth()
+  const auth = getAuth()
+  const { currentUser } = auth
   const [namedayList, setNamedayList] = React.useState<
     Array<{ day?: string; month?: string; toEaster?: number }>
   >([])
