@@ -1,17 +1,11 @@
 import * as React from "react"
-
 import { Sign, useAuth } from "context/AuthContext"
-
-import { AlertDlg } from "components/AlertDlg"
-//
 import CircularProgress from "@material-ui/core/CircularProgress"
-import CloseIcon from "@material-ui/icons/Close"
-import Collapse from "@material-ui/core/Collapse"
-import IconButton from "@material-ui/core/IconButton"
 import EmailIcon from "@material-ui/icons/Email"
 import LockIcon from "@material-ui/icons/Lock"
 import { Button } from "@material-ui/core"
 import { Loading } from "components/Loading"
+import { SnackBar } from "components/SnackBar"
 import { TextInput } from "components/inputs/TextInput"
 import { css } from "@emotion/css"
 import { useHistory } from "react-router-dom"
@@ -31,20 +25,24 @@ const nope = (s: string) => !s.trim()
 export function Login(props: Props) {
   const { action } = props
   const [values, setValues] = React.useState<Sign>(initialValues)
-  const [error, setError] = React.useState<string | undefined>()
   const [pending, setPending] = React.useState<boolean>(false)
   const history = useHistory()
-  const { register, login } = useAuth() ?? {}
+  const { register, login, error, resetError } = useAuth() ?? {}
+
+  const handleResetError = React.useCallback(
+    () => resetError && resetError(undefined),
+    [resetError]
+  )
 
   const onChange = React.useCallback(
     (evt) => {
       const {
         target: { name, value },
       } = evt
-      setError(undefined)
+      handleResetError()
       setValues((s) => ({ ...s, [name]: value }))
     },
-    [setValues]
+    [setValues, handleResetError]
   )
 
   const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
@@ -53,18 +51,18 @@ export function Login(props: Props) {
     const canIRegister = !!register && action === "register"
     const canILogin = !!login && action === "login"
     if (canIRegister) {
-      register(values)
-        .then(() => history.push("/"))
-        .catch((error) => {
-          setError(error)
-        })
+      register(values).then((value) => {
+        if (!!value?.user?.uid) {
+          history.push("/")
+        }
+      })
       setPending(false)
     } else if (canILogin) {
-      login(values)
-        .then(() => history.push("/"))
-        .catch((error) => {
-          setError(error)
-        })
+      login(values).then((value) => {
+        if (!!value?.uid) {
+          history.push("/")
+        }
+      })
       setPending(false)
     }
   }
@@ -76,26 +74,6 @@ export function Login(props: Props) {
           <Loading />
         ) : (
           <>
-            <Collapse in={!!error}>
-              <div className={styles.errorWrap}>
-                <AlertDlg
-                  severity="error"
-                  action={
-                    <IconButton
-                      aria-label="close"
-                      color="inherit"
-                      size="medium"
-                      onClick={() => setError(undefined)}
-                      classes={{ root: styles.alertIcon }}
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  }
-                >
-                  {error!}
-                </AlertDlg>
-              </div>
-            </Collapse>
             {!process.env.REACT_APP_HIDE_FORM_LOGIN ? (
               <form className={styles.form} onSubmit={handleSubmit} noValidate>
                 <TextInput
@@ -155,6 +133,12 @@ export function Login(props: Props) {
           </>
         )}
       </div>
+      <SnackBar
+        open={!!error}
+        onClose={handleResetError}
+        message={error!}
+        severity="error"
+      />
     </div>
   )
 }

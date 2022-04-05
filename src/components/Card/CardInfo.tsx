@@ -57,35 +57,40 @@ export const CardInfo = (props: Props) => {
       : ""
 
   const value = !index ? contact : (contact?.connections || [])[Number(index)]
+  const hasValue = Object.keys(value).find((k) =>
+    contactFields.map((cf) => cf.value).includes(k)
+  )
 
   return (
     <div className={cx(styles.wrapper, { [styles.narrow]: editable })}>
-      <div className={styles.commonRow}>
-        {contactFields.map((cf, idx) => {
-          const Cmp = cf.icon
-          return editable ? (
-            <TextInput
-              key={idx}
-              name={!index ? cf?.value : `connections.${index}.${cf.value}`}
-              label={cf?.label}
-              margin="dense"
-              size="small"
-              placeholder={cf?.label}
-              value={value[cf?.value as keyof Common] || ""}
-              onChange={handleChange}
-              error={hasError(cf?.value, index)}
-              errorMessage={errorMsg(cf?.value, index)}
-              icon={<Cmp className={styles.commonIcon} />}
-              fullWidth
-            />
-          ) : !!value[cf.value as keyof Common] ? (
-            <div className={styles.commonContainer} key={idx}>
-              <Cmp className={styles.commonIcon} />
-              <div>{value[cf.value as keyof Common]}</div>
-            </div>
-          ) : null
-        })}
-      </div>
+      {hasValue ? (
+        <div className={styles.commonRow}>
+          {contactFields.map((cf, idx) => {
+            const Cmp = cf.icon
+            return editable ? (
+              <TextInput
+                key={idx}
+                name={!index ? cf?.value : `connections.${index}.${cf.value}`}
+                label={cf?.label}
+                margin="dense"
+                size="small"
+                placeholder={cf?.label}
+                value={value[cf?.value as keyof Common] || ""}
+                onChange={handleChange}
+                error={hasError(cf?.value, index)}
+                errorMessage={errorMsg(cf?.value, index)}
+                icon={<Cmp className={styles.commonIcon} />}
+                fullWidth
+              />
+            ) : !!value[cf.value as keyof Common] ? (
+              <div className={styles.commonContainer} key={idx}>
+                <Cmp className={styles.commonIcon} />
+                <div>{value[cf.value as keyof Common]}</div>
+              </div>
+            ) : null
+          })}
+        </div>
+      ) : null}
       <div className={styles.commonRow}>
         {editable ? (
           <DateInput

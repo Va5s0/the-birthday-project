@@ -7,7 +7,7 @@ import CheckCircleIcon from "@material-ui/icons/CheckCircle"
 
 const styles = {
   root: css`
-    padding: var(--spacing-xxs) var(--spacing-m);
+    padding: 4px 16px;
     box-shadow: none;
     display: flex;
     align-items: center;
@@ -17,19 +17,19 @@ const styles = {
     padding-left: 0;
   `,
   icon: css`
-    margin-right: var(--spacing-xs);
+    margin-right: 8px;
   `,
   message: css`
     padding: 9px 0;
   `,
   info: css`
-    background-color: var(--secondary-light-blue);
+    background-color: var(--primary-light);
   `,
   error: css`
     background-color: var(--red);
   `,
   warning: css`
-    background-color: var(--tertiary-light-yellow);
+    background-color: var(--warning);
   `,
   success: css`
     background-color: var(--primary-main);

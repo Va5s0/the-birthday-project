@@ -159,9 +159,9 @@ const Card = (props: Props) => {
                   ))}
                 </div>
               ) : (
-                <div
-                  className={styles.name}
-                >{`${contact?.firstName} ${contact.lastName}`}</div>
+                <div className={styles.name}>{`${contact.firstName} ${
+                  contact?.lastName || ""
+                }`}</div>
               )}
             </div>
             {editable ? (

@@ -36,11 +36,15 @@ export function DateInput(props: DateInputProps) {
     ...rest
   } = props
   const [open, setOpen] = React.useState<boolean>(false)
+  const [date, setDate] = React.useState<string>()
 
   const handleChange = (d: Date | null) => {
-    if (d) {
-      const _d = startOfDay(d)
-      onChange(_d, name)
+    setDate(d?.toString())
+  }
+  const handleBlur = () => {
+    if (!!Date.parse(date || "")) {
+      const d = startOfDay(new Date(date || ""))
+      onChange(d, name)
     } else {
       onChange(null, name)
     }
@@ -64,6 +68,7 @@ export function DateInput(props: DateInputProps) {
         margin={margin}
         size={size}
         onChange={handleChange}
+        onBlur={handleBlur}
         onOpen={handleOpen}
         onClose={handleOpen}
         helperText={errorMessage}
@@ -79,6 +84,7 @@ export function DateInput(props: DateInputProps) {
             adornedStart: styles.startAdornment,
           },
           startAdornment: icon,
+          autoComplete: "off",
         }}
       />
     </MuiPickersUtilsProvider>

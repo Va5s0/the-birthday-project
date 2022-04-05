@@ -75,6 +75,7 @@ injectGlobal`
 
   .MuiFormControl-marginNormal {
     height: fit-content;
+    background-color: #fcfcfc;
   }
 
   .MuiSelect-outlined.MuiSelect-outlined {
