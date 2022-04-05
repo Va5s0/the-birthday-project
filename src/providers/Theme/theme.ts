@@ -127,6 +127,9 @@ injectGlobal`
 
   .MuiButton-containedPrimary {
     background-color: var(--primary-main);
+    :hover {
+      background-color: var(--primary-dark);
+    }
   }
 
   /* Datepicker */

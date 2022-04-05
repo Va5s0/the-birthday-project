@@ -1,17 +1,6 @@
 import React from "react"
 import { css } from "@emotion/css"
-
-const styles = {
-  shell: css`
-    display: flex;
-    overflow: hidden;
-  `,
-  content: css`
-    height: 100vh;
-    padding: 32px;
-    margin: auto;
-  `,
-}
+import img from "assets/celebration.jpg"
 
 export type LayoutProps = {
   children: React.ReactNode
@@ -22,4 +11,21 @@ export function Layout(props: LayoutProps) {
       <div className={styles.content}>{props.children}</div>
     </div>
   )
+}
+
+const styles = {
+  shell: css`
+    display: flex;
+    overflow: hidden;
+    background: url(${img});
+    height: 100vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  `,
+  content: css`
+    margin: auto;
+    background-color: var(--white);
+    border-top: 3px solid var(--primary-main);
+  `,
 }

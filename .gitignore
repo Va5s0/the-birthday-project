@@ -24,4 +24,7 @@ src/secrets.js
 #vscode
 .vscode
 
+#assets
+src/assets
+
 

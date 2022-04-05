@@ -9,9 +9,10 @@ import { SnackBar } from "components/SnackBar"
 import { TextInput } from "components/inputs/TextInput"
 import { css } from "@emotion/css"
 import { useHistory } from "react-router-dom"
+import { ActionContent } from "./Landing"
 
 type Props = {
-  action: "login" | "register"
+  action: ActionContent
 }
 
 const initialValues: Sign = {
@@ -48,8 +49,8 @@ export function Login(props: Props) {
   const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault()
     setPending(true)
-    const canIRegister = !!register && action === "register"
-    const canILogin = !!login && action === "login"
+    const canIRegister = !!register && action.value === "signUp"
+    const canILogin = !!login && action.value === "login"
     if (canIRegister) {
       register(values).then((value) => {
         if (!!value?.user?.uid) {
@@ -67,6 +68,8 @@ export function Login(props: Props) {
     }
   }
 
+  const handleResetPassword = () => {}
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
@@ -75,60 +78,74 @@ export function Login(props: Props) {
         ) : (
           <>
             {!process.env.REACT_APP_HIDE_FORM_LOGIN ? (
-              <form className={styles.form} onSubmit={handleSubmit} noValidate>
-                <TextInput
-                  fullWidth
-                  variant="outlined"
-                  margin="normal"
-                  size="medium"
-                  name="email"
-                  label={"Email"}
-                  onChange={onChange}
-                  value={values.email}
-                  required
-                  icon={<EmailIcon className={styles.loginIcon} />}
-                  InputProps={{
-                    classes: { input: styles.input },
-                  }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-                <TextInput
-                  fullWidth
-                  variant="outlined"
-                  margin="normal"
-                  size="medium"
-                  type="password"
-                  name="password"
-                  label={"Password"}
-                  onChange={onChange}
-                  value={values.password}
-                  required
-                  icon={<LockIcon className={styles.loginIcon} />}
-                  InputProps={{
-                    classes: { input: styles.input },
-                  }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disableElevation
-                  disabled={
-                    pending || nope(values.email) || nope(values.password)
-                  }
-                  startIcon={
-                    pending && <CircularProgress size={20} color="inherit" />
-                  }
-                  className={styles.submitBtn}
+              <>
+                <form
+                  className={styles.form}
+                  onSubmit={handleSubmit}
+                  noValidate
                 >
-                  {action}
-                </Button>
-              </form>
+                  <TextInput
+                    fullWidth
+                    variant="outlined"
+                    margin="normal"
+                    size="medium"
+                    name="email"
+                    label={"Email"}
+                    onChange={onChange}
+                    value={values.email}
+                    required
+                    icon={<EmailIcon className={styles.loginIcon} />}
+                    InputProps={{
+                      classes: { input: styles.input },
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                  <TextInput
+                    fullWidth
+                    variant="outlined"
+                    margin="normal"
+                    size="medium"
+                    type="password"
+                    name="password"
+                    label={"Password"}
+                    onChange={onChange}
+                    value={values.password}
+                    required
+                    icon={<LockIcon className={styles.loginIcon} />}
+                    InputProps={{
+                      classes: { input: styles.input },
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                    disabled={
+                      pending || nope(values.email) || nope(values.password)
+                    }
+                    startIcon={
+                      pending && <CircularProgress size={20} color="inherit" />
+                    }
+                    className={styles.submitBtn}
+                  >
+                    {action.label}
+                  </Button>
+                </form>
+                {action.value === "login" ? (
+                  <Button
+                    className={styles.textButton}
+                    onClick={handleResetPassword}
+                  >
+                    Forgot Password?
+                  </Button>
+                ) : null}
+              </>
             ) : null}
           </>
         )}
@@ -150,7 +167,6 @@ const styles = {
     justify-content: center;
   `,
   card: css`
-    max-width: 256px;
     width: 256px;
   `,
   header: css`
@@ -181,5 +197,17 @@ const styles = {
   `,
   input: css`
     padding-left: 0;
+  `,
+  textButton: css`
+    padding: 0;
+    min-width: fit-content;
+    text-transform: capitalize;
+    text-decoration: underline;
+    font-size: 12px;
+    margin-top: 16px;
+    :hover {
+      background-color: transparent;
+      text-decoration: underline;
+    }
   `,
 }
