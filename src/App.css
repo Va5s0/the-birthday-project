@@ -21,10 +21,10 @@ input[type="number"] {
 
   --black: #000000;
   --white: #ffffff;
-  --primary-main: #4361ee;
-  --primary-light: #4cc9f0;
-  --primary-dark: #3a0ca3;
-  --secondary-main: #f72585;
+  --primary-main: #008dcd;
+  --primary-light: #57caff;
+  --primary-dark: #004e72;
+  --secondary-main: #cd4000;
 
   --red: #d93845;
   --light-red: #e96e78;
