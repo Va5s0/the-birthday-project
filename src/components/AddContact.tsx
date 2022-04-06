@@ -124,6 +124,7 @@ const AddContact = (props: Props) => {
             value={state?.birthday || ""}
             onChange={handleDateChange}
             icon={<CakeIcon />}
+            disableFuture
           />
           <Nameday
             contact={state}
@@ -219,6 +220,6 @@ const styles = {
     }
   `,
   commonIcon: css`
-    color: var(--secondary-main);
+    color: var(--primary-dark);
   `,
 }

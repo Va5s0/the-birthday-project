@@ -1,6 +1,4 @@
 import { Route, Router, Switch } from "react-router-dom"
-import { FirebaseContext } from "./context/FirebaseContext"
-import { firebase } from "./firebase/fbConfig"
 import Base from "./routes/Base"
 import { history } from "./my-history"
 import { Theme } from "providers/Theme"
@@ -13,27 +11,25 @@ import { Forgot } from "routes/Auth/Forgot"
 export function App() {
   return (
     <Theme>
-      <FirebaseContext.Provider value={{ firebase }}>
-        <ProvideAuth>
-          <Router history={history}>
-            <Switch>
-              <Route path="/reset">
-                <Auth component={ResetConfirmation} />
-              </Route>
-              <Route path="/forgot">
-                <Auth component={Forgot} />
-              </Route>
-              <Route path="/signup">
-                <Auth component={Landing} path="signup" />
-              </Route>
-              <Route path="/login">
-                <Auth component={Landing} path="login" />
-              </Route>
-              <Route component={Base} />
-            </Switch>
-          </Router>
-        </ProvideAuth>
-      </FirebaseContext.Provider>
+      <ProvideAuth>
+        <Router history={history}>
+          <Switch>
+            <Route path="/reset">
+              <Auth component={ResetConfirmation} />
+            </Route>
+            <Route path="/forgot">
+              <Auth component={Forgot} />
+            </Route>
+            <Route path="/signup">
+              <Auth component={Landing} path="signup" />
+            </Route>
+            <Route path="/login">
+              <Auth component={Landing} path="login" />
+            </Route>
+            <Route component={Base} />
+          </Switch>
+        </Router>
+      </ProvideAuth>
     </Theme>
   )
 }

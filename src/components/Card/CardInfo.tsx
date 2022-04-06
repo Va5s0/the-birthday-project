@@ -57,15 +57,16 @@ export const CardInfo = (props: Props) => {
       : ""
 
   const value = !index ? contact : (contact?.connections || [])[Number(index)]
-  const hasValue = Object.keys(value).find((k) =>
-    contactFields.map((cf) => cf.value).includes(k)
-  )
+
+  const activeFields = editable
+    ? contactFields
+    : contactFields?.filter((f) => !!value[f.value as keyof typeof value])
 
   return (
     <div className={cx(styles.wrapper, { [styles.narrow]: editable })}>
-      {hasValue ? (
+      {!!activeFields.length ? (
         <div className={styles.commonRow}>
-          {contactFields.map((cf, idx) => {
+          {activeFields.map((cf, idx) => {
             const Cmp = cf.icon
             return editable ? (
               <TextInput
@@ -75,7 +76,7 @@ export const CardInfo = (props: Props) => {
                 margin="dense"
                 size="small"
                 placeholder={cf?.label}
-                value={value[cf?.value as keyof Common] || ""}
+                value={value[cf?.value as keyof Common]}
                 onChange={handleChange}
                 error={hasError(cf?.value, index)}
                 errorMessage={errorMsg(cf?.value, index)}
@@ -97,7 +98,8 @@ export const CardInfo = (props: Props) => {
             name={!index ? "birthday" : `connections.${index}.birthday`}
             label={"Birthday"}
             placeholder={"Birthday"}
-            value={value?.birthday || ""}
+            value={value?.birthday}
+            disableFuture
             margin="dense"
             size="small"
             onChange={handleDateChange}
@@ -106,7 +108,11 @@ export const CardInfo = (props: Props) => {
             errorMessage={errorMsg(value?.birthday, index)}
           />
         ) : !!value?.birthday ? (
-          <div className={styles.commonContainer}>
+          <div
+            className={cx(styles.commonContainer, {
+              [styles.alignRight]: !!activeFields.length,
+            })}
+          >
             <CakeIcon className={styles.commonIcon} />
             <div>{dateFormatter(value?.birthday)}</div>
           </div>
@@ -120,7 +126,11 @@ export const CardInfo = (props: Props) => {
             onContactChange={onContactChange}
           />
         ) : !!value?.nameday?.date ? (
-          <div className={styles.commonContainer}>
+          <div
+            className={cx(styles.commonContainer, {
+              [styles.alignRight]: !!activeFields.length,
+            })}
+          >
             <PermContactCalendarIcon className={styles.commonIcon} />
             <div>{dateFormatter(value?.nameday?.date)}</div>
           </div>
@@ -136,7 +146,8 @@ const styles = {
     align-items: center;
     grid-column-gap: 30px;
     grid-template-columns: 1fr 1fr;
-    width: 100%;
+    padding: 0 10px;
+    z-index: 10;
   `,
   commonRow: css`
     display: flex;
@@ -153,8 +164,11 @@ const styles = {
       height: 16px;
     }
   `,
+  alignRight: css`
+    justify-content: flex-end;
+  `,
   commonIcon: css`
-    color: var(--secondary-main);
+    color: var(--primary-dark);
   `,
   narrow: css`
     grid-column-gap: 16px;

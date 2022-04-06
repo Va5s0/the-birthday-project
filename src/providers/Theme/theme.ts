@@ -107,7 +107,7 @@ injectGlobal`
     font-style: normal;
     line-height: normal;
     letter-spacing: normal;
-    color: var(--dark-grey);
+    color: inherit;
   }
 
   .MuiTypography-caption {
@@ -134,7 +134,8 @@ injectGlobal`
 
   /* Datepicker */
   .MuiPickersDay-daySelected {
-    background-color: var(--primary-light);
+    background-color: var(--primary-main);
+    color: var(--white);
     :hover {
       background-color: var(--primary-dark);
     }
@@ -145,6 +146,9 @@ injectGlobal`
         color: var(--light-grey-2)
       }
     }
+  }
+  .MuiPickersToolbar-toolbar {
+    background-color: var(--primary-dark);
   }
 
 `

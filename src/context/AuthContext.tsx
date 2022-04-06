@@ -11,6 +11,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
+import { firebase } from "firebase/fbConfig"
 
 const actionCodeSettings = (email: string) => ({
   url: `http://localhost:3001/reset?email=${email}`,
@@ -39,7 +40,12 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
 
 export const ProvideAuth = ({ children }: { children: ReactNode }) => {
   const auth = useProvideAuth() || {}
-  return <AuthContext.Provider value={auth}> {children} </AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ ...auth, ...firebase }}>
+      {" "}
+      {children}{" "}
+    </AuthContext.Provider>
+  )
 }
 
 export const useAuth = () => React.useContext(AuthContext)

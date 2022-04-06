@@ -1,14 +1,11 @@
 import React from "react"
-
 import {
   DatePickerProps,
-  KeyboardDatePicker,
+  DatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers"
 import { css, cx } from "@emotion/css"
-
 import DateFnsUtils from "@date-io/date-fns"
-import DropdownIcon from "@material-ui/icons/KeyboardArrowDown"
 import { startOfDay } from "date-fns"
 
 export type DateInputProps = {
@@ -18,6 +15,8 @@ export type DateInputProps = {
   dropdownIcon?: boolean
   icon?: React.ReactNode
   errorMessage?: string
+  disableFuture?: boolean
+  disableToolbar?: boolean
 } & Omit<DatePickerProps, "name" | "onChange">
 
 export function DateInput(props: DateInputProps) {
@@ -33,18 +32,16 @@ export function DateInput(props: DateInputProps) {
     icon,
     margin = "normal",
     size = "medium",
+    disableFuture = false,
+    disableToolbar = false,
     ...rest
   } = props
   const [open, setOpen] = React.useState<boolean>(false)
-  const [date, setDate] = React.useState<string>()
 
   const handleChange = (d: Date | null) => {
-    setDate(d?.toString())
-  }
-  const handleBlur = () => {
-    if (!!Date.parse(date || "")) {
-      const d = startOfDay(new Date(date || ""))
-      onChange(d, name)
+    if (!!d) {
+      const _d = startOfDay(new Date(d || ""))
+      onChange(_d, name)
     } else {
       onChange(null, name)
     }
@@ -56,10 +53,13 @@ export function DateInput(props: DateInputProps) {
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <KeyboardDatePicker
+      <DatePicker
+        disableFuture={disableFuture}
+        disableToolbar={disableToolbar}
         format="dd/MM/yyyy"
         variant="inline"
         inputVariant="outlined"
+        clearable
         fullWidth={fullWidth}
         error={error}
         {...rest}
@@ -68,16 +68,11 @@ export function DateInput(props: DateInputProps) {
         margin={margin}
         size={size}
         onChange={handleChange}
-        onBlur={handleBlur}
         onOpen={handleOpen}
         onClose={handleOpen}
         helperText={errorMessage}
         rightArrowButtonProps={{ classes: { root: styles.arrow } }}
         leftArrowButtonProps={{ classes: { root: styles.arrow } }}
-        keyboardIcon={<DropdownIcon />}
-        InputAdornmentProps={{
-          className: styles.icon,
-        }}
         InputProps={{
           classes: {
             notchedOutline: cx({ [styles.focusedError]: open && !!error }),
@@ -108,7 +103,7 @@ const styles = {
     > svg {
       width: 24px;
       height: 24px;
-      color: var(--secondary-main);
+      color: var(--primary-dark);
       margin-right: 8px;
     }
   `,
@@ -117,7 +112,7 @@ const styles = {
       > svg {
         width: 24px;
         height: 24px;
-        color: var(--secondary-main);
+        color: var(--primary-dark);
       }
     }
   `,

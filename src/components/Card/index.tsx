@@ -54,8 +54,10 @@ const Card = (props: Props) => {
     setOpen(false)
   }
 
-  const onContactChange = (contact?: Contact) =>
+  const onContactChange = (contact?: Contact) => {
+    console.log({ contact })
     setUpdatedContact(contact || {})
+  }
 
   const deleteFbDoc = async () => {
     const contactRef = doc(
@@ -255,13 +257,14 @@ export default Card
 const styles = {
   wrapper: css`
     z-index: 300;
-    position: relative;
+    padding: 0 15px 30px;
   `,
   cardContainer: css`
-    width: 350px;
     padding: 16px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    border-radius: 0;
+    border: none;
+    position: relative;
+    border-top: 2px solid var(--secondary-main);
   `,
   content: css`
     display: flex;
@@ -273,6 +276,7 @@ const styles = {
     align-items: center;
     justify-content: space-between;
     height: 48px;
+    z-index: 10;
   `,
   avatarContainer: css`
     display: flex;
@@ -285,6 +289,8 @@ const styles = {
     width: 48px;
     height: 48px;
     color: var(--dark-grey);
+    background-color: white;
+    border-radius: 50%;
   `,
   ghostContainer: css`
     display: flex;
@@ -304,6 +310,7 @@ const styles = {
   `,
   elevated: css`
     z-index: 500;
+    position: relative;
   `,
   primaryIcon: css`
     color: var(--primary-main);
