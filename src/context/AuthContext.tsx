@@ -11,6 +11,11 @@ import {
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
 
+const actionCodeSettings = (email: string) => ({
+  url: `http://localhost:3001/reset?email=${email}`,
+  handleCodeInApp: true,
+})
+
 type AuthContextType = {
   register: ({ email, password }: Sign) => Promise<UserCredential>
   login: ({ email, password }: Sign) => Promise<User>
@@ -66,7 +71,7 @@ function useProvideAuth() {
   const logout = () => signOut(auth)
 
   const sendPswdResetEmail = (email: string) =>
-    sendPasswordResetEmail(auth, email)
+    sendPasswordResetEmail(auth, email, actionCodeSettings(email))
       .then(() => {
         return true
       })

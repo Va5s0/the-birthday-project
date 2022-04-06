@@ -6,6 +6,7 @@ type Extra = {
   errorMessage?: string
   icon?: ReactNode
   isPhone?: boolean
+  placeholder?: string
 }
 export type TextInputProps = TextFieldProps & Extra
 
@@ -21,6 +22,7 @@ export function TextInput(props: TextInputProps) {
     size = "medium",
     icon,
     isPhone = false,
+    placeholder,
     ...rest
   } = props
   const _error = !!errorMessage || error
@@ -35,6 +37,7 @@ export function TextInput(props: TextInputProps) {
       helperText={helper}
       className={className}
       type={isPhone ? "number" : "text"}
+      placeholder={placeholder}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">{icon}</InputAdornment>

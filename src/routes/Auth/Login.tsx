@@ -9,7 +9,7 @@ import { SnackBar } from "components/SnackBar"
 import { TextInput } from "components/inputs/TextInput"
 import { css } from "@emotion/css"
 import { useHistory } from "react-router-dom"
-import { ActionContent } from "./Landing"
+import { ActionContent } from "./utils"
 
 type Props = {
   action: ActionContent
@@ -49,106 +49,101 @@ export function Login(props: Props) {
   const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault()
     setPending(true)
-    const canIRegister = !!register && action.value === "signUp"
+    const canIRegister = !!register && action.value === "signup"
     const canILogin = !!login && action.value === "login"
     if (canIRegister) {
       register(values).then((value) => {
         if (!!value?.user?.uid) {
-          history.push("/")
+          history.push("/cards")
         }
       })
       setPending(false)
     } else if (canILogin) {
       login(values).then((value) => {
         if (!!value?.uid) {
-          history.push("/")
+          history.push("/cards")
         }
       })
       setPending(false)
     }
   }
 
-  const handleResetPassword = () => {}
+  const onForgotClick = () => {
+    history.push("/forgot")
+  }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        {pending ? (
-          <Loading />
-        ) : (
-          <>
-            {!process.env.REACT_APP_HIDE_FORM_LOGIN ? (
-              <>
-                <form
-                  className={styles.form}
-                  onSubmit={handleSubmit}
-                  noValidate
+    <>
+      <div className={styles.firstLine}>Hello!</div>
+      <div className={styles.secondLine}>Let's remember to celebrate!</div>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          {pending ? (
+            <Loading />
+          ) : !process.env.REACT_APP_HIDE_FORM_LOGIN ? (
+            <>
+              <form className={styles.form} onSubmit={handleSubmit} noValidate>
+                <TextInput
+                  fullWidth
+                  variant="outlined"
+                  margin="normal"
+                  size="medium"
+                  name="email"
+                  label={"Email"}
+                  onChange={onChange}
+                  value={values.email}
+                  required
+                  icon={<EmailIcon className={styles.loginIcon} />}
+                  InputProps={{
+                    classes: { input: styles.input },
+                  }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+                <TextInput
+                  fullWidth
+                  variant="outlined"
+                  margin="normal"
+                  size="medium"
+                  type="password"
+                  name="password"
+                  label={"Password"}
+                  onChange={onChange}
+                  value={values.password}
+                  required
+                  icon={<LockIcon className={styles.loginIcon} />}
+                  InputProps={{
+                    classes: { input: styles.input },
+                  }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disableElevation
+                  disabled={
+                    pending || nope(values.email) || nope(values.password)
+                  }
+                  startIcon={
+                    pending && <CircularProgress size={20} color="inherit" />
+                  }
+                  className={styles.submitBtn}
                 >
-                  <TextInput
-                    fullWidth
-                    variant="outlined"
-                    margin="normal"
-                    size="medium"
-                    name="email"
-                    label={"Email"}
-                    onChange={onChange}
-                    value={values.email}
-                    required
-                    icon={<EmailIcon className={styles.loginIcon} />}
-                    InputProps={{
-                      classes: { input: styles.input },
-                    }}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                  <TextInput
-                    fullWidth
-                    variant="outlined"
-                    margin="normal"
-                    size="medium"
-                    type="password"
-                    name="password"
-                    label={"Password"}
-                    onChange={onChange}
-                    value={values.password}
-                    required
-                    icon={<LockIcon className={styles.loginIcon} />}
-                    InputProps={{
-                      classes: { input: styles.input },
-                    }}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disableElevation
-                    disabled={
-                      pending || nope(values.email) || nope(values.password)
-                    }
-                    startIcon={
-                      pending && <CircularProgress size={20} color="inherit" />
-                    }
-                    className={styles.submitBtn}
-                  >
-                    {action.label}
-                  </Button>
-                </form>
-                {action.value === "login" ? (
-                  <Button
-                    className={styles.textButton}
-                    onClick={handleResetPassword}
-                  >
-                    Forgot Password?
-                  </Button>
-                ) : null}
-              </>
-            ) : null}
-          </>
-        )}
+                  {action.label}
+                </Button>
+              </form>
+              {action.value === "login" ? (
+                <Button className={styles.textButton} onClick={onForgotClick}>
+                  Forgot Password?
+                </Button>
+              ) : null}
+            </>
+          ) : null}
+        </div>
       </div>
       <SnackBar
         open={!!error}
@@ -156,7 +151,7 @@ export function Login(props: Props) {
         message={error!}
         severity="error"
       />
-    </div>
+    </>
   )
 }
 
@@ -165,6 +160,13 @@ const styles = {
     display: flex;
     align-items: center;
     justify-content: center;
+  `,
+  firstLine: css`
+    font-size: 32px;
+  `,
+  secondLine: css`
+    font-size: 16px;
+    color: var(--dark-grey);
   `,
   card: css`
     width: 256px;
