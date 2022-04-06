@@ -3,6 +3,7 @@ import { css } from "emotion"
 import { Button } from "@material-ui/core"
 import { actions } from "./utils"
 import { useHistory, useLocation } from "react-router-dom"
+import img from "assets/celebration.jpg"
 
 type Props = {
   children: ReactNode
@@ -26,21 +27,37 @@ export const Landing = (props: Props) => {
   const hasFooter = pathname !== "/reset"
 
   return (
-    <>
-      <div className={styles.inputsContainer}>{children}</div>
-      {hasFooter ? (
-        <div className={styles.action}>
-          {actions[actionToToggle].message}
-          <Button className="btn" onClick={handleChange}>
-            {actions[actionToToggle].actionMessage}
-          </Button>
-        </div>
-      ) : null}
-    </>
+    <div className={styles.shell}>
+      <div className={styles.content}>
+        <div className={styles.inputsContainer}>{children}</div>
+        {hasFooter ? (
+          <div className={styles.action}>
+            {actions[actionToToggle].message}
+            <Button className="btn" onClick={handleChange}>
+              {actions[actionToToggle].actionMessage}
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    </div>
   )
 }
 
 const styles = {
+  shell: css`
+    display: flex;
+    overflow: hidden;
+    background: url(${img});
+    height: 100vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  `,
+  content: css`
+    margin: auto;
+    background-color: var(--white);
+    border-top: 3px solid var(--primary-main);
+  `,
   inputsContainer: css`
     width: 256px;
     margin: auto;
