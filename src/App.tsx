@@ -5,9 +5,8 @@ import Base from "./routes/Base"
 import { history } from "./my-history"
 import { Theme } from "providers/Theme"
 import { ProvideAuth } from "context/AuthContext"
-import { Login } from "routes/Auth/Login"
-import { actions } from "routes/Auth/utils"
 import { Landing } from "routes/Auth/Landing"
+import { Auth } from "routes/Auth"
 import { ResetConfirmation } from "routes/Auth/ResetConfirmation"
 import { Forgot } from "routes/Auth/Forgot"
 
@@ -19,24 +18,16 @@ export function App() {
           <Router history={history}>
             <Switch>
               <Route path="/reset">
-                <Landing>
-                  <ResetConfirmation />
-                </Landing>
+                <Auth component={ResetConfirmation} />
               </Route>
               <Route path="/forgot">
-                <Landing>
-                  <Forgot />
-                </Landing>
+                <Auth component={Forgot} />
               </Route>
               <Route path="/signup">
-                <Landing>
-                  <Login action={actions["signup"]} />
-                </Landing>
+                <Auth component={Landing} path="signup" />
               </Route>
               <Route path="/login">
-                <Landing>
-                  <Login action={actions["login"]} />
-                </Landing>
+                <Auth component={Landing} path="login" />
               </Route>
               <Route component={Base} />
             </Switch>

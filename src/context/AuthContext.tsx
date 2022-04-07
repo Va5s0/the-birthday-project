@@ -8,6 +8,7 @@ import {
   sendPasswordResetEmail,
   confirmPasswordReset,
   UserCredential,
+  onAuthStateChanged,
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
 
@@ -17,6 +18,8 @@ const actionCodeSettings = (email: string) => ({
 })
 
 type AuthContextType = {
+  user: User | null
+  loading: boolean
   register: ({ email, password }: Sign) => Promise<UserCredential>
   login: ({ email, password }: Sign) => Promise<User>
   logout: () => Promise<void>
@@ -39,13 +42,18 @@ export const ProvideAuth = ({ children }: { children: ReactNode }) => {
   return <AuthContext.Provider value={auth}> {children} </AuthContext.Provider>
 }
 
-export const useAuth = () => {
-  return React.useContext(AuthContext)
-}
+export const useAuth = () => React.useContext(AuthContext)
 
 function useProvideAuth() {
   const auth = getAuth()
+  const [user, setUser] = React.useState<User | null>(auth.currentUser)
+  const [loading, setLoading] = React.useState<boolean>(true)
   const [error, setError] = React.useState<string | undefined>()
+
+  const onComplete = (user: User | null) => {
+    setUser(user)
+    setLoading(false)
+  }
 
   const register = ({ email, password }: Sign) =>
     createUserWithEmailAndPassword(auth, email, password)
@@ -94,7 +102,14 @@ function useProvideAuth() {
 
   const resetError = (error?: string) => setError(error)
 
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, onComplete)
+    return () => unsubscribe()
+  }, [auth])
+
   return {
+    user,
+    loading,
     register,
     login,
     logout,
