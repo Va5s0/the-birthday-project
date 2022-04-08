@@ -102,7 +102,7 @@ const Connections = (props: Props) => {
                   ))
                 ) : (
                   <div className={styles.nameContainer}>
-                    {`${c?.firstName} ${c?.lastName}`}{" "}
+                    {`${c.firstName} ${c?.lastName || ""}`}
                     <IconButton
                       onClick={(e) => handleDelete(e, c?.id)}
                       classes={{ root: styles.iconButton }}
@@ -134,13 +134,13 @@ export default Connections
 const styles = {
   connectionsContainer: css`
     position: absolute;
-    width: 100%;
+    width: -webkit-fill-available;
+    padding-right: 30px;
   `,
   accordion: css`
     border-top: none;
     box-shadow: none;
     opacity: 1;
-    transition: 0.5s opacity ease;
     box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%),
       0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%);
     :last-child {
@@ -155,18 +155,18 @@ const styles = {
   `,
   invisible: css`
     opacity: 0;
-    transition: 0.5s opacity ease;
+    display: none;
     box-shadow: none;
   `,
   summaryRoot: css`
     min-height: 36px;
-    background-color: var(--secondary-main);
+    background-color: var(--primary-dark);
     color: white;
     &.Mui-expanded {
       min-height: 36px;
     }
     &.Mui-focused {
-      background-color: var(--secondary-main);
+      background-color: var(--primary-dark);
     }
   `,
   summaryContent: css`

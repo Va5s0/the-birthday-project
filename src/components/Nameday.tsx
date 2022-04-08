@@ -154,6 +154,7 @@ const Nameday = (props: Props) => {
       label={"Nameday"}
       placeholder={"Nameday"}
       value={value?.nameday?.date || ""}
+      disableToolbar
       margin={margin}
       size={size}
       onChange={handleDateChange}
@@ -176,7 +177,7 @@ const styles = {
     font-size: 12px;
   `,
   commonIcon: css`
-    color: var(--secondary-main);
+    color: var(--primary-dark);
   `,
   adornment: css`
     width: 24px;

@@ -1,10 +1,10 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: tahoma, sans-serif;
+  font-family: Tahoma, sans-serif;
   font-size: 14px;
   background-color: #fcfcfc;
-  /*background-image: url('/images/exclusive_paper.png');*/
+  overflow-x: hidden;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -23,16 +23,21 @@ input[type="number"] {
   --white: #ffffff;
   --primary-main: #008dcd;
   --primary-light: #57caff;
+  --light-grey-3: #f4f7f6;
   --primary-dark: #004e72;
-  --secondary-main: #cd4000;
+  --secondary-main: #bc96bb;
+  --secondary-dark: #937492;
 
   --red: #d93845;
   --light-red: #e96e78;
 
   --light-grey: #eee;
   --light-grey-2: #c0bebe;
+  --light-grey-3: #f1f3ec;
+  --light-grey-4: #d4dada;
   --dark-grey: #808080;
   --dark-grey-2: #333;
+  --dark-grey-3: #202221;
 
   --warning: #ffcc00;
 }
