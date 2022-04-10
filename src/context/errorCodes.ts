@@ -8,4 +8,5 @@ export const errorCodes = {
   "auth/wrong-password": "Wrong password",
   "auth/expired-action-code": "Password reset code has expired",
   "auth/invalid-action-code": "Password reset code is invalid",
+  "auth/requires-recent-login": "Session expired. New login required",
 }

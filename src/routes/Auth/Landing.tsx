@@ -8,7 +8,7 @@ import { Loading } from "../../components/Loading"
 import { SnackBar } from "../../components/SnackBar"
 import { TextInput } from "../../components/inputs/TextInput"
 import { css } from "@emotion/css"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { actions } from "./utils"
 
 type Props = {
@@ -25,17 +25,26 @@ const nope = (s: string) => !s.trim()
 
 export function Landing(props: Props) {
   const { path } = props
+  const {
+    state,
+  }: {
+    state: { openSnackbar?: boolean; message?: string; severity?: string }
+  } = useLocation()
   const [values, setValues] = React.useState<Sign>(initialValues)
   const [pending, setPending] = React.useState<boolean>(false)
   const navigate = useNavigate()
+  const [snackbar, setSnackbar] = React.useState<{
+    openSnackbar?: boolean
+    message?: string
+    severity?: string
+  }>({ openSnackbar: false, message: undefined, severity: undefined })
   const { register, login, error, resetError } = useAuth() ?? {}
 
   const action = actions[path]
 
-  const handleResetError = React.useCallback(
-    () => resetError && resetError(undefined),
-    [resetError]
-  )
+  const handleResetError = React.useCallback(() => {
+    resetError && resetError(undefined)
+  }, [resetError])
 
   const onChange = React.useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +82,20 @@ export function Landing(props: Props) {
   const onForgotClick = () => {
     navigate("/forgot")
   }
+
+  React.useEffect(() => {
+    setSnackbar({
+      openSnackbar: state?.openSnackbar || false,
+      message: state?.message,
+      severity: state?.severity,
+    })
+  }, [state?.openSnackbar, state?.message, state?.severity])
+
+  const severity = snackbar?.severity
+    ? snackbar?.severity
+    : !!error
+    ? "error"
+    : undefined
 
   return (
     <>
@@ -148,10 +171,15 @@ export function Landing(props: Props) {
         </div>
       </div>
       <SnackBar
-        open={!!error}
-        onClose={handleResetError}
-        message={error!}
-        severity="error"
+        open={!!error || !!snackbar?.openSnackbar}
+        onClose={() => {
+          handleResetError()
+          navigate("/", { state: undefined })
+        }}
+        message={error! || snackbar.message!}
+        severity={
+          severity as "error" | "success" | "info" | "warning" | undefined
+        }
       />
     </>
   )

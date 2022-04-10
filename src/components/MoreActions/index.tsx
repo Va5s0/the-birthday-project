@@ -7,6 +7,7 @@ import MenuItem from "@mui/material/MenuItem"
 
 import MoreVertIcon from "@mui/icons-material/MoreVert"
 import { css } from "@emotion/css"
+import { ListItemText } from "@mui/material"
 
 type Option = {
   label?: string
@@ -59,8 +60,10 @@ function MoreActions(props: Props & IconButtonProps) {
               obj.onClick()
               setAnchorEl(null)
             }}
+            className={styles.listItem}
           >
-            <ListItemIcon className={styles.listItem}>{obj.icon}</ListItemIcon>
+            <ListItemIcon className={styles.listIcon}>{obj.icon}</ListItemIcon>
+            {!!obj?.label ? <ListItemText primary={obj?.label} /> : null}
           </MenuItem>
         ))}
       </Menu>
@@ -79,6 +82,11 @@ const styles = {
     &.MuiListItemIcon-root {
       min-width: 20px;
     }
+    color: var(--dark-grey-3);
+    grid-column-gap: 10px;
+  `,
+  listIcon: css`
+    min-width: 20px;
     > svg {
       width: 20px;
       height: 20px;

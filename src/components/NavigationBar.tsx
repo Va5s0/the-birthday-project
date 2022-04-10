@@ -1,14 +1,89 @@
+import React from "react"
 import { AppBar, Button, Fab, Toolbar, Typography } from "@mui/material"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { css, keyframes } from "@emotion/css"
 import AddIcon from "@mui/icons-material/Add"
+import ExitToAppSharpIcon from "@mui/icons-material/ExitToAppSharp"
+import DeleteForeverSharpIcon from "@mui/icons-material/DeleteForeverSharp"
 import AddContact from "./AddContact"
 import { useState } from "react"
 import { motion } from "framer-motion"
-
+import MoreActions from "./MoreActions"
+import { useAuth } from "src/context/AuthContext"
+import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
+import { storage } from "src/firebase/fbConfig"
+import { ref } from "firebase/storage"
+import { SnackBar } from "./SnackBar"
 export const NavigationBar = () => {
+  const {
+    logout,
+    user,
+    userDelete,
+    error,
+    resetError,
+    snackbar = true,
+    fetchFile = () => {},
+    file,
+  } = useAuth() ?? {}
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
+
+  const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
+
+  const userStorageRef = ref(storage, `${user?.uid}/user/avatar`)
+
+  const onEditProfile = () => {
+    navigate("/profile")
+  }
+  const onLogout = () => {
+    logout && logout()
+    navigate("/login")
+  }
+  const onGoHome = () => {
+    navigate("/")
+  }
+
+  const deleteUserAccount = async () => {
+    const canIDelete =
+      userDelete &&
+      user &&
+      (await userDelete(user).then((value) => value?.name !== "FirebaseError"))
+
+    !!canIDelete &&
+      navigate("/login", {
+        state: {
+          openSnackbar: true,
+          message: "Your account has been successfully deleted",
+          severity: "success",
+        },
+      })
+    setModalInfo(undefined)
+  }
+
+  const onDelete = () =>
+    setModalInfo({
+      title: "Delete Account",
+      type: "destructive",
+      description:
+        "Are you sure you want to delete your account? This actions is not reversible.",
+      confirmLabel: "Delete",
+      onSubmit: deleteUserAccount,
+    })
+
+  const handleSnackbarClose = () => {
+    resetError && resetError(undefined)
+  }
+
+  React.useEffect(() => {
+    fetchFile(id, userStorageRef)
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file, user])
+
+  const hasNoAvatar =
+    error?.code === "storage/object-not-found" || error?.code === 403
+  const isModalOpen = Boolean(modalInfo)
+  const id = "avatarImg"
 
   return (
     <>
@@ -28,6 +103,34 @@ export const NavigationBar = () => {
                 The Birthday Project
               </Typography>
             </Button>
+            <div className={styles.profileSection}>
+              <span>{user?.displayName || user?.email}</span>
+              {!hasNoAvatar ? (
+                <img
+                  id={id}
+                  alt="profile"
+                  width={40}
+                  height={40}
+                  className={styles.profileImg}
+                />
+              ) : null}
+              <MoreActions
+                options={[
+                  // LOGOUT
+                  {
+                    label: "Logout",
+                    icon: <ExitToAppSharpIcon className={styles.icon} />,
+                    onClick: onLogout,
+                  },
+                  // DELETE
+                  {
+                    label: "Delete account",
+                    icon: <DeleteForeverSharpIcon className={styles.icon} />,
+                    onClick: onDelete,
+                  },
+                ]}
+              />
+            </div>
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <Fab
@@ -42,7 +145,34 @@ export const NavigationBar = () => {
           </motion.div>
         </Toolbar>
       </AppBar>
-      <AddContact open={open} onClose={() => setOpen(false)} type="contact" />
+      {/* <AddContact open={open} onClose={() => setOpen(false)} type="contact" /> */}
+      {pathname !== "/profile" ? (
+        <>
+          <Fab
+            onClick={() => setOpen(true)}
+            className={styles.addButton}
+            aria-label="add"
+          >
+            <AddIcon />
+          </Fab>
+          <AddContact
+            open={open}
+            onClose={() => setOpen(false)}
+            type="contact"
+          />
+        </>
+      ) : null}
+      <ConfirmationModal
+        open={isModalOpen}
+        onCancel={() => setModalInfo(undefined)}
+        {...modalInfo}
+      />
+      <SnackBar
+        open={snackbar && !!error}
+        onClose={handleSnackbarClose}
+        message={error?.message!}
+        severity={"error"}
+      />
     </>
   )
 }
@@ -102,6 +232,16 @@ const styles = {
     -webkit-text-fill-color: transparent;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   `,
+  profileSection: css`
+    display: flex;
+    align-items: center;
+    border-left: 1px solid var(--light-grey-4);
+    border-radius: 0;
+    height: 100%;
+    padding: 0 18px 0 30px;
+    grid-column-gap: 10px;
+    color: var(--dark-grey-3);
+  `,
   addButton: css`
     background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
     color: #9333ea;
@@ -113,5 +253,12 @@ const styles = {
       transform: translateY(-2px);
       box-shadow: 0 6px 8px rgba(147, 51, 234, 0.2);
     }
+  `,
+  icon: css`
+    color: var(--dark-grey-3);
+  `,
+  profileImg: css`
+    border-radius: 50%;
+    margin-left: 20px;
   `,
 }

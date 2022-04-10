@@ -228,7 +228,7 @@ css`
     font-style: normal;
     line-height: normal;
     letter-spacing: normal;
-    color: var(--dark-grey);
+    color: inherit;
   }
 
   .MuiTypography-body2 {
