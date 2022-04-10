@@ -9,6 +9,8 @@ import {
   confirmPasswordReset,
   UserCredential,
   onAuthStateChanged,
+  updateProfile,
+  deleteUser,
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
 import { firebase } from "firebase/fbConfig"
@@ -26,6 +28,17 @@ type AuthContextType = {
   logout: () => Promise<void>
   sendPswdResetEmail: (email: string) => Promise<boolean>
   confirmPswdReset: (code: string, password: string) => Promise<boolean>
+  editProfile: (
+    user: User,
+    {
+      displayName,
+      photoURL,
+    }: {
+      displayName: string
+      photoURL: string
+    }
+  ) => Promise<any>
+  userDelete: (user: User) => Promise<any>
   error?: string
   resetError: (error?: string) => void
 }
@@ -106,6 +119,26 @@ function useProvideAuth() {
         return e
       })
 
+  const editProfile = (
+    user: User,
+    { displayName, photoURL }: { displayName: string; photoURL: string }
+  ) =>
+    updateProfile(user, {
+      displayName,
+      photoURL,
+    }).catch((e) => {
+      const errorCode = e?.code as string
+      setError(errorCodes[errorCode as keyof typeof errorCodes])
+      return e
+    })
+
+  const userDelete = (user: User) =>
+    deleteUser(user).catch((e) => {
+      const errorCode = e?.code as string
+      setError(errorCodes[errorCode as keyof typeof errorCodes])
+      return e
+    })
+
   const resetError = (error?: string) => setError(error)
 
   React.useEffect(() => {
@@ -122,6 +155,8 @@ function useProvideAuth() {
     error,
     sendPswdResetEmail,
     confirmPswdReset,
+    editProfile,
+    userDelete,
     resetError,
   }
 }

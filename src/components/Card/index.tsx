@@ -55,7 +55,6 @@ const Card = (props: Props) => {
   }
 
   const onContactChange = (contact?: Contact) => {
-    console.log({ contact })
     setUpdatedContact(contact || {})
   }
 
@@ -187,7 +186,6 @@ const Card = (props: Props) => {
                 options={[
                   // ADD
                   {
-                    label: "add",
                     icon: (
                       <AddIcon
                         className={cx(styles.primaryIcon, styles.smallIcon)}
@@ -197,13 +195,11 @@ const Card = (props: Props) => {
                   },
                   // EDIT
                   {
-                    label: "edit",
                     icon: <EditIcon />,
                     onClick: onEdit,
                   },
                   // DELETE
                   {
-                    label: "delete",
                     icon: <DeleteIcon className={styles.deleteIcon} />,
                     onClick: onDelete,
                   },

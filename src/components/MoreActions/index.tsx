@@ -7,6 +7,7 @@ import MenuItem from "@material-ui/core/MenuItem"
 
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import { css } from "emotion"
+import { ListItemText } from "@material-ui/core"
 
 type Option = {
   label?: string
@@ -59,8 +60,10 @@ function MoreActions(props: Props & IconButtonProps) {
               obj.onClick()
               setAnchorEl(null)
             }}
+            className={styles.listItem}
           >
-            <ListItemIcon className={styles.listItem}>{obj.icon}</ListItemIcon>
+            <ListItemIcon className={styles.listIcon}>{obj.icon}</ListItemIcon>
+            {!!obj?.label ? <ListItemText primary={obj?.label} /> : null}
           </MenuItem>
         ))}
       </Menu>
@@ -76,6 +79,10 @@ const styles = {
     height: 20px;
   `,
   listItem: css`
+    color: var(--dark-grey-3);
+    grid-column-gap: 10px;
+  `,
+  listIcon: css`
     min-width: 20px;
     > svg {
       width: 20px;

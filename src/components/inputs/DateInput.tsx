@@ -59,7 +59,6 @@ export function DateInput(props: DateInputProps) {
         format="dd/MM/yyyy"
         variant="inline"
         inputVariant="outlined"
-        clearable
         fullWidth={fullWidth}
         error={error}
         {...rest}

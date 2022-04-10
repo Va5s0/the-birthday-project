@@ -8,8 +8,9 @@ import { Loading } from "components/Loading"
 import { SnackBar } from "components/SnackBar"
 import { TextInput } from "components/inputs/TextInput"
 import { css } from "@emotion/css"
-import { useHistory } from "react-router-dom"
+import { useHistory, useLocation } from "react-router-dom"
 import { actions } from "./utils"
+import { Color } from "@material-ui/lab"
 
 type Props = {
   path: "login" | "signup"
@@ -25,17 +26,26 @@ const nope = (s: string) => !s.trim()
 
 export function Landing(props: Props) {
   const { path } = props
+  const {
+    state,
+  }: {
+    state: { openSnackbar?: boolean; message?: string; severity?: string }
+  } = useLocation()
   const [values, setValues] = React.useState<Sign>(initialValues)
   const [pending, setPending] = React.useState<boolean>(false)
+  const [snackbar, setSnackbar] = React.useState<{
+    openSnackbar?: boolean
+    message?: string
+    severity?: string
+  }>({ openSnackbar: false, message: undefined, severity: undefined })
   const history = useHistory()
   const { register, login, error, resetError } = useAuth() ?? {}
 
   const action = actions[path]
 
-  const handleResetError = React.useCallback(
-    () => resetError && resetError(undefined),
-    [resetError]
-  )
+  const handleResetError = React.useCallback(() => {
+    resetError && resetError(undefined)
+  }, [resetError])
 
   const onChange = React.useCallback(
     (evt) => {
@@ -73,6 +83,20 @@ export function Landing(props: Props) {
   const onForgotClick = () => {
     history.push("/forgot")
   }
+
+  React.useEffect(() => {
+    setSnackbar({
+      openSnackbar: state?.openSnackbar || false,
+      message: state?.message,
+      severity: state?.severity,
+    })
+  }, [state?.openSnackbar, state?.message, state?.severity])
+
+  const severity = snackbar?.severity
+    ? (snackbar?.severity as Color)
+    : !!error
+    ? "error"
+    : undefined
 
   return (
     <>
@@ -148,10 +172,13 @@ export function Landing(props: Props) {
         </div>
       </div>
       <SnackBar
-        open={!!error}
-        onClose={handleResetError}
-        message={error!}
-        severity="error"
+        open={!!error || !!snackbar?.openSnackbar}
+        onClose={() => {
+          handleResetError()
+          history.replace({ state: undefined })
+        }}
+        message={error! || snackbar.message!}
+        severity={severity}
       />
     </>
   )

@@ -1,42 +1,109 @@
 import React from "react"
 import { css } from "emotion"
-import { AppBar, Button, Fab } from "@material-ui/core"
+import { AppBar, Fab } from "@material-ui/core"
 import { useAuth } from "context/AuthContext"
 import { useHistory } from "react-router-dom"
 import AddIcon from "@material-ui/icons/Add"
+import ExitToAppSharpIcon from "@material-ui/icons/ExitToAppSharp"
+import DeleteForeverSharpIcon from "@material-ui/icons/DeleteForeverSharp"
 import AddContact from "./AddContact"
 import { ReactComponent as Tree } from "assets/tree.svg"
+import MoreActions from "./MoreActions"
+import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
+import { SnackBar } from "./SnackBar"
 
 const NavigationBar = () => {
-  const { logout } = useAuth() ?? {}
+  const { logout, user, userDelete, error, resetError } = useAuth() ?? {}
   const history = useHistory()
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
+  const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
 
   const onOpen = () => setOpenAdd(true)
   const onClose = () => setOpenAdd(false)
 
-  const handleClick = () => {
+  const onLogout = () => {
     logout && logout()
     history.push("/login")
   }
+
+  const deleteUserAccount = async () => {
+    const canIDelete =
+      userDelete &&
+      user &&
+      (await userDelete(user).then((value) => value?.name !== "FirebaseError"))
+
+    !!canIDelete &&
+      history.push({
+        pathname: "/login",
+        state: {
+          openSnackbar: true,
+          message: "Your account has been successfully deleted",
+          severity: "success",
+        },
+      })
+    setModalInfo(undefined)
+  }
+
+  const onDelete = () =>
+    setModalInfo({
+      title: "Delete Account",
+      type: "destructive",
+      description:
+        "Are you sure you want to delete your account? This actions is not reversible.",
+      confirmLabel: "Delete",
+      onSubmit: deleteUserAccount,
+    })
+
+  const handleSnackbarClose = () => {
+    resetError && resetError(undefined)
+  }
+
+  const isModalOpen = Boolean(modalInfo)
+
   return (
     <>
       <AppBar position="fixed" className={styles.wrapper}>
         <div className={styles.container}>
           <div className={styles.brand}>
             <Tree className="logo" />
-            {/* <div className="logo" /> */}
             The Birthday Project
           </div>
-          <Button onClick={handleClick} className={styles.btn}>
-            Logout
-          </Button>
+          <div className={styles.profileSection}>
+            <span>{user?.displayName || user?.email}</span>
+            <MoreActions
+              options={[
+                // LOGOUT
+                {
+                  label: "Logout",
+                  icon: <ExitToAppSharpIcon className={styles.icon} />,
+                  onClick: onLogout,
+                },
+                // DELETE
+                {
+                  label: "Delete account",
+                  icon: <DeleteForeverSharpIcon className={styles.icon} />,
+                  onClick: onDelete,
+                },
+              ]}
+            />
+          </div>
         </div>
       </AppBar>
       <Fab onClick={onOpen} className={styles.addButton} aria-label="add">
         <AddIcon />
       </Fab>
       <AddContact open={openAdd} onClose={onClose} type="contact" />
+      <ConfirmationModal
+        open={isModalOpen}
+        onCancel={() => setModalInfo(undefined)}
+        {...modalInfo}
+      />
+      <SnackBar
+        open={!!error}
+        onClose={handleSnackbarClose}
+        message={error!}
+        severity={"error"}
+      />
     </>
   )
 }
@@ -70,16 +137,15 @@ const styles = {
       fill: var(--secondary-main);
     }
   `,
-  btn: css`
-    font-size: 13px;
-    font-weight: 600;
+  profileSection: css`
+    display: flex;
+    align-items: center;
     border-left: 1px solid var(--light-grey-4);
-    height: 100%;
     border-radius: 0;
-    padding: 0 50px;
-    :hover {
-      background-color: transparent;
-    }
+    height: 100%;
+    padding: 0 18px 0 30px;
+    grid-column-gap: 10px;
+    color: var(--dark-grey-3);
   `,
   addButton: css`
     position: fixed;
@@ -94,5 +160,8 @@ const styles = {
     > span > svg {
       font-size: 40px;
     }
+  `,
+  icon: css`
+    color: var(--dark-grey-3);
   `,
 }
