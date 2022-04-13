@@ -2,24 +2,35 @@ import React from "react"
 import { css } from "emotion"
 import { AppBar, Fab } from "@material-ui/core"
 import { useAuth } from "context/AuthContext"
-import { useHistory } from "react-router-dom"
+import { useHistory, useLocation } from "react-router-dom"
 import AddIcon from "@material-ui/icons/Add"
 import ExitToAppSharpIcon from "@material-ui/icons/ExitToAppSharp"
 import DeleteForeverSharpIcon from "@material-ui/icons/DeleteForeverSharp"
+import EditSharpIcon from "@material-ui/icons/EditSharp"
 import AddContact from "./AddContact"
 import { ReactComponent as Tree } from "assets/tree.svg"
 import MoreActions from "./MoreActions"
 import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
 import { SnackBar } from "./SnackBar"
+import { Contact } from "models/contact"
+import { doc, FirestoreError, onSnapshot } from "firebase/firestore"
+import { db } from "firebase/fbConfig"
 
 const NavigationBar = () => {
   const { logout, user, userDelete, error, resetError } = useAuth() ?? {}
   const history = useHistory()
+  const { pathname } = useLocation()
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
+  const [state, setState] = React.useState<Contact>()
+  const [, setError] = React.useState<FirestoreError>()
 
   const onOpen = () => setOpenAdd(true)
   const onClose = () => setOpenAdd(false)
+
+  const onEditProfile = () => {
+    history.push("/profile")
+  }
 
   const onLogout = () => {
     logout && logout()
@@ -60,6 +71,24 @@ const NavigationBar = () => {
 
   const isModalOpen = Boolean(modalInfo)
 
+  const docRef = doc(db, `users/${user?.uid}/user/profile`)
+
+  React.useEffect(
+    () =>
+      onSnapshot(
+        docRef,
+        (snapshot) => {
+          const _user = snapshot.data()
+          setState(_user)
+        },
+        (err) => {
+          setError(err)
+        }
+      ),
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+    [user]
+  )
+
   return (
     <>
       <AppBar position="fixed" className={styles.wrapper}>
@@ -69,9 +98,15 @@ const NavigationBar = () => {
             The Birthday Project
           </div>
           <div className={styles.profileSection}>
-            <span>{user?.displayName || user?.email}</span>
+            <span>{state?.firstName || user?.email}</span>
             <MoreActions
               options={[
+                // EDIT PROFILE
+                {
+                  label: "Edit profile",
+                  icon: <EditSharpIcon className={styles.icon} />,
+                  onClick: onEditProfile,
+                },
                 // LOGOUT
                 {
                   label: "Logout",
@@ -89,10 +124,14 @@ const NavigationBar = () => {
           </div>
         </div>
       </AppBar>
-      <Fab onClick={onOpen} className={styles.addButton} aria-label="add">
-        <AddIcon />
-      </Fab>
-      <AddContact open={openAdd} onClose={onClose} type="contact" />
+      {pathname !== "/profile" ? (
+        <>
+          <Fab onClick={onOpen} className={styles.addButton} aria-label="add">
+            <AddIcon />
+          </Fab>
+          <AddContact open={openAdd} onClose={onClose} type="contact" />
+        </>
+      ) : null}
       <ConfirmationModal
         open={isModalOpen}
         onCancel={() => setModalInfo(undefined)}

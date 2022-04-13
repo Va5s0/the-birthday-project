@@ -37,7 +37,7 @@ type AuthContextType = {
       displayName: string
       photoURL: string
     }
-  ) => Promise<any>
+  ) => void
   userDelete: (user: User) => Promise<any>
   error?: string
   resetError: (error?: string) => void
@@ -55,8 +55,7 @@ export const ProvideAuth = ({ children }: { children: ReactNode }) => {
   const auth = useProvideAuth() || {}
   return (
     <AuthContext.Provider value={{ ...auth, ...firebase }}>
-      {" "}
-      {children}{" "}
+      {children}
     </AuthContext.Provider>
   )
 }
@@ -122,7 +121,7 @@ function useProvideAuth() {
   const editProfile = (
     user: User,
     { displayName, photoURL }: { displayName: string; photoURL: string }
-  ) =>
+  ) => {
     updateProfile(user, {
       displayName,
       photoURL,
@@ -131,6 +130,7 @@ function useProvideAuth() {
       setError(errorCodes[errorCode as keyof typeof errorCodes])
       return e
     })
+  }
 
   const userDelete = (user: User) =>
     deleteUser(user).catch((e) => {
@@ -144,7 +144,7 @@ function useProvideAuth() {
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, onComplete)
     return () => unsubscribe()
-  }, [auth])
+  }, [auth, auth.currentUser])
 
   return {
     user,

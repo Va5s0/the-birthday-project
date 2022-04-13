@@ -2,12 +2,6 @@ import React, { ChangeEvent } from "react"
 import { doc, setDoc, updateDoc, collection } from "firebase/firestore"
 import { getAuth } from "firebase/auth"
 import MUIDialog from "@material-ui/core/Dialog"
-import IconButton from "@material-ui/core/IconButton"
-import CloseIcon from "@material-ui/icons/Close"
-import AccountBoxIcon from "@material-ui/icons/AccountBox"
-import PhoneIcon from "@material-ui/icons/Phone"
-import PhoneIphoneIcon from "@material-ui/icons/PhoneIphone"
-import AlternateEmailIcon from "@material-ui/icons/AlternateEmail"
 import CakeIcon from "@material-ui/icons/Cake"
 import { css } from "@emotion/css"
 import { Button, FormControl } from "@material-ui/core"
@@ -17,6 +11,8 @@ import { DateInput } from "./inputs/DateInput"
 import { db } from "firebase/fbConfig"
 import { v1 as getUuid } from "uuid"
 import Nameday from "components/Nameday"
+import { ModalHeader } from "./ModalHeader"
+import { contactFields } from "utils/contactFields"
 
 type Props = {
   open: boolean
@@ -24,14 +20,6 @@ type Props = {
   type: "contact" | "connection"
   contact?: Contact
 }
-
-const contactFields = [
-  { label: "First Name", value: "firstName", icon: AccountBoxIcon },
-  { label: "Last Name", value: "lastName", icon: AccountBoxIcon },
-  { label: "Phone", value: "phone", icon: PhoneIcon },
-  { label: "Mobile", value: "mobile", icon: PhoneIphoneIcon },
-  { label: "Email", value: "email", icon: AlternateEmailIcon },
-]
 
 const AddContact = (props: Props) => {
   const { open, onClose, type, contact } = props
@@ -88,16 +76,7 @@ const AddContact = (props: Props) => {
       fullWidth
       maxWidth="xs"
     >
-      <div data-dialog-header className={styles.header}>
-        <div id={id} className={styles.title}>
-          {`Add a new ${type}`}
-        </div>
-        <div data-dialog-close-button className={styles.close}>
-          <IconButton aria-label="close" onClick={handleClose}>
-            <CloseIcon className={styles.icon} />
-          </IconButton>
-        </div>
-      </div>
+      <ModalHeader id={id} title={`Add a new ${type}`} onClose={handleClose} />
 
       <div data-dialog-content className={styles.content}>
         <FormControl fullWidth>
@@ -168,26 +147,6 @@ const AddContact = (props: Props) => {
 export default AddContact
 
 const styles = {
-  header: css`
-    padding: 24px 24px 8px 24px;
-    display: flex;
-    align-items: center;
-    font-size: 18px;
-  `,
-  title: css`
-    margin: 0;
-    line-height: 22px;
-    font-size: 18px;
-  `,
-  close: css`
-    top: 8px;
-    right: 8px;
-    position: absolute;
-  `,
-  icon: css`
-    width: 24px;
-    height: 24px;
-  `,
   content: css`
     padding: 24px;
     justify-content: center;

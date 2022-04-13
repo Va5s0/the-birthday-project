@@ -22,8 +22,8 @@ type Props = {
   index?: string
   contact: Contact
   onContactChange: (contact?: Partial<Contact>) => void
-  hasError: (value?: string | undefined, index?: string | undefined) => boolean
-  errorMsg: (value?: string | undefined, index?: string | undefined) => string
+  hasError?: (value?: string | undefined, index?: string | undefined) => boolean
+  errorMsg?: (value?: string | undefined, index?: string | undefined) => string
   margin?: PropTypes.Margin
   size?: "small" | "medium"
 }
@@ -137,7 +137,7 @@ const Nameday = (props: Props) => {
             })}
           />
         )}
-        error={hasError(value?.nameday?.date, index)}
+        error={!!hasError && hasError(value?.nameday?.date, index)}
         className={styles.select}
         // helperText={errorMsg(contact?.nameday?.date, index)}
       >
@@ -159,8 +159,10 @@ const Nameday = (props: Props) => {
       size={size}
       onChange={handleDateChange}
       icon={<PermContactCalendarIcon className={styles.commonIcon} />}
-      error={hasError(value?.nameday?.date, index)}
-      errorMessage={errorMsg(value?.nameday?.date, index)}
+      error={hasError && hasError(value?.nameday?.date, index)}
+      errorMessage={
+        !!errorMsg ? errorMsg(value?.nameday?.date, index) : undefined
+      }
     />
   )
 }
