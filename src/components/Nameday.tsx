@@ -157,7 +157,7 @@ const Nameday = (props: Props) => {
             })}
           />
         )}
-        error={hasError(value?.nameday?.date, index)}
+        error={!!hasError && hasError(value?.nameday?.date, index)}
         className={styles.select}
       >
         {namedays?.map((nd, idx) => (
@@ -177,8 +177,10 @@ const Nameday = (props: Props) => {
       size={size}
       onChange={handleDateChange}
       icon={<PermContactCalendarIcon className={styles.commonIcon} />}
-      error={hasError(value?.nameday?.date, index)}
-      errorMessage={errorMsg(value?.nameday?.date, index)}
+      error={hasError && hasError(value?.nameday?.date, index)}
+      errorMessage={
+        !!errorMsg ? errorMsg(value?.nameday?.date, index) : undefined
+      }
     />
   )
 }

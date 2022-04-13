@@ -14,6 +14,9 @@ import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
 import { storage } from "src/firebase/fbConfig"
 import { ref } from "firebase/storage"
 import { SnackBar } from "./SnackBar"
+import { Contact } from "../models/contact"
+import { doc, FirestoreError, onSnapshot } from "firebase/firestore"
+import { db } from "../firebase/fbConfig"
 export const NavigationBar = () => {
   const {
     logout,
@@ -30,6 +33,8 @@ export const NavigationBar = () => {
   const [open, setOpen] = useState(false)
 
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
+  const [state, setState] = React.useState<Contact>()
+  const [, setError] = React.useState<FirestoreError>()
 
   const userStorageRef = ref(storage, `${user?.uid}/user/avatar`)
 
@@ -84,6 +89,24 @@ export const NavigationBar = () => {
     error?.code === "storage/object-not-found" || error?.code === 403
   const isModalOpen = Boolean(modalInfo)
   const id = "avatarImg"
+
+  const docRef = doc(db, `users/${user?.uid}/user/profile`)
+
+  React.useEffect(
+    () =>
+      onSnapshot(
+        docRef,
+        (snapshot) => {
+          const _user = snapshot.data() as Contact
+          setState(_user)
+        },
+        (err) => {
+          setError(err)
+        }
+      ),
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+    [user]
+  )
 
   return (
     <>
