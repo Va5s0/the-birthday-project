@@ -33,8 +33,6 @@ export const NavigationBar = () => {
   const [open, setOpen] = useState(false)
 
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
-  const [state, setState] = React.useState<Contact>()
-  const [, setError] = React.useState<FirestoreError>()
 
   const userStorageRef = ref(storage, `${user?.uid}/user/avatar`)
 
@@ -91,22 +89,6 @@ export const NavigationBar = () => {
   const id = "avatarImg"
 
   const docRef = doc(db, `users/${user?.uid}/user/profile`)
-
-  React.useEffect(
-    () =>
-      onSnapshot(
-        docRef,
-        (snapshot) => {
-          const _user = snapshot.data() as Contact
-          setState(_user)
-        },
-        (err) => {
-          setError(err)
-        }
-      ),
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-    [user]
-  )
 
   return (
     <>
@@ -240,6 +222,10 @@ const styles = {
     &:hover {
       background-color: transparent;
       backdrop-filter: blur(5px);
+    grid-column-gap: 10px;
+    cursor: pointer;
+    .logo {
+      fill: var(--secondary-main);
     }
   `,
   titleText: css`

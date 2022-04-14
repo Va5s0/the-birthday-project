@@ -212,7 +212,6 @@ css`
 
   .MuiSelect-outlined.MuiSelect-outlined {
     color: var(--black);
-    padding: 8px 0;
   }
 
   .MuiSelect-select:focus {

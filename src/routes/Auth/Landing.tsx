@@ -176,7 +176,7 @@ export function Landing(props: Props) {
           handleResetError()
           navigate("/", { state: undefined })
         }}
-        message={error! || snackbar.message!}
+        message={error?.message! || snackbar.message!}
         severity={
           severity as "error" | "success" | "info" | "warning" | undefined
         }

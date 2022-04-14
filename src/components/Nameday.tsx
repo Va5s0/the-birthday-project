@@ -26,6 +26,7 @@ type Props = {
   errorMsg: (value?: string | undefined, index?: string | undefined) => string
   margin?: "dense" | "normal"
   size?: "small" | "medium"
+  className?: string
 }
 
 const specialNamedayCalc = (
@@ -54,6 +55,7 @@ const Nameday = (props: Props) => {
     errorMsg,
     margin = "dense",
     size = "small",
+    className,
   } = props
   const auth = getAuth()
   const { currentUser } = auth
@@ -137,7 +139,11 @@ const Nameday = (props: Props) => {
   }, [currentUser, value["firstName"]])
 
   return !!namedayList?.length ? (
-    <FormControl variant="outlined" margin={margin}>
+    <FormControl
+      variant="outlined"
+      margin={margin}
+      className={cx(styles.form, className)}
+    >
       <InputLabel id="outlined-label">Nameday</InputLabel>
       <Select
         name={!index ? "nameday" : `connections.${index}.nameday`}
@@ -188,6 +194,13 @@ const Nameday = (props: Props) => {
 export default Nameday
 
 const styles = {
+  form: css`
+    .normalPadding {
+      .MuiSelect-outlined.MuiSelect-outlined {
+        padding: 16px;
+      }
+    }
+  `,
   select: css`
     height: 48px;
     padding: 0 8px 0 16px;
