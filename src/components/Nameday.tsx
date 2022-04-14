@@ -26,6 +26,7 @@ type Props = {
   errorMsg?: (value?: string | undefined, index?: string | undefined) => string
   margin?: PropTypes.Margin
   size?: "small" | "medium"
+  className?: string
 }
 
 const specialNamedayCalc = (
@@ -54,6 +55,7 @@ const Nameday = (props: Props) => {
     errorMsg,
     margin = "dense",
     size = "small",
+    className,
   } = props
   const auth = getAuth()
   const { currentUser } = auth
@@ -117,7 +119,11 @@ const Nameday = (props: Props) => {
   }, [currentUser, value["firstName"]])
 
   return !!namedayList?.length ? (
-    <FormControl variant="outlined" margin={margin}>
+    <FormControl
+      variant="outlined"
+      margin={margin}
+      className={cx(styles.form, className)}
+    >
       <InputLabel id="outlined-label">Nameday</InputLabel>
       <Select
         name={!index ? "nameday" : `connections.${index}.nameday`}
@@ -138,7 +144,7 @@ const Nameday = (props: Props) => {
           />
         )}
         error={!!hasError && hasError(value?.nameday?.date, index)}
-        className={styles.select}
+        className={cx(styles.select, { normalPadding: margin === "normal" })}
         // helperText={errorMsg(contact?.nameday?.date, index)}
       >
         {namedays?.map((nd, idx) => (
@@ -159,6 +165,8 @@ const Nameday = (props: Props) => {
       size={size}
       onChange={handleDateChange}
       icon={<PermContactCalendarIcon className={styles.commonIcon} />}
+      fullWidth
+      className={className}
       error={hasError && hasError(value?.nameday?.date, index)}
       errorMessage={
         !!errorMsg ? errorMsg(value?.nameday?.date, index) : undefined
@@ -170,6 +178,13 @@ const Nameday = (props: Props) => {
 export default Nameday
 
 const styles = {
+  form: css`
+    .normalPadding {
+      .MuiSelect-outlined.MuiSelect-outlined {
+        padding: 16px;
+      }
+    }
+  `,
   select: css`
     height: 48px;
     padding: 0 8px 0 16px;

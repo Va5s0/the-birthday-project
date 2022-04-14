@@ -177,7 +177,7 @@ export function Landing(props: Props) {
           handleResetError()
           history.replace({ state: undefined })
         }}
-        message={error! || snackbar.message!}
+        message={error?.message! || snackbar.message!}
         severity={severity}
       />
     </>

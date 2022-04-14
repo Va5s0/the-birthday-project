@@ -291,7 +291,7 @@ const styles = {
   ghostContainer: css`
     display: flex;
     flex-direction: column;
-    max-width: 148px;
+    max-width: 140px;
   `,
   name: css`
     font-size: 16px;

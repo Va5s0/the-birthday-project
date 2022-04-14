@@ -91,7 +91,7 @@ export function Forgot() {
       <SnackBar
         open={!!error}
         onClose={handleResetError}
-        message={error!}
+        message={error?.message!}
         severity="error"
       />
     </>

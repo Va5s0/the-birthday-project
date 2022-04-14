@@ -12,18 +12,25 @@ import { ReactComponent as Tree } from "assets/tree.svg"
 import MoreActions from "./MoreActions"
 import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
 import { SnackBar } from "./SnackBar"
-import { Contact } from "models/contact"
-import { doc, FirestoreError, onSnapshot } from "firebase/firestore"
-import { db } from "firebase/fbConfig"
+import { ref } from "firebase/storage"
+import { storage } from "firebase/fbConfig"
 
 const NavigationBar = () => {
-  const { logout, user, userDelete, error, resetError } = useAuth() ?? {}
+  const {
+    logout,
+    user,
+    userDelete,
+    error,
+    resetError,
+    snackbar = true,
+    fetchFile = () => {},
+  } = useAuth() ?? {}
   const history = useHistory()
   const { pathname } = useLocation()
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
-  const [state, setState] = React.useState<Contact>()
-  const [, setError] = React.useState<FirestoreError>()
+
+  const userStorageRef = ref(storage, `${user?.uid}/user/avatar`)
 
   const onOpen = () => setOpenAdd(true)
   const onClose = () => setOpenAdd(false)
@@ -35,6 +42,10 @@ const NavigationBar = () => {
   const onLogout = () => {
     logout && logout()
     history.push("/login")
+  }
+
+  const onGoHome = () => {
+    history.push("/")
   }
 
   const deleteUserAccount = async () => {
@@ -69,36 +80,35 @@ const NavigationBar = () => {
     resetError && resetError(undefined)
   }
 
-  const isModalOpen = Boolean(modalInfo)
-
-  const docRef = doc(db, `users/${user?.uid}/user/profile`)
-
-  React.useEffect(
-    () =>
-      onSnapshot(
-        docRef,
-        (snapshot) => {
-          const _user = snapshot.data()
-          setState(_user)
-        },
-        (err) => {
-          setError(err)
-        }
-      ),
+  React.useEffect(() => {
+    fetchFile(id, userStorageRef)
     //eslint-disable-next-line react-hooks/exhaustive-deps
-    [user]
-  )
+  }, [user])
+
+  const hasNoAvatar =
+    error?.code === "storage/object-not-found" || error?.code === 403
+  const isModalOpen = Boolean(modalInfo)
+  const id = "avatarImg"
 
   return (
     <>
       <AppBar position="fixed" className={styles.wrapper}>
         <div className={styles.container}>
-          <div className={styles.brand}>
+          <div className={styles.brand} onClick={onGoHome}>
             <Tree className="logo" />
             The Birthday Project
           </div>
           <div className={styles.profileSection}>
-            <span>{state?.firstName || user?.email}</span>
+            <span>{user?.displayName || user?.email}</span>
+            {!hasNoAvatar ? (
+              <img
+                id={id}
+                alt="profile"
+                width={40}
+                height={40}
+                className={styles.profileImg}
+              />
+            ) : null}
             <MoreActions
               options={[
                 // EDIT PROFILE
@@ -138,9 +148,9 @@ const NavigationBar = () => {
         {...modalInfo}
       />
       <SnackBar
-        open={!!error}
+        open={snackbar && !!error}
         onClose={handleSnackbarClose}
-        message={error!}
+        message={error?.message!}
         severity={"error"}
       />
     </>
@@ -172,6 +182,7 @@ const styles = {
     display: flex;
     align-items: center;
     grid-column-gap: 10px;
+    cursor: pointer;
     .logo {
       fill: var(--secondary-main);
     }
@@ -202,5 +213,9 @@ const styles = {
   `,
   icon: css`
     color: var(--dark-grey-3);
+  `,
+  profileImg: css`
+    border-radius: 50%;
+    margin-left: 20px;
   `,
 }
