@@ -24,6 +24,7 @@ const NavigationBar = () => {
     resetError,
     snackbar = true,
     fetchFile = () => {},
+    file,
   } = useAuth() ?? {}
   const history = useHistory()
   const { pathname } = useLocation()
@@ -83,7 +84,7 @@ const NavigationBar = () => {
   React.useEffect(() => {
     fetchFile(id, userStorageRef)
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [file, user])
 
   const hasNoAvatar =
     error?.code === "storage/object-not-found" || error?.code === 403

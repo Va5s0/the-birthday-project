@@ -14,7 +14,12 @@ import {
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
 import { firebase } from "firebase/fbConfig"
-import { StorageReference, uploadBytes, getBlob } from "firebase/storage"
+import {
+  StorageReference,
+  uploadBytes,
+  getBlob,
+  deleteObject,
+} from "firebase/storage"
 
 const actionCodeSettings = (email: string) => ({
   url: `http://localhost:3001/reset?email=${email}`,
@@ -47,7 +52,9 @@ type AuthContextType = {
     file: Blob | Uint8Array | ArrayBuffer
   ) => Promise<void>
   fetchFile: (id: string, ref: StorageReference) => Promise<any>
+  deleteFile: (ref: StorageReference) => Promise<void>
   snackbar?: boolean
+  file?: Blob | Uint8Array | ArrayBuffer
 }
 
 export type Sign = {
@@ -81,6 +88,7 @@ function useProvideAuth() {
   const [loading, setLoading] = React.useState<boolean>(true)
   const [error, setError] = React.useState<Error>()
   const [snackbar, setSnackbar] = React.useState<boolean>()
+  const [file, setFile] = React.useState<Blob | Uint8Array | ArrayBuffer>()
 
   const onComplete = (user: User | null) => {
     setUser(user)
@@ -191,10 +199,11 @@ function useProvideAuth() {
         return e
       })
     setTimestamp(Date.now())
+    setFile(file)
   }
 
-  const fetchFile = (id: string, ref: StorageReference) =>
-    getBlob(ref)
+  const fetchFile = async (id: string, ref: StorageReference) => {
+    await getBlob(ref)
       .then((blob) => {
         const image = document.getElementById(id) as HTMLImageElement
         const objectUrl = URL.createObjectURL(blob)
@@ -209,6 +218,20 @@ function useProvideAuth() {
         })
         return e
       })
+    setTimestamp(Date.now())
+  }
+
+  const deleteFile = async (ref: StorageReference) => {
+    await deleteObject(ref).catch((e) => {
+      const errorCode = e?.code as string
+      setError({
+        code: errorCode,
+        message: errorCodes[errorCode as keyof typeof errorCodes],
+      })
+      return e
+    })
+    setFile(undefined)
+  }
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, onComplete)
@@ -236,5 +259,7 @@ function useProvideAuth() {
     upload,
     fetchFile,
     snackbar,
+    file,
+    deleteFile,
   }
 }

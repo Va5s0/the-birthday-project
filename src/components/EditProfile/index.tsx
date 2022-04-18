@@ -2,10 +2,11 @@ import React, { ChangeEvent } from "react"
 import { css } from "emotion"
 import { doc, setDoc, onSnapshot, FirestoreError } from "firebase/firestore"
 import { db } from "firebase/fbConfig"
-import { Button, FormControl } from "@material-ui/core"
+import { Button, Fab, FormControl } from "@material-ui/core"
 import CakeIcon from "@material-ui/icons/Cake"
 import AccountCircleSharpIcon from "@material-ui/icons/AccountCircleSharp"
 import AddAPhotoSharpIcon from "@material-ui/icons/AddAPhotoSharp"
+import CloseIcon from "@material-ui/icons/Close"
 import { TextInput } from "components/inputs/TextInput"
 import Nameday from "components/Nameday"
 import { DateInput } from "components/inputs/DateInput"
@@ -20,9 +21,10 @@ export const EditProfile = () => {
   const history = useHistory()
   const {
     user,
-    editProfile,
+    editProfile = () => {},
     upload = async () => {},
     fetchFile = () => {},
+    deleteFile = () => {},
     error,
   } = useAuth() ?? {}
   const storage = getStorage()
@@ -48,10 +50,9 @@ export const EditProfile = () => {
 
   const handleSubmit = () => {
     !!user &&
-      !!editProfile &&
       editProfile(user, {
         displayName: state?.firstName || "",
-        photoURL: "",
+        photoURL: user.photoURL || "",
       })
     setDoc(doc(db, `users/${user?.uid}/user`, "profile"), {
       ...state,
@@ -59,12 +60,26 @@ export const EditProfile = () => {
     }).catch((err) => setError(err))
   }
 
-  function handleFileSubmit(event: React.ChangeEvent<HTMLInputElement>) {
+  const handleSubmitFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { target } = event
     target.files?.length &&
       upload(userStorageRef, target.files[0]).then(() =>
         fetchFile(id, userStorageRef)
       )
+    !!user &&
+      editProfile(user, {
+        displayName: user?.displayName || "",
+        photoURL: userStorageRef.fullPath || "",
+      })
+  }
+
+  const handleDeleteFile = () => {
+    deleteFile(userStorageRef)
+    !!user &&
+      editProfile(user, {
+        displayName: user?.displayName || "",
+        photoURL: "",
+      })
   }
 
   const docRef = doc(db, `users/${user?.uid}/user/profile`)
@@ -109,16 +124,24 @@ export const EditProfile = () => {
                 <AddAPhotoSharpIcon />
               </div>
             </label>
-            <input id="file-input" type="file" onChange={handleFileSubmit} />
+            <input id="file-input" type="file" onChange={handleSubmitFile} />
           </div>
           {!hasNoAvatar ? (
-            <img
-              id={id}
-              alt="profile"
-              width={167}
-              height={167}
-              className={styles.profileImg}
-            />
+            <div className={styles.profileContainer}>
+              <Fab className="deletePhoto">
+                <CloseIcon
+                  className={styles.closeIcon}
+                  onClick={handleDeleteFile}
+                />
+              </Fab>
+              <img
+                id={id}
+                alt="profile"
+                width={167}
+                height={167}
+                className={styles.profileImg}
+              />
+            </div>
           ) : (
             <AccountCircleSharpIcon className={styles.avatar} />
           )}
@@ -291,5 +314,27 @@ const styles = {
     :hover {
       background-color: var(--primary-dark);
     }
+  `,
+  profileContainer: css`
+    .deletePhoto {
+      width: 24px;
+      height: 24px;
+      min-height: unset;
+      background-color: var(--red);
+      color: var(--white);
+      position: absolute;
+      right: 35px;
+      top: 25px;
+      opacity: 0;
+    }
+    :hover {
+      .deletePhoto {
+        opacity: 1;
+      }
+    }
+  `,
+  closeIcon: css`
+    width: 16px;
+    height: 16px;
   `,
 }
