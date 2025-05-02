@@ -1,14 +1,14 @@
 import * as React from "react"
-import { Sign, useAuth } from "context/AuthContext"
-import CircularProgress from "@material-ui/core/CircularProgress"
-import EmailIcon from "@material-ui/icons/Email"
-import LockIcon from "@material-ui/icons/Lock"
-import { Button } from "@material-ui/core"
-import { Loading } from "components/Loading"
-import { SnackBar } from "components/SnackBar"
-import { TextInput } from "components/inputs/TextInput"
+import { Sign, useAuth } from "../../context/AuthContext"
+import CircularProgress from "@mui/material/CircularProgress"
+import EmailIcon from "@mui/icons-material/Email"
+import LockIcon from "@mui/icons-material/Lock"
+import { Button } from "@mui/material"
+import { Loading } from "../../components/Loading"
+import { SnackBar } from "../../components/SnackBar"
+import { TextInput } from "../../components/inputs/TextInput"
 import { css } from "@emotion/css"
-import { useHistory } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { actions } from "./utils"
 
 type Props = {
@@ -27,7 +27,7 @@ export function Landing(props: Props) {
   const { path } = props
   const [values, setValues] = React.useState<Sign>(initialValues)
   const [pending, setPending] = React.useState<boolean>(false)
-  const history = useHistory()
+  const navigate = useNavigate()
   const { register, login, error, resetError } = useAuth() ?? {}
 
   const action = actions[path]
@@ -38,7 +38,7 @@ export function Landing(props: Props) {
   )
 
   const onChange = React.useCallback(
-    (evt) => {
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
       const {
         target: { name, value },
       } = evt
@@ -56,14 +56,14 @@ export function Landing(props: Props) {
     if (canIRegister) {
       register(values).then((value) => {
         if (!!value?.user?.uid) {
-          history.push("/")
+          navigate("/")
         }
       })
       setPending(false)
     } else if (canILogin) {
       login(values).then((value) => {
         if (!!value?.uid) {
-          history.push("/")
+          navigate("/")
         }
       })
       setPending(false)
@@ -71,7 +71,7 @@ export function Landing(props: Props) {
   }
 
   const onForgotClick = () => {
-    history.push("/forgot")
+    navigate("/forgot")
   }
 
   return (
@@ -82,7 +82,7 @@ export function Landing(props: Props) {
         <div className={styles.card}>
           {pending ? (
             <Loading />
-          ) : !process.env.REACT_APP_HIDE_FORM_LOGIN ? (
+          ) : !import.meta.env.VITE_HIDE_FORM_LOGIN ? (
             <>
               <form className={styles.form} onSubmit={handleSubmit} noValidate>
                 <TextInput

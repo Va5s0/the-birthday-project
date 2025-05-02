@@ -1,19 +1,19 @@
 import React from "react"
 import { ref, onValue, query } from "firebase/database"
-import { rldb } from "firebase/fbConfig"
+import { rldb } from "../firebase/fbConfig"
 import { getAuth } from "firebase/auth"
-import { Contact } from "models/contact"
+import { Contact } from "../models/contact"
 import {
   FormControl,
   InputLabel,
   MenuItem,
-  PropTypes,
   Select,
-} from "@material-ui/core"
-import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar"
-import DropdownIcon from "@material-ui/icons/KeyboardArrowDown"
-import { dateFormatter, easter, getFullYearDate } from "utils/index"
-import { css, cx } from "emotion"
+  SelectChangeEvent,
+} from "@mui/material"
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
+import DropdownIcon from "@mui/icons-material/KeyboardArrowDown"
+import { dateFormatter, easter, getFullYearDate } from "../utils/index"
+import { css, cx } from "@emotion/css"
 import { DateInput } from "./inputs/DateInput"
 import { set } from "lodash/fp"
 import { differenceInDays, addDays } from "date-fns"
@@ -24,7 +24,7 @@ type Props = {
   onContactChange: (contact?: Partial<Contact>) => void
   hasError: (value?: string | undefined, index?: string | undefined) => boolean
   errorMsg: (value?: string | undefined, index?: string | undefined) => string
-  margin?: PropTypes.Margin
+  margin?: "dense" | "normal"
   size?: "small" | "medium"
 }
 
@@ -71,27 +71,20 @@ const Nameday = (props: Props) => {
   }
 
   const handleSelectChange = (
-    evt: React.ChangeEvent<{
-      name?: string | undefined
-      value: unknown
-    }>,
+    event: SelectChangeEvent<string>,
     idx?: string
   ) => {
-    const { name, value } = evt.target
+    const { name, value } = event.target
     const updated = !!name
       ? set(name, { nameday_id: idx, date: value }, contact)
       : contact
     onContactChange(updated)
   }
 
-  const onSelectChange = (
-    evt: React.ChangeEvent<{
-      value: unknown
-    }>
-  ) => {
-    const { value } = evt.target
-    const idx = namedays?.indexOf(value as string).toString()
-    handleSelectChange(evt, idx)
+  const onSelectChange = (event: SelectChangeEvent<string>) => {
+    const { value } = event.target
+    const idx = namedays?.indexOf(value).toString()
+    handleSelectChange(event, idx)
   }
 
   const namedays = namedayList?.map((n) =>
@@ -139,7 +132,6 @@ const Nameday = (props: Props) => {
         )}
         error={hasError(value?.nameday?.date, index)}
         className={styles.select}
-        // helperText={errorMsg(contact?.nameday?.date, index)}
       >
         {namedays?.map((nd, idx) => (
           <MenuItem key={idx} value={nd} classes={{ root: styles.menuItem }}>
@@ -154,7 +146,6 @@ const Nameday = (props: Props) => {
       label={"Nameday"}
       placeholder={"Nameday"}
       value={value?.nameday?.date || ""}
-      disableToolbar
       margin={margin}
       size={size}
       onChange={handleDateChange}

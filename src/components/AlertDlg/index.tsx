@@ -1,9 +1,9 @@
 import { css, cx } from "@emotion/css"
-import Alert, { AlertProps } from "@material-ui/lab/Alert"
-import InfoIcon from "@material-ui/icons/Info"
-import ErrorIcon from "@material-ui/icons/Error"
-import WarningIcon from "@material-ui/icons/Warning"
-import CheckCircleIcon from "@material-ui/icons/CheckCircle"
+import Alert, { AlertProps } from "@mui/material/Alert"
+import InfoIcon from "@mui/icons-material/Info"
+import ErrorIcon from "@mui/icons-material/Error"
+import WarningIcon from "@mui/icons-material/Warning"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 
 const styles = {
   root: css`
@@ -37,7 +37,7 @@ const styles = {
 }
 
 export type AlertDlgProps = {
-  close?: () => void
+  close?: (event: React.SyntheticEvent | Event) => void
 } & AlertProps
 
 export function AlertDlg(props: AlertDlgProps) {

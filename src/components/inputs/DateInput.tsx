@@ -1,88 +1,60 @@
 import React from "react"
-import {
-  DatePickerProps,
-  DatePicker,
-  MuiPickersUtilsProvider,
-} from "@material-ui/pickers"
-import { css, cx } from "@emotion/css"
-import DateFnsUtils from "@date-io/date-fns"
-import { startOfDay } from "date-fns"
+import { DatePicker } from "@mui/x-date-pickers"
+import { css } from "@emotion/css"
 
-export type DateInputProps = {
+type Props = {
   name: string
+  label: string
+  placeholder: string
+  value: string
   onChange: (date: Date | null, name: string) => void
-  value: string | Date | undefined
-  dropdownIcon?: boolean
   icon?: React.ReactNode
+  error?: boolean
   errorMessage?: string
   disableFuture?: boolean
-  disableToolbar?: boolean
-} & Omit<DatePickerProps, "name" | "onChange">
+  margin?: "dense" | "normal"
+  size?: "small" | "medium"
+}
 
-export function DateInput(props: DateInputProps) {
+export const DateInput = (props: Props) => {
   const {
     name,
+    label,
+    placeholder,
     value,
     onChange,
-    dropdownIcon,
-    InputProps,
+    icon,
     error,
     errorMessage,
-    fullWidth = true,
-    icon,
-    margin = "normal",
-    size = "medium",
-    disableFuture = false,
-    disableToolbar = false,
-    ...rest
+    disableFuture,
+    margin = "dense",
+    size = "small",
   } = props
-  const [open, setOpen] = React.useState<boolean>(false)
-
-  const handleChange = (d: Date | null) => {
-    if (!!d) {
-      const _d = startOfDay(new Date(d || ""))
-      onChange(_d, name)
-    } else {
-      onChange(null, name)
-    }
-  }
-
-  const handleOpen = () => {
-    setOpen(!open)
-  }
 
   return (
-    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <DatePicker
-        disableFuture={disableFuture}
-        disableToolbar={disableToolbar}
-        format="dd/MM/yyyy"
-        variant="inline"
-        inputVariant="outlined"
-        clearable
-        fullWidth={fullWidth}
-        error={error}
-        {...rest}
-        name={name}
-        value={value || null}
-        margin={margin}
-        size={size}
-        onChange={handleChange}
-        onOpen={handleOpen}
-        onClose={handleOpen}
-        helperText={errorMessage}
-        rightArrowButtonProps={{ classes: { root: styles.arrow } }}
-        leftArrowButtonProps={{ classes: { root: styles.arrow } }}
-        InputProps={{
-          classes: {
-            notchedOutline: cx({ [styles.focusedError]: open && !!error }),
-            adornedStart: styles.startAdornment,
+    <DatePicker
+      label={label}
+      value={value ? new Date(value) : null}
+      onChange={(date: Date | null) => onChange(date, name)}
+      disableFuture={disableFuture}
+      slotProps={{
+        textField: {
+          fullWidth: true,
+          variant: "outlined",
+          margin,
+          size,
+          placeholder,
+          error,
+          helperText: errorMessage,
+          InputProps: {
+            startAdornment: icon,
           },
-          startAdornment: icon,
-          autoComplete: "off",
-        }}
-      />
-    </MuiPickersUtilsProvider>
+          InputLabelProps: {
+            shrink: true,
+          },
+        },
+      }}
+    />
   )
 }
 
@@ -94,26 +66,6 @@ const styles = {
     border: 2px solid red;
   `,
   icon: css`
-    .MuiIconButton-root {
-      padding: 0;
-    }
-  `,
-  startAdornment: css`
-    padding: 0 16px;
-    > svg {
-      width: 24px;
-      height: 24px;
-      color: var(--primary-dark);
-      margin-right: 8px;
-    }
-  `,
-  arrow: css`
-    .MuiIconButton-label {
-      > svg {
-        width: 24px;
-        height: 24px;
-        color: var(--primary-dark);
-      }
-    }
+    margin-right: -0.5rem;
   `,
 }

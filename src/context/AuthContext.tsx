@@ -11,7 +11,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
-import { firebase } from "firebase/fbConfig"
+import { firebase } from "../firebase/fbConfig"
 
 const actionCodeSettings = (email: string) => ({
   url: `http://localhost:3001/reset?email=${email}`,

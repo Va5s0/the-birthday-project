@@ -1,29 +1,24 @@
-import * as React from "react"
-import Snackbar from "@material-ui/core/Snackbar"
-import { AlertDlg } from "components/AlertDlg"
-import { TransitionHandlerProps } from "@material-ui/core/transitions"
+import Snackbar, { SnackbarProps } from "@mui/material/Snackbar"
+import { AlertDlg } from "../AlertDlg"
 
-export type SnackbarProps = {
-  open: boolean
+export type CustomSnackbarProps = {
   message: string
-  onClose: (event?: React.SyntheticEvent, reason?: string) => void
   severity?: "success" | "info" | "warning" | "error"
-  onExited?: TransitionHandlerProps["onExited"]
-}
+} & Omit<SnackbarProps, "children">
 
 const SnackBar = ({
   open,
   message,
   severity,
   onClose,
-  onExited,
-}: SnackbarProps) => (
+  ...props
+}: CustomSnackbarProps) => (
   <Snackbar
     open={open}
     autoHideDuration={6000}
     onClose={onClose}
-    onExited={onExited}
     disableWindowBlurListener
+    {...props}
   >
     <AlertDlg onClose={onClose} severity={severity} elevation={6}>
       {message}

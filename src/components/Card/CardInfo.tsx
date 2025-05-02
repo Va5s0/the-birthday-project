@@ -1,17 +1,16 @@
 import React from "react"
-import { Contact, Common } from "models/contact"
-import PhoneIcon from "@material-ui/icons/Phone"
-import PhoneIphoneIcon from "@material-ui/icons/PhoneIphone"
-import AlternateEmailIcon from "@material-ui/icons/AlternateEmail"
-import CakeIcon from "@material-ui/icons/Cake"
-import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar"
-import { dateFormatter } from "utils/index"
-import { css } from "@emotion/css"
-import { TextInput } from "components/inputs/TextInput"
-import { cx } from "emotion"
-import { DateInput } from "components/inputs/DateInput"
+import { Contact, Common } from "../../models/contact"
+import PhoneIcon from "@mui/icons-material/Phone"
+import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone"
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail"
+import CakeIcon from "@mui/icons-material/Cake"
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
+import { dateFormatter } from "../../utils/index"
+import { css, cx } from "@emotion/css"
+import { TextInput } from "../../components/inputs/TextInput"
+import { DateInput } from "../../components/inputs/DateInput"
 import { get, set } from "lodash/fp"
-import Nameday from "components/Nameday"
+import Nameday from "../../components/Nameday"
 
 type Props = {
   contact: Contact
@@ -86,7 +85,7 @@ export const CardInfo = (props: Props) => {
             ) : !!value[cf.value as keyof Common] ? (
               <div className={styles.commonContainer} key={idx}>
                 <Cmp className={styles.commonIcon} />
-                <div>{value[cf.value as keyof Common]}</div>
+                <div>{String(value[cf.value as keyof Common])}</div>
               </div>
             ) : null
           })}
@@ -98,7 +97,7 @@ export const CardInfo = (props: Props) => {
             name={!index ? "birthday" : `connections.${index}.birthday`}
             label={"Birthday"}
             placeholder={"Birthday"}
-            value={value?.birthday}
+            value={value?.birthday || ""}
             disableFuture
             margin="dense"
             size="small"

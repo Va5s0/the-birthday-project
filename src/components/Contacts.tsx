@@ -5,12 +5,12 @@ import {
   onSnapshot,
   FirestoreError,
 } from "firebase/firestore"
-import { Contact } from "models/contact"
-import { db } from "firebase/fbConfig"
+import { Contact } from "../models/contact"
+import { db } from "../firebase/fbConfig"
 import Card from "./Card/index"
-import { css } from "emotion"
+import { css } from "@emotion/css"
 import { getAuth } from "firebase/auth"
-import img from "assets/tree.jpeg"
+// import img from "assets/tree.jpeg"
 
 const Contacts = () => {
   const [contacts, setContacts] = React.useState<Contact[]>([])
@@ -74,7 +74,6 @@ const styles = {
     }
     ::before {
       content: "";
-      background-image: url(${img});
       height: 100%;
       width: 100%;
       position: fixed;

@@ -1,98 +1,117 @@
-import React from "react"
-import { css } from "emotion"
-import { AppBar, Button, Fab } from "@material-ui/core"
-import { useAuth } from "context/AuthContext"
-import { useHistory } from "react-router-dom"
-import AddIcon from "@material-ui/icons/Add"
+import { AppBar, Button, Fab, Toolbar, Typography } from "@mui/material"
+import { useNavigate } from "react-router-dom"
+import { css, keyframes } from "@emotion/css"
+import AddIcon from "@mui/icons-material/Add"
 import AddContact from "./AddContact"
-import { ReactComponent as Tree } from "assets/tree.svg"
+import { useState } from "react"
+import { motion } from "framer-motion"
 
-const NavigationBar = () => {
-  const { logout } = useAuth() ?? {}
-  const history = useHistory()
-  const [openAdd, setOpenAdd] = React.useState<boolean>(false)
+export const NavigationBar = () => {
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
 
-  const onOpen = () => setOpenAdd(true)
-  const onClose = () => setOpenAdd(false)
-
-  const handleClick = () => {
-    logout && logout()
-    history.push("/login")
-  }
   return (
     <>
-      <AppBar position="fixed" className={styles.wrapper}>
-        <div className={styles.container}>
-          <div className={styles.brand}>
-            <Tree className="logo" />
-            {/* <div className="logo" /> */}
-            The Birthday Project
-          </div>
-          <Button onClick={handleClick} className={styles.btn}>
-            Logout
-          </Button>
-        </div>
+      <AppBar position="sticky" className={styles.appBar} elevation={0}>
+        <Toolbar className={styles.toolbar}>
+          <motion.div
+            className={styles.titleContainer}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Button
+              color="inherit"
+              onClick={() => navigate("/")}
+              className={styles.title}
+            >
+              <Typography variant="h4" className={styles.titleText}>
+                The Birthday Project
+              </Typography>
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <Fab
+              color="primary"
+              aria-label="add"
+              onClick={() => setOpen(true)}
+              size="medium"
+              className={styles.addButton}
+            >
+              <AddIcon />
+            </Fab>
+          </motion.div>
+        </Toolbar>
       </AppBar>
-      <Fab onClick={onOpen} className={styles.addButton} aria-label="add">
-        <AddIcon />
-      </Fab>
-      <AddContact open={openAdd} onClose={onClose} type="contact" />
+      <AddContact open={open} onClose={() => setOpen(false)} type="contact" />
     </>
   )
 }
 
-export default NavigationBar
+const pulse = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.2);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(147, 51, 234, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
+  }
+`
 
 const styles = {
-  wrapper: css`
-    display: flex;
-    justify-content: center;
-    background-color: var(--white);
-    box-shadow: none;
-    height: 70px;
-    border-bottom: 1px solid var(--light-grey-4);
+  appBar: css`
+    background: linear-gradient(135deg, #9333ea 0%, #4f46e5 100%);
+    color: white;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
   `,
-  container: css`
+  toolbar: css`
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    height: 100%;
-    z-index: 100;
+    align-items: center;
+    padding: 0 16px;
+    min-height: 64px;
   `,
-  brand: css`
-    color: var(--dark-grey-3);
-    font-size: 24px;
-    padding: 0 50px;
+  titleContainer: css`
     display: flex;
     align-items: center;
-    grid-column-gap: 10px;
-    .logo {
-      fill: var(--secondary-main);
+    cursor: pointer;
+  `,
+  title: css`
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
     }
   `,
-  btn: css`
-    font-size: 13px;
-    font-weight: 600;
-    border-left: 1px solid var(--light-grey-4);
-    height: 100%;
-    border-radius: 0;
-    padding: 0 50px;
-    :hover {
-      background-color: transparent;
-    }
+  titleText: css`
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-weight: 700;
+    font-size: 1.75rem;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    text-transform: none;
+    background: linear-gradient(to right, #ffffff, #e2e8f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   `,
   addButton: css`
-    position: fixed;
-    right: 50px;
-    top: 92px;
-    background-color: var(--primary-main);
-    color: var(--white);
-    z-index: 1000;
-    :hover {
-      background-color: var(--primary-dark);
-    }
-    > span > svg {
-      font-size: 40px;
+    background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+    color: #9333ea;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    animation: ${pulse} 2s infinite;
+    &:hover {
+      background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(147, 51, 234, 0.2);
     }
   `,
 }

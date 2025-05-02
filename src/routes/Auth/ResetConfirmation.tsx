@@ -1,11 +1,11 @@
-import { Button } from "@material-ui/core"
-import { css } from "emotion"
-import { useHistory } from "react-router-dom"
+import { Button } from "@mui/material"
+import { css } from "@emotion/css"
+import { useNavigate } from "react-router-dom"
 
 export function ResetConfirmation() {
-  const history = useHistory()
+  const navigate = useNavigate()
 
-  const handleClick = () => history.push("./login")
+  const handleClick = () => navigate("/login")
 
   return (
     <div className={styles.container}>

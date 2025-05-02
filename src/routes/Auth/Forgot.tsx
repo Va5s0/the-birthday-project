@@ -1,20 +1,20 @@
 import * as React from "react"
-import { useAuth } from "context/AuthContext"
-import CircularProgress from "@material-ui/core/CircularProgress"
-import EmailIcon from "@material-ui/icons/Email"
-import { Button } from "@material-ui/core"
-import { Loading } from "components/Loading"
-import { SnackBar } from "components/SnackBar"
-import { TextInput } from "components/inputs/TextInput"
+import { useAuth } from "../../context/AuthContext"
+import CircularProgress from "@mui/material/CircularProgress"
+import EmailIcon from "@mui/icons-material/Email"
+import { Button } from "@mui/material"
+import { Loading } from "../../components/Loading"
+import { SnackBar } from "../../components/SnackBar"
+import { TextInput } from "../../components/inputs/TextInput"
 import { css } from "@emotion/css"
-import { useHistory } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 const nope = (s: string) => !s.trim()
 
 export function Forgot() {
   const [email, setEmail] = React.useState<string>("")
   const [pending, setPending] = React.useState<boolean>(false)
-  const history = useHistory()
+  const navigate = useNavigate()
   const { error, resetError, sendPswdResetEmail } = useAuth() ?? {}
 
   const handleResetError = React.useCallback(
@@ -23,7 +23,7 @@ export function Forgot() {
   )
 
   const onChange = React.useCallback(
-    (evt) => {
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
       const {
         target: { value },
       } = evt
@@ -39,7 +39,7 @@ export function Forgot() {
     sendPswdResetEmail &&
       sendPswdResetEmail(email).then(() => {
         setPending(false)
-        history.push("/reset")
+        navigate("/reset")
       })
   }
 

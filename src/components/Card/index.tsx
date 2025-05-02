@@ -1,22 +1,24 @@
 import React from "react"
 import { doc, deleteDoc, updateDoc } from "firebase/firestore"
-import { db } from "firebase/fbConfig"
-import { Card as MUICard, IconButton } from "@material-ui/core"
-import { css, cx } from "emotion"
-import { Contact } from "models/contact"
-import AccountCircleIcon from "@material-ui/icons/AccountCircle"
-import EmojiPeopleIcon from "@material-ui/icons/EmojiPeople"
-import DeleteIcon from "@material-ui/icons/Delete"
-import EditIcon from "@material-ui/icons/Edit"
-import CloseIcon from "@material-ui/icons/Close"
-import CheckIcon from "@material-ui/icons/Check"
-import AddIcon from "@material-ui/icons/Add"
+import { db } from "../../firebase/fbConfig"
+import { Card as MUICard, IconButton } from "@mui/material"
+import { css, cx } from "@emotion/css"
+import { Contact } from "../../models/contact"
+import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople"
+import DeleteIcon from "@mui/icons-material/Delete"
+import EditIcon from "@mui/icons-material/Edit"
+import CloseIcon from "@mui/icons-material/Close"
+import CheckIcon from "@mui/icons-material/Check"
+import AddIcon from "@mui/icons-material/Add"
 import { CardInfo } from "./CardInfo"
-import MoreActions from "components/MoreActions"
-import ConfirmationModal, { ModalInfo } from "components/ConfirmationModal"
-import GhostTextInput from "components/inputs/GhostTextInput"
-import AddContact from "components/AddContact"
-import Connections from "components/Connections"
+import MoreActions from "../../components/MoreActions"
+import ConfirmationModal, {
+  ModalInfo,
+} from "../../components/ConfirmationModal"
+import GhostTextInput from "../../components/inputs/GhostTextInput"
+import AddContact from "../../components/AddContact"
+import Connections from "../../components/Connections"
 import { set } from "lodash/fp"
 import { getAuth } from "firebase/auth"
 
@@ -258,55 +260,78 @@ const styles = {
   wrapper: css`
     z-index: 300;
     padding: 0 15px 30px;
+    transition: all 0.3s ease;
   `,
   cardContainer: css`
-    padding: 16px;
-    border-radius: 0;
+    padding: 24px;
+    border-radius: 16px;
     border: none;
     position: relative;
-    border-top: 2px solid var(--secondary-main);
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
   `,
   content: css`
     display: flex;
     flex-direction: column;
-    grid-row-gap: 20px;
+    grid-row-gap: 24px;
   `,
   firstRowContainer: css`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 48px;
+    height: 56px;
     z-index: 10;
   `,
   avatarContainer: css`
     display: flex;
     align-items: center;
+    gap: 16px;
   `,
   avatarContainerGap: css`
-    grid-column-gap: 16px;
+    gap: 16px;
   `,
   avatar: css`
-    width: 48px;
-    height: 48px;
-    color: var(--dark-grey);
-    background-color: white;
+    width: 56px;
+    height: 56px;
+    color: var(--primary-main);
+    background-color: rgba(147, 51, 234, 0.1);
     border-radius: 50%;
+    padding: 8px;
+    transition: all 0.3s ease;
+    &:hover {
+      transform: scale(1.05);
+      background-color: rgba(147, 51, 234, 0.15);
+    }
   `,
   ghostContainer: css`
     display: flex;
     flex-direction: column;
-    max-width: 148px;
+    max-width: 200px;
+    gap: 8px;
   `,
   name: css`
-    font-size: 16px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    letter-spacing: -0.025em;
   `,
   more: css`
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   `,
   connectionsRow: css`
     display: flex;
     justify-content: flex-end;
+    margin-top: 8px;
   `,
   elevated: css`
     z-index: 500;
@@ -314,20 +339,35 @@ const styles = {
   `,
   primaryIcon: css`
     color: var(--primary-main);
+    transition: all 0.2s ease;
+    &:hover {
+      color: var(--primary-dark);
+      transform: scale(1.1);
+    }
   `,
   smallIcon: css`
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   `,
   deleteIcon: css`
-    color: var(--red);
+    color: #ef4444;
+    transition: all 0.2s ease;
+    &:hover {
+      color: #dc2626;
+      transform: scale(1.1);
+    }
   `,
   cancelIcon: css`
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
+    transition: all 0.2s ease;
+    &:hover {
+      transform: scale(1.1);
+    }
   `,
   disabledIcon: css`
     color: rgba(0, 0, 0, 0.26);
+    cursor: not-allowed;
   `,
   paddingBottom: css`
     padding-bottom: 32px;

@@ -1,9 +1,143 @@
-import { createTheme } from "@material-ui/core"
-import { injectGlobal } from "@emotion/css"
+import { createTheme } from "@mui/material"
+import { css } from "@emotion/css"
 
-export const theme = createTheme()
+export const theme = createTheme({
+  components: {
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontSize: "14px",
+          lineHeight: "1rem",
+          fontWeight: "normal",
+          fontStretch: "normal",
+          fontStyle: "normal",
+          letterSpacing: "normal",
+          color: "black",
+          cursor: "text",
+          display: "inline-flex",
+          position: "relative",
+          boxSizing: "border-box",
+          alignItems: "center",
+          "&.MuiInputBase-marginDense": {
+            paddingLeft: "8px",
+            height: "40px",
+          },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        input: {
+          padding: "16px",
+          height: "16px",
+          "&.MuiOutlinedInput-inputMarginDense": {
+            display: "flex",
+            alignItems: "center",
+            padding: "12px 0",
+            fontSize: "12px",
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        outlined: {
+          fontSize: "14px",
+          transform: "translate(14px, 17px) scale(1)",
+          "&.MuiInputLabel-shrink": {
+            margin: 0,
+            transform: "translate(15px, -6px) scale(0.75)",
+          },
+        },
+      },
+    },
+    MuiInputAdornment: {
+      styleOverrides: {
+        root: {
+          "& .MuiSvgIcon-root": {
+            width: "24px",
+            height: "24px",
+          },
+          "&.MuiInputAdornment-marginDense .MuiSvgIcon-root": {
+            width: "16px",
+            height: "16px",
+          },
+        },
+      },
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        marginNormal: {
+          height: "fit-content",
+          backgroundColor: "#fcfcfc",
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        outlined: {
+          color: "var(--black)",
+          padding: "8px 0",
+          "&:focus": {
+            backgroundColor: "transparent",
+          },
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        body1: {
+          lineHeight: "1rem",
+          fontSize: "14px",
+          fontWeight: "normal",
+          fontStretch: "normal",
+          fontStyle: "normal",
+          letterSpacing: "normal",
+          color: "var(--dark-grey)",
+        },
+        body2: {
+          lineHeight: "1rem",
+          fontSize: "14px",
+          fontWeight: "normal",
+          fontStretch: "normal",
+          fontStyle: "normal",
+          letterSpacing: "normal",
+          color: "inherit",
+        },
+        caption: {
+          lineHeight: "1rem",
+          fontSize: "14px",
+          fontWeight: "normal",
+          fontStretch: "normal",
+          fontStyle: "normal",
+          letterSpacing: "normal",
+          color: "var(--dark-grey)",
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        textColorPrimary: {
+          "&.Mui-selected": {
+            color: "var(--primary-main)",
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        containedPrimary: {
+          backgroundColor: "var(--primary-main)",
+          "&:hover": {
+            backgroundColor: "var(--primary-dark)",
+          },
+        },
+      },
+    },
+  },
+})
 
-injectGlobal`
+css`
   /* Inputs */
 
   .MuiInputBase-root {
@@ -35,7 +169,7 @@ injectGlobal`
 
   .MuiOutlinedInput-input.MuiOutlinedInput-inputMarginDense {
     display: flex;
-      align-items: center;
+    align-items: center;
     padding: 12px 0;
     font-size: 12px;
   }
@@ -143,12 +277,11 @@ injectGlobal`
   .MuiPickersDay-dayDisabled {
     .MuiIconButton-label {
       .MuiTypography-body2 {
-        color: var(--light-grey-2)
+        color: var(--light-grey-2);
       }
     }
   }
   .MuiPickersToolbar-toolbar {
     background-color: var(--primary-dark);
   }
-
 `

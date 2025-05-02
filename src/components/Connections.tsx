@@ -4,13 +4,13 @@ import {
   AccordionDetails,
   AccordionSummary,
   IconButton,
-} from "@material-ui/core"
-import { css, cx } from "emotion"
-import { Common, Contact } from "models/contact"
+} from "@mui/material"
+import { css, cx } from "@emotion/css"
+import { Common, Contact } from "../models/contact"
 import GhostTextInput from "./inputs/GhostTextInput"
 import { get } from "lodash/fp"
 import { CardInfo } from "./Card/CardInfo"
-import CloseIcon from "@material-ui/icons/Close"
+import CloseIcon from "@mui/icons-material/Close"
 
 type Props = {
   contact?: Contact
@@ -134,23 +134,37 @@ export default Connections
 const styles = {
   connectionsContainer: css`
     position: absolute;
-    width: -webkit-fill-available;
-    padding-right: 30px;
+    width: 100%;
+    padding: 0 15px 30px;
+    z-index: 200;
+    left: 0;
+    right: 0;
   `,
   accordion: css`
-    border-top: none;
-    box-shadow: none;
-    opacity: 1;
-    box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%),
-      0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%);
-    :last-child {
-      margin-bottom: 50px;
+    border: none;
+    border-radius: 12px !important;
+    margin-bottom: 12px !important;
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    width: calc(100% - 30px);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
+
     &.Mui-expanded {
-      margin: 0;
+      margin: 0 15px 12px 15px !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
-    &.Mui-expanded:last-child {
-      margin-bottom: 50px;
+
+    &:last-child {
+      margin-bottom: 0 !important;
     }
   `,
   invisible: css`
@@ -159,18 +173,30 @@ const styles = {
     box-shadow: none;
   `,
   summaryRoot: css`
-    min-height: 36px;
-    background-color: var(--primary-dark);
+    min-height: 48px;
+    background: #9333ea;
     color: white;
+    padding: 0 16px;
+    transition: all 0.3s ease;
+
     &.Mui-expanded {
-      min-height: 36px;
+      min-height: 48px;
     }
+
     &.Mui-focused {
-      background-color: var(--primary-dark);
+      background: #9333ea;
+    }
+
+    &:hover {
+      background: #a855f7;
     }
   `,
   summaryContent: css`
     margin: 8px 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
+
     &.Mui-expanded {
       margin: 8px 0;
     }
@@ -180,15 +206,41 @@ const styles = {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    letter-spacing: -0.025em;
   `,
   ghostConnectionInput: css`
-    max-width: 120px;
+    max-width: 160px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 4px 8px;
+    color: white;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
   `,
   iconButton: css`
-    padding: 4px;
-    color: var(--white);
+    padding: 8px;
+    color: white;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+    }
   `,
   detailsRoot: css`
-    padding: 8px 16px 8px;
+    padding: 16px;
+    background: #ffffff;
   `,
 }

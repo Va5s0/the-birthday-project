@@ -1,24 +1,19 @@
 import React from "react"
-import { Redirect, Route, RouteProps } from "react-router-dom"
-import { useAuth } from "context/AuthContext"
+import { Navigate } from "react-router-dom"
+import { useAuth } from "../../context/AuthContext"
 
-type Props = RouteProps & {
-  component: (props: any) => JSX.Element
+type Props = {
+  component: React.ComponentType<any>
 }
 
-const PrivateRoute = (props: Props) => {
+const PrivateRoute = ({ component: Component }: Props) => {
   const { user, loading } = useAuth() ?? {}
-  const { component, ...rest } = props
-  const Cmp = component
 
-  return !loading ? (
-    <Route
-      {...rest}
-      render={(props) =>
-        !!user ? <Cmp {...props} /> : <Redirect to={{ pathname: "/login" }} />
-      }
-    />
-  ) : null
+  if (loading) {
+    return null
+  }
+
+  return user ? <Component /> : <Navigate to="/login" replace />
 }
 
 export default PrivateRoute

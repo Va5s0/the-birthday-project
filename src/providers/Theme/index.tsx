@@ -1,23 +1,16 @@
 import React from "react"
-import { create } from "jss"
-import { jssPreset, StylesProvider, ThemeProvider } from "@material-ui/core"
+import { ThemeProvider, StyledEngineProvider } from "@mui/material"
 import { theme } from "./theme"
 
-const jss = create({
-  plugins: [...jssPreset().plugins],
-  insertionPoint: document.getElementById("jss-insertion-point")!!,
-})
-
-type StylesConfigProps = {
+type Props = {
   children: React.ReactNode
 }
 
-export function Theme(props: StylesConfigProps) {
+export const Theme = (props: Props) => {
   const { children } = props
-
   return (
-    <StylesProvider jss={jss}>
+    <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>{children}</ThemeProvider>
-    </StylesProvider>
+    </StyledEngineProvider>
   )
 }

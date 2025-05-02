@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
-import NavigationBar from "components/NavigationBar"
+import { NavigationBar } from "../../components/NavigationBar"
 
-import "App.css"
+import "../../App.css"
 
 type Props = {
   children: ReactNode
