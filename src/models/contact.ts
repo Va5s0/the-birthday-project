@@ -13,5 +13,9 @@ export interface Common {
 }
 
 export interface Contact extends Common {
+  id: string
+  firstName: string
+  lastName?: string
+  avatarUrl?: string
   connections?: Common[]
 }

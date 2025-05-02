@@ -35,7 +35,11 @@ const contactFields = [
 
 const AddContact = (props: Props) => {
   const { open, onClose, type, contact } = props
-  const [state, setState] = React.useState<Contact>({})
+  const [state, setState] = React.useState<Contact>({
+    id: "",
+    firstName: "",
+    lastName: "",
+  })
   const [errors, setErrors] = React.useState<Record<string, string>>()
   const auth = getAuth()
   const { currentUser } = auth
@@ -50,8 +54,6 @@ const AddContact = (props: Props) => {
   const handleDateChange = (date: Date | null, name: string) => {
     setState((s) => ({ ...s, [name]: date?.toISOString() }))
   }
-
-  const handleSelectChange = (contact?: Contact) => setState(contact || {})
 
   const handleSubmit = () => {
     const updatedContact = {
@@ -74,7 +76,7 @@ const AddContact = (props: Props) => {
   }
 
   const handleClose = () => {
-    setState({})
+    setState({ id: "", firstName: "", lastName: "" })
     onClose()
   }
 
@@ -130,7 +132,18 @@ const AddContact = (props: Props) => {
             contact={state}
             hasError={() => !!errors && !!errors["nameday"]}
             errorMsg={() => (!!errors ? errors["nameday"] : "")}
-            onContactChange={handleSelectChange}
+            onContactChange={(contact?: Partial<Contact>) => {
+              if (!contact) {
+                setState({ id: "", firstName: "", lastName: "" })
+                return
+              }
+              setState({
+                ...contact,
+                id: contact.id || "",
+                firstName: contact.firstName || "",
+                lastName: contact.lastName || "",
+              })
+            }}
             margin="normal"
             size="medium"
           />

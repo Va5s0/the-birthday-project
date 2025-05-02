@@ -5,8 +5,9 @@ import {
   onSnapshot,
   FirestoreError,
 } from "firebase/firestore"
+import { ref, getDownloadURL } from "firebase/storage"
 import { Contact } from "../models/contact"
-import { db } from "../firebase/fbConfig"
+import { db, storage } from "../firebase/fbConfig"
 import Card from "./Card/index"
 import { css } from "@emotion/css"
 import { getAuth } from "firebase/auth"
@@ -22,17 +23,35 @@ const Contacts = () => {
     collection(db, `users/${currentUser?.uid}/contacts`)
   )
 
+  const fetchAvatarUrl = async (contactId: string) => {
+    try {
+      const storageRef = ref(
+        storage,
+        `users/${currentUser?.uid}/contacts/${contactId}/avatar.jpg`
+      )
+      return await getDownloadURL(storageRef)
+    } catch (error) {
+      return undefined
+    }
+  }
+
   React.useEffect(() => {
     if (currentUser == null) {
       setContacts([])
     }
     return onSnapshot(
       contactsRef,
-      (snapshot) => {
-        const _contacts = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+      async (snapshot) => {
+        const _contacts = await Promise.all(
+          snapshot.docs.map(async (doc) => {
+            const avatarUrl = await fetchAvatarUrl(doc.id)
+            return {
+              id: doc.id,
+              ...doc.data(),
+              avatarUrl,
+            } as Contact
+          })
+        )
         setContacts(_contacts)
       },
       (err) => {
@@ -41,6 +60,7 @@ const Contacts = () => {
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser])
+  console.log({ contacts })
 
   return (
     <>

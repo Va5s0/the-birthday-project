@@ -4,7 +4,6 @@ import { db } from "../../firebase/fbConfig"
 import { Card as MUICard, IconButton } from "@mui/material"
 import { css, cx } from "@emotion/css"
 import { Contact } from "../../models/contact"
-import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
@@ -21,6 +20,7 @@ import AddContact from "../../components/AddContact"
 import Connections from "../../components/Connections"
 import { set } from "lodash/fp"
 import { getAuth } from "firebase/auth"
+import AvatarUpload from "../AvatarUpload"
 
 type Props = {
   contact: Contact
@@ -43,6 +43,9 @@ const Card = (props: Props) => {
   const [editable, setEditable] = React.useState<boolean>(false)
   const auth = getAuth()
   const { currentUser } = auth
+  const [avatarUrl, setAvatarUrl] = React.useState<string | undefined>(
+    contact.avatarUrl
+  )
 
   const editFbDoc = async () => {
     const contactRef = doc(
@@ -58,7 +61,7 @@ const Card = (props: Props) => {
 
   const onContactChange = (contact?: Contact) => {
     console.log({ contact })
-    setUpdatedContact(contact || {})
+    setUpdatedContact(contact || { id: "", firstName: "" })
   }
 
   const deleteFbDoc = async () => {
@@ -126,6 +129,15 @@ const Card = (props: Props) => {
 
   const isModalOpen = Boolean(modalInfo)
 
+  const handleAvatarChange = async (url: string) => {
+    setAvatarUrl(url)
+    const updated = { ...updatedContact, avatarUrl: url }
+    setUpdatedContact(updated)
+    if (!editable) {
+      await editFbDoc()
+    }
+  }
+
   React.useEffect(() => setUpdatedContact(contact), [contact])
 
   return (
@@ -135,7 +147,7 @@ const Card = (props: Props) => {
         className={cx(styles.cardContainer, {
           [styles.paddingBottom]: !contact?.connections?.length,
         })}
-        elevation={6}
+        elevation={open ? 6 : 0}
       >
         <div className={styles.content}>
           <div className={styles.firstRowContainer}>
@@ -144,7 +156,12 @@ const Card = (props: Props) => {
                 [styles.avatarContainerGap]: !editable,
               })}
             >
-              <AccountCircleIcon className={styles.avatar} />
+              <AvatarUpload
+                contactId={contact.id}
+                userId={currentUser?.uid || ""}
+                currentAvatarUrl={avatarUrl}
+                onAvatarChange={handleAvatarChange}
+              />
               {editable ? (
                 <div className={styles.ghostContainer}>
                   {nameFields.map((nf, idx) => (
