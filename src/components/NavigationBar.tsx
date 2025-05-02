@@ -85,7 +85,7 @@ const styles = {
     border-radius: 8px;
     transition: all 0.3s ease;
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: transparent;
       backdrop-filter: blur(5px);
     }
   `,

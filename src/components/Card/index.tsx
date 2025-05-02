@@ -261,6 +261,9 @@ const styles = {
     z-index: 300;
     padding: 0 15px 30px;
     transition: all 0.3s ease;
+    &:hover {
+      transform: translateY(-2px);
+    }
   `,
   cardContainer: css`
     padding: 24px;
@@ -272,7 +275,7 @@ const styles = {
       0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     &:hover {
-      transform: translateY(-2px);
+      // transform: translateY(-2px);
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
         0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
