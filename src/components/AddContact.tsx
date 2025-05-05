@@ -116,17 +116,27 @@ const AddContact = (props: Props) => {
                 error={!!errors && !!errors[cf?.value]}
                 errorMessage={!!errors ? errors[cf?.value] : ""}
                 icon={<Cmp className={styles.commonIcon} />}
+                margin="normal"
+                size="medium"
+                variant="outlined"
               />
             )
           })}
           <DateInput
             name="birthday"
-            label={"Birthday"}
-            placeholder={"Birthday"}
+            label="Birthday"
+            placeholder="Birthday"
             value={state?.birthday || ""}
             onChange={handleDateChange}
-            icon={<CakeIcon />}
+            icon={
+              <CakeIcon
+                className={styles.commonIcon}
+                style={{ paddingRight: "8px" }}
+              />
+            }
             disableFuture
+            margin="normal"
+            size="medium"
           />
           <Nameday
             contact={state}
@@ -202,7 +212,7 @@ const styles = {
     height: 24px;
   `,
   content: css`
-    padding: 24px;
+    padding: 0 24px;
     justify-content: center;
   `,
   footer: css`
@@ -234,5 +244,9 @@ const styles = {
   `,
   commonIcon: css`
     color: var(--primary-dark);
+    &.MuiSvgIcon-root {
+      width: 20px;
+      height: 20px;
+    }
   `,
 }

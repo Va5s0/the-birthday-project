@@ -76,7 +76,9 @@ const styles = {
     height: 20px;
   `,
   listItem: css`
-    min-width: 20px;
+    &.MuiListItemIcon-root {
+      min-width: 20px;
+    }
     > svg {
       width: 20px;
       height: 20px;

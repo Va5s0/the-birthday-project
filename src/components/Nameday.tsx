@@ -1,5 +1,5 @@
 import React from "react"
-import { ref, onValue, query } from "firebase/database"
+import { ref, onValue, get, child } from "firebase/database"
 import { rldb } from "../firebase/fbConfig"
 import { getAuth } from "firebase/auth"
 import { Contact } from "../models/contact"
@@ -70,43 +70,69 @@ const Nameday = (props: Props) => {
     onContactChange(updated)
   }
 
-  const handleSelectChange = (
-    event: SelectChangeEvent<string>,
-    idx?: string
-  ) => {
-    const { name, value } = event.target
+  const handleSelectChange = (evt: SelectChangeEvent<string>, idx?: string) => {
+    const { name, value } = evt.target
     const updated = !!name
       ? set(name, { nameday_id: idx, date: value }, contact)
       : contact
     onContactChange(updated)
   }
 
-  const onSelectChange = (event: SelectChangeEvent<string>) => {
-    const { value } = event.target
+  const onSelectChange = (evt: SelectChangeEvent<string>) => {
+    const { value } = evt.target
     const idx = namedays?.indexOf(value).toString()
-    handleSelectChange(event, idx)
+    handleSelectChange(evt, idx)
   }
 
-  const namedays = namedayList?.map((n) =>
-    specialNamedayCalc(n?.day, n?.month, n?.toEaster)
-  )
+  const namedays = React.useMemo(() => {
+    const dates = namedayList?.map((n) =>
+      specialNamedayCalc(n?.day, n?.month, n?.toEaster)
+    )
+    // Remove duplicates by converting to Set and back to array
+    return [...new Set(dates)]
+  }, [namedayList])
 
   const value = !index ? contact : (contact?.connections || [])[Number(index)]
 
   React.useEffect(() => {
-    const fbQuery = query(ref(rldb, `/names/${value["firstName"]}`))
-    onValue(
-      fbQuery,
-      (snapshot) => {
-        !!value["firstName"]
-          ? setNamedayList(snapshot.val())
-          : setNamedayList([])
-      },
-      (errorObject) => {
-        console.log("The read failed: " + errorObject.name)
-      }
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!value["firstName"]) {
+      setNamedayList([])
+      return
+    }
+
+    // Query the entire names node
+    const namesRef = ref(rldb, "/names")
+    get(namesRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const allData = snapshot.val()
+
+          // Filter for names that start with our search term
+          const searchTerm = (value as any)["firstName"]?.toLowerCase()
+          const results = Object.entries(allData)
+            .filter(([key]) => {
+              const name = key.toLowerCase()
+              return name.startsWith(searchTerm)
+            })
+            .flatMap(([_, value]) => {
+              // Ensure we're working with an array
+              const namedays = Array.isArray(value) ? value : [value]
+              return namedays.map((nd) => ({
+                day: nd.day,
+                month: nd.month,
+                toEaster: nd.toEaster,
+              }))
+            })
+
+          setNamedayList(results)
+        } else {
+          setNamedayList([])
+        }
+      })
+      .catch((error) => {
+        console.error("Firebase query error:", error)
+        setNamedayList([])
+      })
   }, [currentUser, value["firstName"]])
 
   return !!namedayList?.length ? (

@@ -4,7 +4,6 @@ import { IconButton, CircularProgress } from "@mui/material"
 import { css } from "@emotion/css"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { storage } from "../firebase/fbConfig"
-import { v4 as uuidv4 } from "uuid"
 
 interface AvatarUploadProps {
   contactId: string
@@ -29,11 +28,9 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
 
     try {
       setIsUploading(true)
-      const fileExtension = file.name.split(".").pop()
-      const fileName = `${uuidv4()}.${fileExtension}`
       const storageRef = ref(
         storage,
-        `users/${userId}/contacts/${contactId}/${fileName}`
+        `users/${userId}/contacts/${contactId}/avatar.jpg`
       )
 
       await uploadBytes(storageRef, file)

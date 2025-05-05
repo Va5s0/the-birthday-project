@@ -29,8 +29,10 @@ const Contacts = () => {
         storage,
         `users/${currentUser?.uid}/contacts/${contactId}/avatar.jpg`
       )
-      return await getDownloadURL(storageRef)
+      const url = await getDownloadURL(storageRef)
+      return url
     } catch (error) {
+      // If the avatar doesn't exist, return undefined
       return undefined
     }
   }
@@ -44,11 +46,12 @@ const Contacts = () => {
       async (snapshot) => {
         const _contacts = await Promise.all(
           snapshot.docs.map(async (doc) => {
+            const data = doc.data()
             const avatarUrl = await fetchAvatarUrl(doc.id)
             return {
               id: doc.id,
-              ...doc.data(),
-              avatarUrl,
+              ...data,
+              avatarUrl: avatarUrl || data.avatarUrl, // Keep existing avatarUrl if fetch fails
             } as Contact
           })
         )
