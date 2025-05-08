@@ -24,6 +24,7 @@ import AvatarUpload from "../AvatarUpload"
 
 type Props = {
   contact: Contact
+  cardKey?: string
 }
 
 type Name = { firstName?: string; lastName?: string }
@@ -34,10 +35,12 @@ const nameFields = [
 ]
 
 const Card = (props: Props) => {
-  const { contact } = props
+  const { contact, cardKey } = props
   const [errors, setErrors] = React.useState<Record<string, any>>()
-  const [updatedContact, setUpdatedContact] = React.useState<Contact>(contact)
+  const [updatedContact, setUpdatedContact] =
+    React.useState<Partial<Contact>>(contact)
   const [open, setOpen] = React.useState<boolean>(false)
+  const [openConnections, setOpenConnections] = React.useState<boolean>(false)
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
   const [editable, setEditable] = React.useState<boolean>(false)
@@ -59,8 +62,7 @@ const Card = (props: Props) => {
     setOpen(false)
   }
 
-  const onContactChange = (contact?: Contact) => {
-    console.log({ contact })
+  const onContactChange = (contact?: Partial<Contact>) => {
     setUpdatedContact(contact || { id: "", firstName: "" })
   }
 
@@ -86,7 +88,7 @@ const Card = (props: Props) => {
     setModalInfo(undefined)
   }
 
-  const onOpen = () => setOpen(!open)
+  const onOpenConnections = () => setOpenConnections(!openConnections)
 
   const onOpenAdd = () => setOpenAdd(true)
   const onCloseAdd = () => setOpenAdd(false)
@@ -141,131 +143,142 @@ const Card = (props: Props) => {
   React.useEffect(() => setUpdatedContact(contact), [contact])
 
   return (
-    <div className={cx(styles.wrapper, { [styles.elevated]: open })}>
-      <MUICard
-        variant={open ? "elevation" : "outlined"}
-        className={cx(styles.cardContainer, {
-          [styles.paddingBottom]: !contact?.connections?.length,
-        })}
-        elevation={open ? 6 : 0}
-      >
-        <div className={styles.content}>
-          <div className={styles.firstRowContainer}>
-            <div
-              className={cx(styles.avatarContainer, {
-                [styles.avatarContainerGap]: !editable,
-              })}
-            >
-              <AvatarUpload
-                contactId={contact.id}
-                userId={currentUser?.uid || ""}
-                currentAvatarUrl={avatarUrl}
-                onAvatarChange={handleAvatarChange}
-              />
+    <div
+      className={styles.wrapper}
+      data-card-key={cardKey}
+      style={
+        { "--card-index": cardKey ? Number(cardKey) : 0 } as React.CSSProperties
+      }
+    >
+      <div className={styles.connectionsContainer}>
+        <MUICard
+          variant={open ? "elevation" : "outlined"}
+          className={cx(styles.cardContainer, {
+            [styles.paddingBottom]: !contact?.connections?.length,
+            [styles.active]: openConnections || open,
+          })}
+          elevation={open ? 6 : 0}
+        >
+          <div className={styles.content}>
+            <div className={styles.firstRowContainer}>
+              <div
+                className={cx(styles.avatarContainer, {
+                  [styles.avatarContainerGap]: !editable,
+                })}
+              >
+                <AvatarUpload
+                  contactId={contact.id}
+                  userId={currentUser?.uid || ""}
+                  currentAvatarUrl={avatarUrl}
+                  onAvatarChange={handleAvatarChange}
+                />
+                {editable ? (
+                  <div className={styles.ghostContainer}>
+                    {nameFields.map((nf, idx) => (
+                      <GhostTextInput
+                        key={idx}
+                        name={nf?.value}
+                        placeholder={nf?.label}
+                        value={
+                          (updatedContact[nf?.value as keyof Name] as string) ||
+                          ""
+                        }
+                        onChange={handleChange}
+                        error={!!errors && !!errors[nf?.value]}
+                        errorMessage={!!errors ? errors[nf?.value] : ""}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className={styles.name}>{`${contact.firstName} ${
+                    contact?.lastName || ""
+                  }`}</div>
+                )}
+              </div>
               {editable ? (
-                <div className={styles.ghostContainer}>
-                  {nameFields.map((nf, idx) => (
-                    <GhostTextInput
-                      key={idx}
-                      name={nf?.value}
-                      placeholder={nf?.label}
-                      value={
-                        (updatedContact[nf?.value as keyof Name] as string) ||
-                        ""
-                      }
-                      onChange={handleChange}
-                      error={!!errors && !!errors[nf?.value]}
-                      errorMessage={!!errors ? errors[nf?.value] : ""}
+                <div>
+                  <IconButton aria-label="close" onClick={onCancelEdit}>
+                    <CloseIcon className={styles.cancelIcon} />
+                  </IconButton>
+                  <IconButton
+                    onClick={editFbDoc}
+                    disabled={!updatedContact["firstName"]}
+                  >
+                    <CheckIcon
+                      className={cx(styles.cancelIcon, styles.primaryIcon, {
+                        [styles.disabledIcon]: !updatedContact["firstName"],
+                      })}
                     />
-                  ))}
+                  </IconButton>
                 </div>
               ) : (
-                <div className={styles.name}>{`${contact.firstName} ${
-                  contact?.lastName || ""
-                }`}</div>
+                <MoreActions
+                  options={[
+                    // ADD
+                    {
+                      label: "add",
+                      icon: (
+                        <AddIcon
+                          className={cx(styles.primaryIcon, styles.smallIcon)}
+                        />
+                      ),
+                      onClick: onOpenAdd,
+                    },
+                    // EDIT
+                    {
+                      label: "edit",
+                      icon: <EditIcon />,
+                      onClick: onEdit,
+                    },
+                    // DELETE
+                    {
+                      label: "delete",
+                      icon: <DeleteIcon className={styles.deleteIcon} />,
+                      onClick: onDelete,
+                    },
+                  ]}
+                />
               )}
             </div>
-            {editable ? (
-              <div>
-                <IconButton aria-label="close" onClick={onCancelEdit}>
-                  <CloseIcon className={styles.cancelIcon} />
-                </IconButton>
-                <IconButton
-                  onClick={editFbDoc}
-                  disabled={!updatedContact["firstName"]}
-                >
-                  <CheckIcon
-                    className={cx(styles.cancelIcon, styles.primaryIcon, {
-                      [styles.disabledIcon]: !updatedContact["firstName"],
-                    })}
+            <div className={styles.cardInfoContainer}>
+              <CardInfo
+                contact={updatedContact as Contact}
+                editable={editable}
+                errors={errors}
+                onContactChange={onContactChange}
+              />
+            </div>
+            {!!contact?.connections?.length ? (
+              <div className={styles.connectionsRow}>
+                <IconButton onClick={onOpenConnections}>
+                  <EmojiPeopleIcon
+                    className={cx(styles.primaryIcon, styles.smallIcon)}
                   />
                 </IconButton>
               </div>
-            ) : (
-              <MoreActions
-                options={[
-                  // ADD
-                  {
-                    label: "add",
-                    icon: (
-                      <AddIcon
-                        className={cx(styles.primaryIcon, styles.smallIcon)}
-                      />
-                    ),
-                    onClick: onOpenAdd,
-                  },
-                  // EDIT
-                  {
-                    label: "edit",
-                    icon: <EditIcon />,
-                    onClick: onEdit,
-                  },
-                  // DELETE
-                  {
-                    label: "delete",
-                    icon: <DeleteIcon className={styles.deleteIcon} />,
-                    onClick: onDelete,
-                  },
-                ]}
-              />
-            )}
+            ) : null}
           </div>
-          <CardInfo
-            contact={updatedContact}
-            editable={editable}
-            errors={errors}
-            onContactChange={onContactChange}
-          />
-          {!!contact?.connections?.length ? (
-            <div className={styles.connectionsRow}>
-              <IconButton onClick={onOpen}>
-                <EmojiPeopleIcon
-                  className={cx(styles.primaryIcon, styles.smallIcon)}
-                />
-              </IconButton>
-            </div>
-          ) : null}
-        </div>
-      </MUICard>
-      <Connections
-        contact={updatedContact}
-        open={open}
-        editable={editable}
-        onDelete={onDeleteConnection}
-        errors={errors}
-        handleChange={handleChange}
-        onContactChange={onContactChange}
-      />
+        </MUICard>
+        <Connections
+          contact={updatedContact as Contact}
+          open={openConnections}
+          editable={editable}
+          onDelete={onDeleteConnection}
+          errors={errors}
+          handleChange={handleChange}
+          onContactChange={onContactChange}
+        />
+        <AddContact
+          open={openAdd}
+          onClose={onCloseAdd}
+          type="connection"
+          contact={contact as Contact}
+        />
+      </div>
       <ConfirmationModal
         open={isModalOpen}
         onCancel={() => setModalInfo(undefined)}
         {...modalInfo}
-      />
-      <AddContact
-        open={openAdd}
-        onClose={onCloseAdd}
-        type="connection"
-        contact={contact}
       />
     </div>
   )
@@ -275,12 +288,15 @@ export default Card
 
 const styles = {
   wrapper: css`
-    z-index: 300;
+    z-index: calc(1000 - var(--card-index, 0));
     padding: 0 15px 30px;
     transition: all 0.3s ease;
     &:hover {
       transform: translateY(-2px);
     }
+  `,
+  connectionsContainer: css`
+    position: relative;
   `,
   cardContainer: css`
     padding: 24px;
@@ -292,15 +308,21 @@ const styles = {
       0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     &:hover {
-      // transform: translateY(-2px);
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
         0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+  `,
+  active: css`
+    box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.03),
+      0 2px 4px 4px rgba(0, 0, 0, 0.13);
+    &:hover {
+      box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.03),
+        0 2px 4px 4px rgba(0, 0, 0, 0.13);
     }
   `,
   content: css`
     display: flex;
     flex-direction: column;
-    grid-row-gap: 24px;
   `,
   firstRowContainer: css`
     display: flex;
@@ -334,7 +356,6 @@ const styles = {
     display: flex;
     flex-direction: column;
     max-width: 200px;
-    gap: 8px;
   `,
   name: css`
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -352,10 +373,6 @@ const styles = {
     display: flex;
     justify-content: flex-end;
     margin-top: 8px;
-  `,
-  elevated: css`
-    z-index: 500;
-    position: relative;
   `,
   primaryIcon: css`
     color: var(--primary-main);
@@ -391,5 +408,8 @@ const styles = {
   `,
   paddingBottom: css`
     padding-bottom: 32px;
+  `,
+  cardInfoContainer: css`
+    padding: 24px 0 0;
   `,
 }

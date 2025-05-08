@@ -11,7 +11,6 @@ import { db, storage } from "../firebase/fbConfig"
 import Card from "./Card/index"
 import { css } from "@emotion/css"
 import { getAuth } from "firebase/auth"
-// import img from "assets/tree.jpeg"
 
 const Contacts = () => {
   const [contacts, setContacts] = React.useState<Contact[]>([])
@@ -32,7 +31,6 @@ const Contacts = () => {
       const url = await getDownloadURL(storageRef)
       return url
     } catch (error) {
-      // If the avatar doesn't exist, return undefined
       return undefined
     }
   }
@@ -63,13 +61,12 @@ const Contacts = () => {
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser])
-  console.log({ contacts })
 
   return (
     <>
       <div className={styles.container}>
         {contacts?.map((contact, idx) => (
-          <Card key={idx} contact={contact} />
+          <Card key={idx} cardKey={idx.toString()} contact={contact} />
         ))}
       </div>
     </>
@@ -85,7 +82,6 @@ const styles = {
     padding: 120px 35px 0;
     background-color: var(--light-grey-3);
     overflow: auto;
-    min-height: calc(100vh - 70px);
     @media (max-width: 1461px) {
       grid-template-columns: repeat(3, 1fr);
     }
@@ -94,18 +90,6 @@ const styles = {
     }
     @media (max-width: 557px) {
       grid-template-columns: repeat(1, 1fr);
-    }
-    ::before {
-      content: "";
-      height: 100%;
-      width: 100%;
-      position: fixed;
-      top: 10%;
-      left: 25%;
-      z-index: 0;
-      opacity: 0.05;
-      background-size: 800px;
-      background-repeat: no-repeat;
     }
   `,
 }

@@ -21,7 +21,7 @@ type Props = {
   handleChange: (
     evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void
-  onContactChange: (contact?: Contact) => void
+  onContactChange: (contact?: Partial<Contact>) => void
 }
 
 const nameFields = [
@@ -135,32 +135,26 @@ const styles = {
   connectionsContainer: css`
     position: absolute;
     width: 100%;
-    padding: 0 15px 30px;
-    z-index: 200;
-    left: 0;
-    right: 0;
   `,
   accordion: css`
     border: none;
     border-radius: 12px !important;
     margin-bottom: 12px !important;
     background: #ffffff;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.03),
+      0 2px 4px 4px rgba(0, 0, 0, 0.13);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    width: calc(100% - 30px);
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.03),
+        0 2px 4px 4px rgba(0, 0, 0, 0.13);
     }
 
     &.Mui-expanded {
-      margin: 0 15px 12px 15px !important;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.03),
+        0 2px 4px 4px rgba(0, 0, 0, 0.13);
     }
 
     &:last-child {
@@ -215,7 +209,6 @@ const styles = {
   `,
   ghostConnectionInput: css`
     max-width: 160px;
-    background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 4px 8px;
     color: white;

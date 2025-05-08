@@ -62,11 +62,12 @@ const Nameday = (props: Props) => {
   >([])
 
   const handleDateChange = (date: Date | null, name: string) => {
-    const updated = set(
-      name,
-      { nameday_id: "", date: date?.toISOString() },
-      contact
-    )
+    let updated = contact
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      updated = set(name, { nameday_id: "", date: date.toISOString() }, contact)
+    } else {
+      updated = contact
+    }
     onContactChange(updated)
   }
 
@@ -172,6 +173,7 @@ const Nameday = (props: Props) => {
       label={"Nameday"}
       placeholder={"Nameday"}
       value={value?.nameday?.date || ""}
+      format="dd.MM.yyyy"
       margin={margin}
       size={size}
       onChange={handleDateChange}
@@ -197,8 +199,8 @@ const styles = {
     color: var(--primary-dark);
   `,
   adornment: css`
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     margin-right: 8px;
   `,
 }

@@ -17,7 +17,7 @@ type Props = {
   editable: boolean
   index?: string
   errors?: Record<string, string>
-  onContactChange: (contact?: Contact) => void
+  onContactChange: (contact?: Partial<Contact>) => void
 }
 
 const contactFields = [
@@ -145,7 +145,7 @@ const styles = {
     align-items: center;
     grid-column-gap: 30px;
     grid-template-columns: 1fr 1fr;
-    padding: 0 10px;
+    // padding: 24px 10px 0;
     z-index: 10;
   `,
   commonRow: css`

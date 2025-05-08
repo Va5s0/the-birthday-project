@@ -52,27 +52,41 @@ const AddContact = (props: Props) => {
   }
 
   const handleDateChange = (date: Date | null, name: string) => {
-    setState((s) => ({ ...s, [name]: date?.toISOString() }))
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      setState((s) => ({ ...s, [name]: date.toISOString() }))
+    } else {
+      setState((s) => ({ ...s, [name]: null }))
+    }
   }
 
-  const handleSubmit = () => {
-    const updatedContact = {
-      ...contact,
-      connections: [
-        ...(contact?.connections || []),
-        { ...state, id: getUuid() },
-      ],
-    }
-    !!contact
-      ? updateDoc(
+  const handleSubmit = async () => {
+    try {
+      if (contact) {
+        // Adding a connection to existing contact
+        const updatedContact = {
+          ...contact,
+          connections: [
+            ...(contact?.connections || []),
+            { ...state, id: getUuid() },
+          ],
+        }
+        await updateDoc(
           doc(db, `users/${currentUser?.uid}/contacts/${contact?.id}`),
           updatedContact
-        ).catch((err) => setErrors(err))
-      : setDoc(doc(collection(db, `users/${currentUser?.uid}/contacts`)), {
+        )
+      } else {
+        // Creating a new contact
+        const docRef = doc(collection(db, `users/${currentUser?.uid}/contacts`))
+        await setDoc(docRef, {
           ...state,
+          id: docRef.id,
           connections: [],
-        }).catch((err) => setErrors(err))
-    handleClose()
+        })
+      }
+      handleClose()
+    } catch (err: any) {
+      setErrors(err)
+    }
   }
 
   const handleClose = () => {
@@ -128,12 +142,7 @@ const AddContact = (props: Props) => {
             placeholder="Birthday"
             value={state?.birthday || ""}
             onChange={handleDateChange}
-            icon={
-              <CakeIcon
-                className={styles.commonIcon}
-                style={{ paddingRight: "8px" }}
-              />
-            }
+            icon={<CakeIcon className={styles.commonIcon} />}
             disableFuture
             margin="normal"
             size="medium"

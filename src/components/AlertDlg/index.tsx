@@ -5,37 +5,6 @@ import ErrorIcon from "@mui/icons-material/Error"
 import WarningIcon from "@mui/icons-material/Warning"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 
-const styles = {
-  root: css`
-    padding: 4px 16px;
-    box-shadow: none;
-    display: flex;
-    align-items: center;
-  `,
-  action: css`
-    margin-right: 0;
-    padding-left: 0;
-  `,
-  icon: css`
-    margin-right: 8px;
-  `,
-  message: css`
-    padding: 9px 0;
-  `,
-  info: css`
-    background-color: var(--primary-light);
-  `,
-  error: css`
-    background-color: var(--red);
-  `,
-  warning: css`
-    background-color: var(--warning);
-  `,
-  success: css`
-    background-color: var(--primary-main);
-  `,
-}
-
 export type AlertDlgProps = {
   close?: (event: React.SyntheticEvent | Event) => void
 } & AlertProps
@@ -78,4 +47,35 @@ export function AlertDlg(props: AlertDlgProps) {
       {children}
     </Alert>
   )
+}
+
+const styles = {
+  root: css`
+    padding: 4px 16px;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+  `,
+  action: css`
+    margin-right: 0;
+    padding-left: 0;
+  `,
+  icon: css`
+    margin-right: 8px;
+  `,
+  message: css`
+    padding: 9px 0;
+  `,
+  info: css`
+    background-color: var(--primary-light);
+  `,
+  error: css`
+    background-color: var(--red);
+  `,
+  warning: css`
+    background-color: var(--warning);
+  `,
+  success: css`
+    background-color: var(--primary-main);
+  `,
 }

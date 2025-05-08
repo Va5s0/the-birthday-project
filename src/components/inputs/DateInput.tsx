@@ -1,6 +1,7 @@
 import React from "react"
 import { DatePicker } from "@mui/x-date-pickers"
 import { css } from "@emotion/css"
+import { InputAdornment } from "@mui/material"
 
 type Props = {
   name: string
@@ -37,6 +38,7 @@ export const DateInput = (props: Props) => {
       value={value ? new Date(value) : null}
       onChange={(date: Date | null) => onChange(date, name)}
       disableFuture={disableFuture}
+      format="dd.MM.yyyy"
       slotProps={{
         textField: {
           fullWidth: true,
@@ -47,7 +49,10 @@ export const DateInput = (props: Props) => {
           error,
           helperText: errorMessage,
           InputProps: {
-            startAdornment: icon,
+            startAdornment: icon ? (
+              <InputAdornment position="start">{icon}</InputAdornment>
+            ) : undefined,
+            classes: { input: styles.input },
           },
           InputLabelProps: {
             shrink: true,
@@ -59,13 +64,7 @@ export const DateInput = (props: Props) => {
 }
 
 const styles = {
-  btn: css`
-    margin-right: -0.5rem;
-  `,
-  focusedError: css`
-    border: 2px solid red;
-  `,
-  icon: css`
-    margin-right: -0.5rem;
+  input: css`
+    padding-left: 0;
   `,
 }

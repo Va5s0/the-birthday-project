@@ -8,6 +8,7 @@ import { ResetConfirmation } from "./routes/Auth/ResetConfirmation"
 import { Forgot } from "./routes/Auth/Forgot"
 import { LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
+import "./styles/global.css"
 
 export function App() {
   return (

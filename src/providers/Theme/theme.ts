@@ -55,8 +55,8 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiSvgIcon-root": {
-            width: "24px",
-            height: "24px",
+            width: "20px",
+            height: "20px",
           },
           "&.MuiInputAdornment-marginDense .MuiSvgIcon-root": {
             width: "16px",
@@ -139,7 +139,6 @@ export const theme = createTheme({
 
 css`
   /* Inputs */
-
   .MuiInputBase-root {
     font-size: 14px;
     line-height: 1rem;
@@ -149,7 +148,6 @@ css`
     line-height: normal;
     letter-spacing: normal;
     color: black;
-
     cursor: text;
     display: inline-flex;
     position: relative;
@@ -189,8 +187,8 @@ css`
 
   .MuiInputAdornment-root {
     .MuiSvgIcon-root {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
     }
   }
 
