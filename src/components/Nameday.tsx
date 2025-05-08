@@ -173,7 +173,6 @@ const Nameday = (props: Props) => {
       label={"Nameday"}
       placeholder={"Nameday"}
       value={value?.nameday?.date || ""}
-      format="dd.MM.yyyy"
       margin={margin}
       size={size}
       onChange={handleDateChange}

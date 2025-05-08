@@ -38,7 +38,7 @@ export const DateInput = (props: Props) => {
       value={value ? new Date(value) : null}
       onChange={(date: Date | null) => onChange(date, name)}
       disableFuture={disableFuture}
-      format="dd.MM.yyyy"
+      format="dd/MM/yyyy"
       slotProps={{
         textField: {
           fullWidth: true,

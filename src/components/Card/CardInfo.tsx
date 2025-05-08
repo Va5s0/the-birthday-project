@@ -102,7 +102,7 @@ export const CardInfo = (props: Props) => {
             margin="dense"
             size="small"
             onChange={handleDateChange}
-            icon={<CakeIcon />}
+            icon={<CakeIcon className={styles.commonIcon} />}
             error={hasError(value?.birthday, index)}
             errorMessage={errorMsg(value?.birthday, index)}
           />
