@@ -139,7 +139,6 @@ const styles = {
   accordion: css`
     border: none;
     border-radius: 12px !important;
-    margin-bottom: 12px !important;
     background: #ffffff;
     box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.03),
       0 2px 4px 4px rgba(0, 0, 0, 0.13);
