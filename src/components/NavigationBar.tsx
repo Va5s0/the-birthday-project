@@ -3,6 +3,7 @@ import { AppBar, Button, Fab, Toolbar, Typography } from "@mui/material"
 import { useLocation, useNavigate } from "react-router-dom"
 import { css, keyframes } from "@emotion/css"
 import AddIcon from "@mui/icons-material/Add"
+import EditSharpIcon from "@mui/icons-material/EditSharp"
 import ExitToAppSharpIcon from "@mui/icons-material/ExitToAppSharp"
 import DeleteForeverSharpIcon from "@mui/icons-material/DeleteForeverSharp"
 import AddContact from "./AddContact"
@@ -108,36 +109,42 @@ export const NavigationBar = () => {
                 The Birthday Project
               </Typography>
             </Button>
-            <div className={styles.profileSection}>
-              <span>{user?.displayName || user?.email}</span>
-              {!hasNoAvatar ? (
-                <img
-                  id={id}
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  className={styles.profileImg}
-                />
-              ) : null}
-              <MoreActions
-                options={[
-                  // LOGOUT
-                  {
-                    label: "Logout",
-                    icon: <ExitToAppSharpIcon className={styles.icon} />,
-                    onClick: onLogout,
-                  },
-                  // DELETE
-                  {
-                    label: "Delete account",
-                    icon: <DeleteForeverSharpIcon className={styles.icon} />,
-                    onClick: onDelete,
-                  },
-                ]}
-              />
-            </div>
           </motion.div>
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+          <div className={styles.profileSection}>
+            <span>{user?.displayName || user?.email}</span>
+            {!hasNoAvatar ? (
+              <img
+                id={id}
+                alt="profile"
+                width={40}
+                height={40}
+                className={styles.profileImg}
+              />
+            ) : null}
+            <MoreActions
+              options={[
+                // EDIT PROFILE
+                {
+                  label: "Edit profile",
+                  icon: <EditSharpIcon className={styles.icon} />,
+                  onClick: onEditProfile,
+                },
+                // LOGOUT
+                {
+                  label: "Logout",
+                  icon: <ExitToAppSharpIcon className={styles.icon} />,
+                  onClick: onLogout,
+                },
+                // DELETE
+                {
+                  label: "Delete account",
+                  icon: <DeleteForeverSharpIcon className={styles.icon} />,
+                  onClick: onDelete,
+                },
+              ]}
+            />
+          </div>
+          {/* <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <Fab
               color="primary"
               aria-label="add"
@@ -147,12 +154,11 @@ export const NavigationBar = () => {
             >
               <AddIcon />
             </Fab>
-          </motion.div>
+          </motion.div> */}
         </Toolbar>
       </AppBar>
-      {/* <AddContact open={open} onClose={() => setOpen(false)} type="contact" /> */}
       {pathname !== "/profile" ? (
-        <>
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
           <Fab
             onClick={() => setOpen(true)}
             className={styles.addButton}
@@ -165,7 +171,7 @@ export const NavigationBar = () => {
             onClose={() => setOpen(false)}
             type="contact"
           />
-        </>
+        </motion.div>
       ) : null}
       <ConfirmationModal
         open={isModalOpen}
@@ -202,6 +208,8 @@ const styles = {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
       0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    justify-content: center;
   `,
   toolbar: css`
     display: flex;
@@ -244,22 +252,22 @@ const styles = {
   profileSection: css`
     display: flex;
     align-items: center;
-    border-left: 1px solid var(--light-grey-4);
-    border-radius: 0;
     height: 100%;
     padding: 0 18px 0 30px;
     grid-column-gap: 10px;
-    color: var(--dark-grey-3);
   `,
   addButton: css`
+    position: fixed;
+    right: 50px;
+    top: 92px;
     background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
     color: #9333ea;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    animation: ${pulse} 2s infinite;
+    // transition: all 0.3s ease;
+    // animation: ${pulse} 2s infinite;
     &:hover {
       background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
-      transform: translateY(-2px);
+      // transform: translateY(-2px);
       box-shadow: 0 6px 8px rgba(147, 51, 234, 0.2);
     }
   `,

@@ -20,7 +20,7 @@ import { differenceInDays, addDays } from "date-fns"
 
 type Props = {
   index?: string
-  contact: Contact
+  contact: Partial<Contact>
   onContactChange: (contact?: Partial<Contact>) => void
   hasError: (value?: string | undefined, index?: string | undefined) => boolean
   errorMsg: (value?: string | undefined, index?: string | undefined) => string

@@ -38,14 +38,18 @@ const Contacts = () => {
   React.useEffect(() => {
     if (currentUser == null) {
       setContacts([])
+      return
     }
-    return onSnapshot(
+    const unsubscribe = onSnapshot(
       contactsRef,
       async (snapshot) => {
         const _contacts = await Promise.all(
           snapshot.docs.map(async (doc) => {
             const data = doc.data()
-            const avatarUrl = await fetchAvatarUrl(doc.id)
+            let avatarUrl = data.avatarUrl // Check if avatarUrl already exists in the data
+            if (!!avatarUrl) {
+              avatarUrl = await fetchAvatarUrl(doc.id) // Fetch only if avatarUrl exists
+            }
             return {
               id: doc.id,
               ...data,
@@ -59,6 +63,7 @@ const Contacts = () => {
         setError(err)
       }
     )
+    return () => unsubscribe()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser])
 

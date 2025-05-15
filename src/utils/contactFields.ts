@@ -1,7 +1,7 @@
-import AccountBoxIcon from "@material-ui/icons/AccountBox"
-import PhoneIcon from "@material-ui/icons/Phone"
-import PhoneIphoneIcon from "@material-ui/icons/PhoneIphone"
-import AlternateEmailIcon from "@material-ui/icons/AlternateEmail"
+import AccountBoxIcon from "@mui/icons-material/AccountBox"
+import PhoneIcon from "@mui/icons-material/Phone"
+import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone"
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail"
 
 export const contactFields = [
   { label: "First Name", value: "firstName", icon: AccountBoxIcon },

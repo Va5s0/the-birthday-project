@@ -1,24 +1,23 @@
 import React, { ChangeEvent } from "react"
-import { css } from "emotion"
+import { css } from "@emotion/css"
 import { doc, setDoc, onSnapshot, FirestoreError } from "firebase/firestore"
-import { db } from "firebase/fbConfig"
-import { Button, Fab, FormControl } from "@material-ui/core"
-import CakeIcon from "@material-ui/icons/Cake"
-import AccountCircleSharpIcon from "@material-ui/icons/AccountCircleSharp"
-import AddAPhotoSharpIcon from "@material-ui/icons/AddAPhotoSharp"
-import CloseIcon from "@material-ui/icons/Close"
-import { TextInput } from "components/inputs/TextInput"
-import Nameday from "components/Nameday"
-import { DateInput } from "components/inputs/DateInput"
-import { contactFields } from "utils/contactFields"
-import { Contact } from "models/contact"
-import { useAuth } from "context/AuthContext"
-import { useHistory } from "react-router-dom"
+import { db } from "../../firebase/fbConfig"
+import { Button, Fab, FormControl } from "@mui/material"
+import CakeIcon from "@mui/icons-material/Cake"
+import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp"
+import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp"
+import CloseIcon from "@mui/icons-material/Close"
+import { TextInput } from "../../components/inputs/TextInput"
+import Nameday from "../../components/Nameday"
+import { DateInput } from "../../components/inputs/DateInput"
+import { contactFields } from "../../utils/contactFields"
+import { Contact } from "../../models/contact"
+import { useAuth } from "../../context/AuthContext"
+import { useNavigate } from "react-router-dom"
 import { getStorage, ref } from "firebase/storage"
-import img from "assets/tree.jpeg"
 
 export const EditProfile = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const {
     user,
     editProfile = () => {},
@@ -30,7 +29,7 @@ export const EditProfile = () => {
   const storage = getStorage()
   const userStorageRef = ref(storage, `${user?.uid}/user/avatar`)
 
-  const [state, setState] = React.useState<Contact>()
+  const [state, setState] = React.useState<Partial<Contact>>()
   const [, setError] = React.useState<FirestoreError>()
 
   const handleChange = (
@@ -44,9 +43,10 @@ export const EditProfile = () => {
     setState((s) => ({ ...s, [name]: date?.toISOString() }))
   }
 
-  const handleSelectChange = (profile?: Contact) => setState(profile || {})
+  const handleSelectChange = (profile?: Partial<Contact>) =>
+    setState(profile || {})
 
-  const handleCancel = () => history.push("/")
+  const handleCancel = () => navigate("/")
 
   const handleSubmit = () => {
     !!user &&
@@ -171,12 +171,11 @@ export const EditProfile = () => {
           onChange={handleDateChange}
           icon={<CakeIcon />}
           disableFuture
-          className="input"
         />
         <Nameday
           contact={state || {}}
-          // hasError={() => !!errors && !!errors["nameday"]}
-          // errorMsg={() => (!!errors ? errors["nameday"] : "")}
+          hasError={() => !!error && !!error?.message}
+          errorMsg={() => (!!error ? error?.message : "")}
           onContactChange={handleSelectChange}
           margin="normal"
           size="medium"
@@ -217,7 +216,6 @@ const styles = {
     min-height: calc(100vh - 70px);
     ::before {
       content: "";
-      background-image: url(${img});
       height: 100%;
       width: 100%;
       position: fixed;
