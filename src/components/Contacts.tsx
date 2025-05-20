@@ -90,12 +90,15 @@ const styles = {
     overflow: auto;
     @media (max-width: 1461px) {
       grid-template-columns: repeat(3, 1fr);
+      height: inherit;
     }
     @media (max-width: 1009px) {
       grid-template-columns: repeat(2, 1fr);
+      height: inherit;
     }
     @media (max-width: 557px) {
       grid-template-columns: repeat(1, 1fr);
+      height: inherit;
     }
   `,
 }
