@@ -173,7 +173,14 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## License
 
-[MIT](LICENSE)
+This project is licensed under a **custom non-commercial license**:
+
+- **Personal and internal business use only.**
+- **Commercial use is prohibited** without prior written permission from the copyright holder.
+- **Attribution required** in all copies or substantial portions of the software.
+- The software is provided **"as is" without warranty** of any kind.
+
+See the [LICENSE](./LICENSE) file for full details.
 
 ---
 
