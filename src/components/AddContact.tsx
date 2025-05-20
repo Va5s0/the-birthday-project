@@ -12,7 +12,7 @@ import { db } from "../firebase/fbConfig"
 import { v1 as getUuid } from "uuid"
 import Nameday from "../components/Nameday"
 import { ModalHeader } from "./ModalHeader"
-import { contactFields } from "../utils/contactFields"
+import { nameFields, contactFields } from "../utils/contactFields"
 
 type Props = {
   open: boolean
@@ -23,7 +23,7 @@ type Props = {
 
 const AddContact = (props: Props) => {
   const { open, onClose, type, contact } = props
-  const [state, setState] = React.useState<Contact>({
+  const [state, setState] = React.useState<Partial<Contact>>({
     id: "",
     firstName: "",
     lastName: "",
@@ -82,6 +82,9 @@ const AddContact = (props: Props) => {
     onClose()
   }
 
+  const fields =
+    type === "connection" ? nameFields : [...nameFields, ...contactFields]
+
   const id = "create-new-contact"
   return (
     <MUIDialog
@@ -96,7 +99,7 @@ const AddContact = (props: Props) => {
 
       <div data-dialog-content className={styles.content}>
         <FormControl fullWidth>
-          {contactFields.map((cf, idx) => {
+          {fields.map((cf, idx) => {
             const Cmp = cf?.icon
             return (
               <TextInput
@@ -130,18 +133,9 @@ const AddContact = (props: Props) => {
             contact={state}
             hasError={() => !!errors && !!errors["nameday"]}
             errorMsg={() => (!!errors ? errors["nameday"] : "")}
-            onContactChange={(contact?: Partial<Contact>) => {
-              if (!contact) {
-                setState({ id: "", firstName: "", lastName: "" })
-                return
-              }
-              setState({
-                ...contact,
-                id: contact.id || "",
-                firstName: contact.firstName || "",
-                lastName: contact.lastName || "",
-              })
-            }}
+            onContactChange={(updatedContact?: Partial<Contact>) =>
+              setState(updatedContact ?? {})
+            }
             margin="normal"
             size="medium"
           />

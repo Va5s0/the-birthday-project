@@ -1,9 +1,14 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+        // Rule for contact avatars
     match /users/{userId}/contacts/{contactId}/{fileName} {
       allow read: if request.auth != null && request.auth.uid == userId;
       allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    // Rule for user profile picture
+    match /users/{userId}/user/avatar.jpg {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 } 

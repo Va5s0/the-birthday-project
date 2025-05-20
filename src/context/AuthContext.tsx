@@ -10,6 +10,7 @@ import {
   UserCredential,
   onAuthStateChanged,
   updateProfile,
+  updateEmail,
   deleteUser,
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
@@ -34,16 +35,15 @@ type AuthContextType = {
   logout: () => Promise<void>
   sendPswdResetEmail: (email: string) => Promise<boolean>
   confirmPswdReset: (code: string, password: string) => Promise<boolean>
-  editProfile: (
-    user: User,
-    {
-      displayName,
-      photoURL,
-    }: {
-      displayName: string
-      photoURL: string
-    }
-  ) => Promise<void>
+  editProfile: ({
+    firstName,
+    lastName,
+    photoURL,
+  }: {
+    firstName?: string
+    lastName?: string
+    photoURL?: string | null
+  }) => Promise<void>
   userDelete: (user: User) => Promise<any>
   error?: Error
   resetError: (error?: string) => void
@@ -152,14 +152,32 @@ function useProvideAuth() {
         return e
       })
 
-  const editProfile = async (
-    user: User,
-    { displayName, photoURL }: { displayName: string; photoURL: string }
-  ) => {
-    await updateProfile(user, {
-      displayName,
+  const editProfile = async ({
+    firstName,
+    lastName,
+    photoURL,
+  }: {
+    firstName?: string
+    lastName?: string
+    photoURL?: string | null
+  }) => {
+    const profile = {
+      displayName: `${firstName} ${lastName}`,
       photoURL,
-    }).catch((e) => {
+    }
+    await updateProfile(user, profile).catch((e) => {
+      const errorCode = e?.code as string
+      setError({
+        code: errorCode,
+        message: errorCodes[errorCode as keyof typeof errorCodes],
+      })
+      return e
+    })
+    setTimestamp(Date.now())
+  }
+
+  const editEmail = async (email: string) => {
+    await updateEmail(user, email).catch((e) => {
       const errorCode = e?.code as string
       setError({
         code: errorCode,

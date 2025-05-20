@@ -76,6 +76,9 @@ export const theme = createTheme({
     MuiSelect: {
       styleOverrides: {
         outlined: {
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
           color: "var(--black)",
           padding: "8px 0",
           "&:focus": {

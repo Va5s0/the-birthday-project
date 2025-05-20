@@ -15,6 +15,7 @@ type Props = {
   disableFuture?: boolean
   margin?: "dense" | "normal"
   size?: "small" | "medium"
+  className?: string
 }
 
 export const DateInput = (props: Props) => {
@@ -30,6 +31,7 @@ export const DateInput = (props: Props) => {
     disableFuture,
     margin = "dense",
     size = "small",
+    className,
   } = props
 
   return (
@@ -39,6 +41,7 @@ export const DateInput = (props: Props) => {
       onChange={(date: Date | null) => onChange(date, name)}
       disableFuture={disableFuture}
       format="dd/MM/yyyy"
+      className={className}
       slotProps={{
         textField: {
           fullWidth: true,
@@ -52,7 +55,7 @@ export const DateInput = (props: Props) => {
             startAdornment: icon ? (
               <InputAdornment position="start">{icon}</InputAdornment>
             ) : undefined,
-            classes: { input: styles.input },
+            classes: { input: styles.input, root: styles.field },
           },
           InputLabelProps: {
             shrink: true,
@@ -66,5 +69,11 @@ export const DateInput = (props: Props) => {
 const styles = {
   input: css`
     padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    justif-content: center;
+  `,
+  field: css`
+    background-color: var(--white);
   `,
 }

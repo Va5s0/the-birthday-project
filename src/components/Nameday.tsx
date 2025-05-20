@@ -1,5 +1,5 @@
 import React from "react"
-import { ref, onValue, get, child } from "firebase/database"
+import { ref, get } from "firebase/database"
 import { rldb } from "../firebase/fbConfig"
 import { getAuth } from "firebase/auth"
 import { Contact } from "../models/contact"
@@ -22,8 +22,8 @@ type Props = {
   index?: string
   contact: Partial<Contact>
   onContactChange: (contact?: Partial<Contact>) => void
-  hasError: (value?: string | undefined, index?: string | undefined) => boolean
-  errorMsg: (value?: string | undefined, index?: string | undefined) => string
+  hasError?: (value?: string | undefined, index?: string | undefined) => boolean
+  errorMsg?: (value?: string | undefined, index?: string | undefined) => string
   margin?: "dense" | "normal"
   size?: "small" | "medium"
   className?: string
@@ -187,6 +187,7 @@ const Nameday = (props: Props) => {
       errorMessage={
         !!errorMsg ? errorMsg(value?.nameday?.date, index) : undefined
       }
+      className={className}
     />
   )
 }
@@ -205,6 +206,7 @@ const styles = {
     height: 48px;
     padding: 0 8px 0 16px;
     color: rgba(0, 0, 0, 0.54);
+    background-color: var(--white);
   `,
   menuItem: css`
     font-size: 12px;

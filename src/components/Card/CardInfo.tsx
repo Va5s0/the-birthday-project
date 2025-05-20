@@ -1,8 +1,5 @@
 import React from "react"
 import { Contact, Common } from "../../models/contact"
-import PhoneIcon from "@mui/icons-material/Phone"
-import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone"
-import AlternateEmailIcon from "@mui/icons-material/AlternateEmail"
 import CakeIcon from "@mui/icons-material/Cake"
 import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
 import { dateFormatter } from "../../utils/index"
@@ -11,6 +8,7 @@ import { TextInput } from "../../components/inputs/TextInput"
 import { DateInput } from "../../components/inputs/DateInput"
 import { get, set } from "lodash/fp"
 import Nameday from "../../components/Nameday"
+import { contactFields } from "src/utils/contactFields"
 
 type Props = {
   contact: Contact
@@ -18,16 +16,18 @@ type Props = {
   index?: string
   errors?: Record<string, string>
   onContactChange: (contact?: Partial<Contact>) => void
+  isConnection?: boolean
 }
 
-const contactFields = [
-  { value: "phone", label: "Phone", icon: PhoneIcon },
-  { value: "mobile", label: "Mobile", icon: PhoneIphoneIcon },
-  { value: "email", label: "Email", icon: AlternateEmailIcon },
-]
-
 export const CardInfo = (props: Props) => {
-  const { contact, editable, errors, index, onContactChange } = props
+  const {
+    contact,
+    editable,
+    errors,
+    index,
+    onContactChange,
+    isConnection = false,
+  } = props
 
   const handleChange = (
     evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -57,9 +57,11 @@ export const CardInfo = (props: Props) => {
 
   const value = !index ? contact : (contact?.connections || [])[Number(index)]
 
+  const _contactFields = isConnection ? [] : contactFields
+
   const activeFields = editable
-    ? contactFields
-    : contactFields?.filter((f) => !!value[f.value as keyof typeof value])
+    ? _contactFields
+    : _contactFields?.filter((f) => !!value[f.value as keyof typeof value])
 
   return (
     <div className={cx(styles.wrapper, { [styles.narrow]: editable })}>
@@ -95,8 +97,8 @@ export const CardInfo = (props: Props) => {
         {editable ? (
           <DateInput
             name={!index ? "birthday" : `connections.${index}.birthday`}
-            label={"Birthday"}
-            placeholder={"Birthday"}
+            label="Birthday"
+            placeholder="Birthday"
             value={value?.birthday || ""}
             disableFuture
             margin="dense"

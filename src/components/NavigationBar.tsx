@@ -1,7 +1,7 @@
 import React from "react"
 import { AppBar, Button, Fab, Toolbar, Typography } from "@mui/material"
 import { useLocation, useNavigate } from "react-router-dom"
-import { css, keyframes } from "@emotion/css"
+import { css } from "@emotion/css"
 import AddIcon from "@mui/icons-material/Add"
 import EditSharpIcon from "@mui/icons-material/EditSharp"
 import ExitToAppSharpIcon from "@mui/icons-material/ExitToAppSharp"
@@ -15,9 +15,7 @@ import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
 import { storage } from "src/firebase/fbConfig"
 import { ref } from "firebase/storage"
 import { SnackBar } from "./SnackBar"
-import { Contact } from "../models/contact"
-import { doc, FirestoreError, onSnapshot } from "firebase/firestore"
-import { db } from "../firebase/fbConfig"
+
 export const NavigationBar = () => {
   const {
     logout,
@@ -35,7 +33,7 @@ export const NavigationBar = () => {
 
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
 
-  const userStorageRef = ref(storage, `${user?.uid}/user/avatar`)
+  const userStorageRef = ref(storage, `users/${user?.uid}/user/avatar.jpg`)
 
   const onEditProfile = () => {
     navigate("/profile")
@@ -43,9 +41,6 @@ export const NavigationBar = () => {
   const onLogout = () => {
     logout && logout()
     navigate("/login")
-  }
-  const onGoHome = () => {
-    navigate("/")
   }
 
   const deleteUserAccount = async () => {
@@ -80,7 +75,7 @@ export const NavigationBar = () => {
   }
 
   React.useEffect(() => {
-    fetchFile(id, userStorageRef)
+    !!user?.uid && fetchFile(id, userStorageRef)
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file, user])
 
@@ -88,8 +83,6 @@ export const NavigationBar = () => {
     error?.code === "storage/object-not-found" || error?.code === 403
   const isModalOpen = Boolean(modalInfo)
   const id = "avatarImg"
-
-  const docRef = doc(db, `users/${user?.uid}/user/profile`)
 
   return (
     <>
@@ -144,34 +137,25 @@ export const NavigationBar = () => {
               ]}
             />
           </div>
-          {/* <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Fab
-              color="primary"
-              aria-label="add"
-              onClick={() => setOpen(true)}
-              size="medium"
-              className={styles.addButton}
-            >
-              <AddIcon />
-            </Fab>
-          </motion.div> */}
         </Toolbar>
       </AppBar>
       {pathname !== "/profile" ? (
-        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-          <Fab
-            onClick={() => setOpen(true)}
-            className={styles.addButton}
-            aria-label="add"
-          >
-            <AddIcon />
-          </Fab>
-          <AddContact
-            open={open}
-            onClose={() => setOpen(false)}
-            type="contact"
-          />
-        </motion.div>
+        <div className={styles.addButtonWrapper}>
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <Fab
+              onClick={() => setOpen(true)}
+              className={styles.addButton}
+              aria-label="add"
+            >
+              <AddIcon />
+            </Fab>
+            <AddContact
+              open={open}
+              onClose={() => setOpen(false)}
+              type="contact"
+            />
+          </motion.div>
+        </div>
       ) : null}
       <ConfirmationModal
         open={isModalOpen}
@@ -187,18 +171,6 @@ export const NavigationBar = () => {
     </>
   )
 }
-
-const pulse = keyframes`
-  0% {
-    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.2);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(147, 51, 234, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
-  }
-`
 
 const styles = {
   appBar: css`
@@ -256,18 +228,24 @@ const styles = {
     padding: 0 18px 0 30px;
     grid-column-gap: 10px;
   `,
-  addButton: css`
+  addButtonWrapper: css`
     position: fixed;
     right: 50px;
     top: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* So only the button gets pointer events */
+    z-index: 1300;
+  `,
+  addButton: css`
+    pointer-events: auto;
     background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
     color: #9333ea;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    // transition: all 0.3s ease;
-    // animation: ${pulse} 2s infinite;
+    transform-origin: center;
     &:hover {
       background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
-      // transform: translateY(-2px);
       box-shadow: 0 6px 8px rgba(147, 51, 234, 0.2);
     }
   `,

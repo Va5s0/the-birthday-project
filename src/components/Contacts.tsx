@@ -23,6 +23,7 @@ const Contacts = () => {
   )
 
   const fetchAvatarUrl = async (contactId: string) => {
+    if (!currentUser) return undefined
     try {
       const storageRef = ref(
         storage,
@@ -53,7 +54,7 @@ const Contacts = () => {
             return {
               id: doc.id,
               ...data,
-              avatarUrl: avatarUrl || data.avatarUrl, // Keep existing avatarUrl if fetch fails
+              avatarUrl: avatarUrl || data.avatarUrl || "", // Keep existing avatarUrl if fetch fails
             } as Contact
           })
         )

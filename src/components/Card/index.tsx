@@ -60,6 +60,7 @@ const Card = (props: Props) => {
     )
     setEditable(false)
     setOpen(false)
+    setOpenConnections(false)
   }
 
   const onContactChange = (contact?: Partial<Contact>) => {
@@ -127,6 +128,7 @@ const Card = (props: Props) => {
   const onCancelEdit = () => {
     setEditable(false)
     setOpen(false)
+    setOpenConnections(false)
   }
 
   const isModalOpen = Boolean(modalInfo)
@@ -196,7 +198,7 @@ const Card = (props: Props) => {
                 )}
               </div>
               {editable ? (
-                <div>
+                <div className={styles.buttonsContainer}>
                   <IconButton aria-label="close" onClick={onCancelEdit}>
                     <CloseIcon className={styles.cancelIcon} />
                   </IconButton>
@@ -297,6 +299,9 @@ const styles = {
   `,
   connectionsContainer: css`
     position: relative;
+  `,
+  buttonsContainer: css`
+    width: 35%;
   `,
   cardContainer: css`
     padding: 24px;

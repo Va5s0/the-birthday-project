@@ -119,6 +119,7 @@ const Connections = (props: Props) => {
                   errors={errors}
                   index={String(cidx)}
                   onContactChange={onContactChange}
+                  isConnection
                   {...rest}
                 />
               </AccordionDetails>

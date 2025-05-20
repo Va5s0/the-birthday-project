@@ -3,7 +3,6 @@ import { css } from "@emotion/css"
 import { Button } from "@mui/material"
 import { actions } from "./utils"
 import { useNavigate, useLocation } from "react-router-dom"
-// import img from "assets/celebration.jpg"
 
 type Props = {
   component: (props: any) => JSX.Element
