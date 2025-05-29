@@ -10,7 +10,7 @@ import {
   UserCredential,
   onAuthStateChanged,
   updateProfile,
-  updateEmail,
+  // updateEmail,
   deleteUser,
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
@@ -176,17 +176,17 @@ function useProvideAuth() {
     setTimestamp(Date.now())
   }
 
-  const editEmail = async (email: string) => {
-    await updateEmail(user, email).catch((e) => {
-      const errorCode = e?.code as string
-      setError({
-        code: errorCode,
-        message: errorCodes[errorCode as keyof typeof errorCodes],
-      })
-      return e
-    })
-    setTimestamp(Date.now())
-  }
+  // const editEmail = async (email: string) => {
+  //   await updateEmail(user, email).catch((e) => {
+  //     const errorCode = e?.code as string
+  //     setError({
+  //       code: errorCode,
+  //       message: errorCodes[errorCode as keyof typeof errorCodes],
+  //     })
+  //     return e
+  //   })
+  //   setTimestamp(Date.now())
+  // }
 
   const userDelete = (user: User) =>
     deleteUser(user).catch((e) => {

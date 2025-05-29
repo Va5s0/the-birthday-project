@@ -36,7 +36,7 @@ const AddContact = (props: Props) => {
     evt: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
     const { name, value } = evt.target
-    setState((s) => ({ ...s, [name]: value }))
+    setState((s) => ({ ...s, [name]: value?.trim() }))
   }
 
   const handleDateChange = (date: Date | null, name: string) => {

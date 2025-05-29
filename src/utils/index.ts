@@ -42,3 +42,14 @@ export const easter = () => {
 
   return getFullYearDate(iPas.toString(), month.toString())
 }
+
+export function getNamedayDateForYear(
+  nameday: { day: string; month: string },
+  year: number
+): string {
+  // Returns ISO string for the nameday in the given year
+  const date = new Date(
+    `${year}-${nameday.month.padStart(2, "0")}-${nameday.day.padStart(2, "0")}`
+  )
+  return date.toISOString()
+}

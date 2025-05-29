@@ -12,18 +12,25 @@ const SnackBar = ({
   severity,
   onClose,
   ...props
-}: CustomSnackbarProps) => (
-  <Snackbar
-    open={open}
-    autoHideDuration={6000}
-    onClose={onClose}
-    disableWindowBlurListener
-    {...props}
-  >
-    <AlertDlg onClose={onClose} severity={severity} elevation={6}>
-      {message}
-    </AlertDlg>
-  </Snackbar>
-)
+}: CustomSnackbarProps) => {
+  const handleClose = (event: React.SyntheticEvent | Event) => {
+    onClose?.(event, "escapeKeyDown")
+  }
+
+  return (
+    <Snackbar
+      open={open}
+      autoHideDuration={6000}
+      onClose={onClose}
+      disableWindowBlurListener
+      {...props}
+    >
+      {/* Pass ref automatically via forwardRef in AlertDlg */}
+      <AlertDlg onClose={handleClose} severity={severity} elevation={6}>
+        {message}
+      </AlertDlg>
+    </Snackbar>
+  )
+}
 
 export { SnackBar }

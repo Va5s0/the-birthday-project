@@ -38,8 +38,9 @@ export const NavigationBar = () => {
   const onEditProfile = () => {
     navigate("/profile")
   }
-  const onLogout = () => {
-    logout && logout()
+
+  const onLogout = async () => {
+    if (logout) await logout()
     navigate("/login")
   }
 
@@ -108,6 +109,7 @@ export const NavigationBar = () => {
             {!hasNoAvatar ? (
               <img
                 id={id}
+                src={user?.photoURL ?? ""}
                 alt="profile"
                 width={40}
                 height={40}
