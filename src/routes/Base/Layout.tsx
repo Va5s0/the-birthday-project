@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react"
 import { NavigationBar } from "../../components/NavigationBar"
+import TodayWidget from "../../components/TodayWidget"
 
 import "../../App.css"
 import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore"
@@ -146,6 +147,7 @@ const Layout = (props: Props) => {
   return (
     <>
       <NavigationBar />
+      <TodayWidget />
       {children}
       <SnackBar
         open={namedaySnackbar}

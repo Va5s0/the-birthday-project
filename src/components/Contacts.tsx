@@ -85,9 +85,12 @@ const styles = {
   container: css`
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    padding: 120px 35px 0;
+    justify-content: center;
+    padding: 120px 35px 0 35px; /* Add left padding to match widget and align cards */
     background-color: var(--light-grey-3);
-    overflow: auto;
+    min-height: 100vh;
+    margin: 0 auto;
+    max-width: 1400px;
     @media (max-width: 1461px) {
       grid-template-columns: repeat(3, 1fr);
       height: inherit;
