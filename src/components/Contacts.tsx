@@ -9,12 +9,16 @@ import { ref, getDownloadURL } from "firebase/storage"
 import { Contact } from "../models/contact"
 import { db, storage } from "../firebase/fbConfig"
 import Card from "./Card/index"
+import TreeCard from "./TreeCard"
 import { css } from "@emotion/css"
 import { getAuth } from "firebase/auth"
+import ToggleButton from "@mui/material/ToggleButton"
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 
 const Contacts = () => {
   const [contacts, setContacts] = React.useState<Contact[]>([])
   const [, setError] = React.useState<FirestoreError>()
+  const [treeView, setTreeView] = React.useState(false)
   const auth = getAuth()
   const { currentUser } = auth
 
@@ -70,11 +74,39 @@ const Contacts = () => {
 
   return (
     <>
-      <div className={styles.container}>
-        {contacts?.map((contact, idx) => (
-          <Card key={idx} cardKey={idx.toString()} contact={contact} />
-        ))}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          margin: "0 0 12px 50px",
+        }}
+      >
+        <ToggleButtonGroup
+          value={treeView ? "tree" : "cards"}
+          exclusive
+          onChange={(_, value) => {
+            if (value !== null) setTreeView(value === "tree")
+          }}
+          aria-label="contacts view toggle"
+          size="small"
+        >
+          <ToggleButton value="cards" aria-label="cards view">
+            Cards view
+          </ToggleButton>
+          <ToggleButton value="tree" aria-label="tree list view">
+            Tree list view
+          </ToggleButton>
+        </ToggleButtonGroup>
       </div>
+      {treeView ? (
+        <TreeCard contacts={contacts} />
+      ) : (
+        <div className={styles.container}>
+          {contacts?.map((contact, idx) => (
+            <Card key={idx} cardKey={idx.toString()} contact={contact} />
+          ))}
+        </div>
+      )}
     </>
   )
 }
@@ -86,7 +118,7 @@ const styles = {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     justify-content: center;
-    padding: 120px 35px 0 35px; /* Add left padding to match widget and align cards */
+    padding: 35px;
     background-color: var(--light-grey-3);
     min-height: 100vh;
     margin: 0 auto;
@@ -103,5 +135,28 @@ const styles = {
       grid-template-columns: repeat(1, 1fr);
       height: inherit;
     }
+  `,
+  treeList: css`
+    padding: 0 35px;
+    background-color: var(--light-grey-3);
+    min-height: 100vh;
+    margin: 0 auto;
+    max-width: 1400px;
+  `,
+  treeUl: css`
+    list-style-type: none;
+    padding-left: 20px;
+  `,
+  treeItem: css`
+    margin: 8px 0;
+  `,
+  contactName: css`
+    font-weight: 600;
+    font-size: 1.1rem;
+  `,
+  connectionName: css`
+    font-weight: 400;
+    font-size: 1rem;
+    margin-left: 10px;
   `,
 }

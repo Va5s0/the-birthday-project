@@ -22,7 +22,10 @@ const TodayWidget = () => {
   const { currentUser } = auth
 
   React.useEffect(() => {
-    if (!currentUser) return
+    if (!currentUser) {
+      setLoading(false)
+      return
+    }
     const contactsRef = query(
       collection(db, `users/${currentUser.uid}/contacts`)
     )

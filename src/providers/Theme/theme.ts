@@ -137,6 +137,39 @@ export const theme = createTheme({
         },
       },
     },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "capitalize",
+          fontWeight: 600,
+          fontSize: "1rem",
+          paddingLeft: "24px",
+          paddingRight: "24px",
+          paddingTop: "9.6px",
+          paddingBottom: "9.6px",
+          borderRadius: "16px",
+          border: "1.5px solid",
+          borderColor: "var(--primary-main)",
+          backgroundColor: "#fff",
+          color: "var(--primary-main)",
+          transition: "all 0.2s",
+          "&:hover": {
+            backgroundColor: "var(--light-grey)",
+            color: "var(--primary-main)",
+          },
+          "&.Mui-selected": {
+            color: "var(--white)",
+            backgroundColor: "var(--primary-main)",
+            boxShadow: "0 2px 8px rgba(0,141,205,0.13)",
+            "&:hover": {
+              backgroundColor: "var(--primary-dark)",
+              color: "var(--white)",
+              borderColor: "var(--primary-dark)",
+            },
+          },
+        },
+      },
+    },
   },
 })
 
@@ -259,6 +292,7 @@ css`
     color: var(--primary-main);
   }
 
+  /* Buttons */
   .MuiButton-containedPrimary {
     background-color: var(--primary-main);
     :hover {
