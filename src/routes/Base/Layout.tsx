@@ -2,6 +2,7 @@ import React, { ReactNode } from "react"
 import { useLocation } from "react-router-dom"
 import { NavigationBar } from "../../components/NavigationBar"
 import TodayWidget from "../../components/TodayWidget"
+import { ScrollToTop } from "../../components/ScrollToTop"
 
 import "../../App.css"
 import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore"
@@ -159,6 +160,7 @@ const Layout = (props: Props) => {
         message="Some namedays were outdated and have been updated for the current year."
         severity="info"
       />
+      <ScrollToTop />
     </div>
   )
 }

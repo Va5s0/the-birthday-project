@@ -129,7 +129,7 @@ export const NavigationBar = () => {
               className={styles.title}
             >
               <Typography variant="h4" className={styles.titleText}>
-                🎂 The Birthday Project
+                Birthday Project
               </Typography>
             </Button>
           </motion.div>
