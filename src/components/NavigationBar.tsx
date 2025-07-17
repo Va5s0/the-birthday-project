@@ -288,7 +288,7 @@ const styles = {
     transition: all 0.3s ease;
     text-transform: none;
     &:hover {
-      background-color: var(--bg-tertiary);
+      background-color: rgba(255, 255, 255, 0.15);
       transform: translateY(-1px);
     }
   `,

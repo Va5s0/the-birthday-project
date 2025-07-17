@@ -197,7 +197,7 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
                       placeholder={field.label}
                     />
                   ))}
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: "flex", gap: "8px" }}>
                     <button onClick={handleEditSave}>Save</button>
                     <button onClick={handleEditCancel}>Cancel</button>
                   </div>
@@ -250,7 +250,7 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
                               placeholder={field.label}
                             />
                           ))}
-                          <div style={{ display: 'flex', gap: '8px' }}>
+                          <div style={{ display: "flex", gap: "8px" }}>
                             <button onClick={handleEditSave}>Save</button>
                             <button onClick={handleEditCancel}>Cancel</button>
                           </div>
@@ -350,7 +350,11 @@ const styles = {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-main), var(--primary-light));
+    background: linear-gradient(
+      135deg,
+      var(--primary-main),
+      var(--primary-light)
+    );
     color: var(--text-inverse);
     display: inline-flex;
     align-items: center;
@@ -359,6 +363,7 @@ const styles = {
     font-size: 1rem;
     box-shadow: var(--shadow-md);
     transition: all 0.3s ease;
+    margin-right: 8px;
     &:hover {
       transform: scale(1.05);
       box-shadow: var(--shadow-lg);
@@ -368,7 +373,11 @@ const styles = {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--secondary-main), var(--secondary-light));
+    background: linear-gradient(
+      135deg,
+      var(--secondary-main),
+      var(--secondary-light)
+    );
     color: var(--text-inverse);
     display: inline-flex;
     align-items: center;
@@ -377,6 +386,7 @@ const styles = {
     font-size: 0.875rem;
     box-shadow: var(--shadow-sm);
     transition: all 0.3s ease;
+    margin-right: 8px;
     &:hover {
       transform: scale(1.05);
       box-shadow: var(--shadow-md);
@@ -422,6 +432,7 @@ const styles = {
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-primary);
     transition: all 0.3s ease;
+    gap: 8px;
     &:hover {
       background: var(--bg-tertiary);
       border-color: var(--border-secondary);
@@ -453,7 +464,7 @@ const styles = {
     border-radius: 16px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-primary);
-    
+
     input {
       padding: 8px 12px;
       border: 1px solid var(--border-primary);
@@ -462,14 +473,14 @@ const styles = {
       color: var(--text-primary);
       font-size: 0.875rem;
       transition: all 0.3s ease;
-      
+
       &:focus {
         outline: none;
         border-color: var(--primary-main);
         box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
       }
     }
-    
+
     button {
       padding: 8px 16px;
       border: none;
@@ -478,7 +489,7 @@ const styles = {
       font-weight: 500;
       cursor: pointer;
       transition: all 0.3s ease;
-      
+
       &:first-of-type {
         background: var(--primary-main);
         color: var(--text-inverse);
@@ -487,7 +498,7 @@ const styles = {
           transform: translateY(-1px);
         }
       }
-      
+
       &:last-of-type {
         background: var(--bg-tertiary);
         color: var(--text-secondary);
