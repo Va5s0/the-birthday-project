@@ -1,5 +1,13 @@
 import React from "react"
-import { AppBar, Button, Fab, Toolbar, Typography, Avatar, Box } from "@mui/material"
+import {
+  AppBar,
+  Button,
+  Fab,
+  Toolbar,
+  Typography,
+  Avatar,
+  Box,
+} from "@mui/material"
 import { useLocation, useNavigate } from "react-router-dom"
 import { css } from "@emotion/css"
 import AddIcon from "@mui/icons-material/Add"
@@ -11,6 +19,8 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import MoreActions from "./MoreActions"
 import { useAuth } from "src/context/AuthContext"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "src/firebase/fbConfig"
 import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
 import { storage } from "src/firebase/fbConfig"
 import { ref } from "firebase/storage"
@@ -31,6 +41,7 @@ export const NavigationBar = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
+  const [_, setUserData] = React.useState<any>(null)
 
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
 
@@ -81,6 +92,22 @@ export const NavigationBar = () => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file, user])
 
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user?.uid) return
+      try {
+        const userRef = doc(db, "users", user.uid)
+        const userSnap = await getDoc(userRef)
+        if (userSnap.exists()) {
+          setUserData(userSnap.data())
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+      }
+    }
+    fetchUserData()
+  }, [user?.uid])
+
   const hasNoAvatar =
     error?.code === "storage/object-not-found" || error?.code === 403
   const isModalOpen = Boolean(modalInfo)
@@ -105,24 +132,25 @@ export const NavigationBar = () => {
               </Typography>
             </Button>
           </motion.div>
-          
+
           <Box className={styles.rightSection}>
             <ThemeToggle />
-            
+
             <div className={styles.profileSection}>
               <Typography variant="body2" className={styles.userName}>
                 {user?.displayName || user?.email}
               </Typography>
-              
+
               <Avatar
                 src={!hasNoAvatar ? user?.photoURL ?? "" : undefined}
                 alt="profile"
                 className={styles.avatar}
                 sx={{ width: 40, height: 40 }}
               >
-                {!user?.photoURL && (user?.displayName?.[0] || user?.email?.[0] || 'U')}
+                {!user?.photoURL &&
+                  (user?.displayName?.[0] || user?.email?.[0] || "U")}
               </Avatar>
-              
+
               <MoreActions
                 options={[
                   // EDIT PROFILE
@@ -192,40 +220,42 @@ const styles = {
     transition: background-color 0.15s ease, box-shadow 0.15s ease;
     position: relative;
     overflow: hidden;
-    
+
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(135deg, 
-        var(--primary-main) 0%, 
-        var(--primary-light) 50%, 
+      background: linear-gradient(
+        135deg,
+        var(--primary-main) 0%,
+        var(--primary-light) 50%,
         var(--secondary-main) 100%
       );
       opacity: 1;
       transition: opacity 0.2s ease;
       pointer-events: none;
     }
-    
+
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(45deg, 
-        rgba(255, 255, 255, 0.1) 0%, 
-        transparent 50%, 
+      background: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%,
         rgba(255, 255, 255, 0.05) 100%
       );
       pointer-events: none;
       z-index: 1;
     }
-    
+
     /* Hide gradients during theme transition */
     .theme-transitioning & {
       &::before,
@@ -263,8 +293,8 @@ const styles = {
     }
   `,
   titleText: css`
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     font-weight: 700;
     font-size: 1.5rem;
     letter-spacing: -0.5px;
@@ -332,7 +362,11 @@ const styles = {
   `,
   addButton: css`
     pointer-events: auto;
-    background: linear-gradient(135deg, var(--primary-main) 0%, var(--primary-light) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--primary-main) 0%,
+      var(--primary-light) 100%
+    );
     color: var(--text-inverse);
     box-shadow: var(--shadow-lg);
     transform-origin: center;
@@ -340,7 +374,11 @@ const styles = {
     width: 64px;
     height: 64px;
     &:hover {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-main) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--primary-dark) 0%,
+        var(--primary-main) 100%
+      );
       box-shadow: var(--shadow-xl);
       transform: translateY(-2px);
     }

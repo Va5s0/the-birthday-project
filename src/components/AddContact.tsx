@@ -1,18 +1,26 @@
 import React, { ChangeEvent } from "react"
 import { doc, setDoc, updateDoc, collection } from "firebase/firestore"
 import { getAuth } from "firebase/auth"
-import MUIDialog from "@mui/material/Dialog"
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  IconButton,
+} from "@mui/material"
 import CakeIcon from "@mui/icons-material/Cake"
 import { css } from "@emotion/css"
-import { Button, FormControl } from "@mui/material"
+import { Button } from "@mui/material"
 import { TextInput } from "./inputs/TextInput"
 import { Contact } from "../models/contact"
 import { DateInput } from "./inputs/DateInput"
 import { db } from "../firebase/fbConfig"
 import { v1 as getUuid } from "uuid"
-import Nameday from "../components/Nameday"
-import { ModalHeader } from "./ModalHeader"
-import { nameFields, contactFields } from "../utils/contactFields"
+import CloseIcon from "@mui/icons-material/Close"
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
+import PersonIcon from "@mui/icons-material/Person"
+import { contactFields } from "../utils/contactFields"
 
 type Props = {
   open: boolean
@@ -82,133 +90,183 @@ const AddContact = (props: Props) => {
     onClose()
   }
 
-  const fields =
-    type === "connection" ? nameFields : [...nameFields, ...contactFields]
+  const modalTitle =
+    type === "connection" ? "Add New Connection" : "Add New Contact"
 
-  const id = "create-new-contact"
   return (
-    <MUIDialog
+    <Dialog
       open={open}
       onClose={handleClose}
-      id={id}
-      disableEscapeKeyDown
+      maxWidth="sm"
       fullWidth
-      maxWidth="xs"
+      className={styles.dialog}
     >
-      <ModalHeader id={id} title={`Add a new ${type}`} onClose={handleClose} />
+      <DialogTitle className={styles.title}>
+        {modalTitle}
+        <IconButton
+          onClick={handleClose}
+          className={styles.closeButton}
+          size="small"
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
-      <div data-dialog-content className={styles.content}>
-        <FormControl fullWidth>
-          {fields.map((cf, idx) => {
-            const Cmp = cf?.icon
-            return (
-              <TextInput
-                key={idx}
-                name={cf?.value}
-                label={cf?.label}
-                placeholder={cf?.label}
-                value={state[cf?.value as keyof Contact] || ""}
-                onChange={handleChange}
-                error={!!errors && !!errors[cf?.value]}
-                errorMessage={!!errors ? errors[cf?.value] : ""}
-                icon={<Cmp className={styles.commonIcon} />}
-                margin="normal"
-                size="medium"
-                variant="outlined"
-              />
-            )
-          })}
-          <DateInput
-            name="birthday"
-            label="Birthday"
-            placeholder="Birthday"
-            value={state?.birthday || ""}
-            onChange={handleDateChange}
-            icon={<CakeIcon className={styles.commonIcon} />}
-            disableFuture
-            margin="normal"
-            size="medium"
-          />
-          <Nameday
-            contact={state}
-            hasError={() => !!errors && !!errors["nameday"]}
-            errorMsg={() => (!!errors ? errors["nameday"] : "")}
-            onContactChange={(updatedContact?: Partial<Contact>) =>
-              setState(updatedContact ?? {})
-            }
-            margin="normal"
-            size="medium"
-          />
-        </FormControl>
-      </div>
-      <div data-dialog-footer className={styles.footer}>
-        <div data-dialog-actions className={styles.actions}>
-          <Button
-            variant="outlined"
-            disableElevation
-            onClick={handleClose}
-            size="large"
-            className={styles.outlined}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            type="submit"
-            form="new_contact"
-            disableElevation
-            size="large"
-            onClick={handleSubmit}
-            disabled={!state["firstName"]}
-            classes={{ containedSizeLarge: styles.contained }}
-          >
-            Submit
-          </Button>
-        </div>
-      </div>
-    </MUIDialog>
+      <DialogContent className={styles.content}>
+        <Grid container spacing={3}>
+          {/* Name Fields */}
+          <Grid item xs={12} sm={6}>
+            <TextInput
+              name="firstName"
+              label="First Name"
+              value={state.firstName || ""}
+              onChange={handleChange}
+              error={!!errors?.firstName}
+              errorMessage={errors?.firstName}
+              icon={<PersonIcon className={styles.fieldIcon} />}
+              fullWidth
+              required
+              size="small"
+              margin="dense"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextInput
+              name="lastName"
+              label="Last Name"
+              value={state.lastName || ""}
+              onChange={handleChange}
+              error={!!errors?.lastName}
+              errorMessage={errors?.lastName}
+              icon={<PersonIcon className={styles.fieldIcon} />}
+              fullWidth
+              size="small"
+              margin="dense"
+            />
+          </Grid>
+
+          {/* Contact Fields for main contact only */}
+          {type === "contact" &&
+            contactFields.map((field) => {
+              const Icon = field.icon
+              return (
+                <Grid item xs={12} sm={6} key={field.value}>
+                  <TextInput
+                    name={field.value}
+                    label={field.label}
+                    value={
+                      (state[field.value as keyof Contact] as string) || ""
+                    }
+                    onChange={handleChange}
+                    error={!!errors?.[field.value]}
+                    errorMessage={errors?.[field.value]}
+                    icon={<Icon className={styles.fieldIcon} />}
+                    fullWidth
+                    type={field.value === "email" ? "email" : "text"}
+                    size="small"
+                    margin="dense"
+                  />
+                </Grid>
+              )
+            })}
+
+          {/* Date Fields */}
+          <Grid item xs={12} sm={6}>
+            <DateInput
+              name="birthday"
+              label="Birthday"
+              value={state.birthday || ""}
+              onChange={handleDateChange}
+              error={!!errors?.birthday}
+              errorMessage={errors?.birthday}
+              icon={<CakeIcon className={styles.fieldIcon} />}
+              fullWidth
+              disableFuture
+              size="small"
+              margin="dense"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <DateInput
+              name="nameday.date"
+              label="Nameday"
+              value={state.nameday?.date || ""}
+              onChange={(date) => {
+                const nameday = date
+                  ? { nameday_id: "", date: date.toISOString() }
+                  : undefined
+                setState((prev) => ({ ...prev, nameday }))
+              }}
+              error={!!errors?.["nameday.date"]}
+              errorMessage={errors?.["nameday.date"]}
+              icon={<PermContactCalendarIcon className={styles.fieldIcon} />}
+              fullWidth
+              size="small"
+              margin="dense"
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+
+      <DialogActions className={styles.actions}>
+        <Button onClick={handleClose} color="inherit">
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          className={styles.saveButton}
+          disabled={!state.firstName}
+        >
+          {type === "connection" ? "Add Connection" : "Add Contact"}
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 
 export default AddContact
 
 const styles = {
-  content: css`
-    padding: 0 24px;
-    justify-content: center;
+  dialog: css`
+    .MuiDialog-paper {
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
   `,
-  footer: css`
-    padding: 24px;
+  title: css`
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
+    padding: 24px 24px 16px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  `,
+  closeButton: css`
+    color: var(--text-secondary);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+  `,
+  content: css`
+    padding: 0 24px 24px;
+  `,
+  fieldIcon: css`
+    color: var(--primary-main);
+    width: 20px;
+    height: 20px;
   `,
   actions: css`
-    --gap: 8px;
-    > *:not(:last-child) {
-      margin-inline-end: var(--gap);
-    }
+    padding: 16px 24px 24px;
+    gap: 12px;
   `,
-  outlined: css`
-    color: black;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    text-transform: capitalize;
-    font-size: 13px;
-  `,
-  contained: css`
-    background-color: var(--primary-main);
-    color: white;
-    text-transform: capitalize;
-    font-size: 13px;
-    :hover {
-      background-color: var(--primary-dark);
-    }
-  `,
-  commonIcon: css`
-    color: var(--primary-dark);
-    &.MuiSvgIcon-root {
-      width: 20px;
-      height: 20px;
-    }
+  saveButton: css`
+    padding: 10px 24px;
+    font-weight: 600;
   `,
 }

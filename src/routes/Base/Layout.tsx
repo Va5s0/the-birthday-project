@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react"
+import { useLocation } from "react-router-dom"
 import { NavigationBar } from "../../components/NavigationBar"
 import TodayWidget from "../../components/TodayWidget"
 
@@ -15,6 +16,7 @@ type Props = {
 
 const Layout = (props: Props) => {
   const { children } = props
+  const location = useLocation()
   const [namedaySnackbar, setNamedaySnackbar] = React.useState(false)
 
   async function updateNamedaysForCurrentYear(userId: string) {
@@ -148,7 +150,7 @@ const Layout = (props: Props) => {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <NavigationBar />
       <div style={{ flex: 1, overflow: 'auto' }}>
-        <TodayWidget />
+        {location.pathname !== '/profile' && <TodayWidget />}
         {children}
       </div>
       <SnackBar

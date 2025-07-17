@@ -1,15 +1,16 @@
 import React, { ChangeEvent } from "react"
 import { css } from "@emotion/css"
 import { getStorage, ref, getDownloadURL } from "firebase/storage"
-import { Button, Fab } from "@mui/material"
+import { Button, Fab, Grid, Paper, Typography } from "@mui/material"
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp"
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp"
 import CakeIcon from "@mui/icons-material/Cake"
 import PhoneIcon from "@mui/icons-material/Phone"
 import CloseIcon from "@mui/icons-material/Close"
+import PersonIcon from "@mui/icons-material/Person"
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
 import { IconButton, CircularProgress } from "@mui/material"
 import { TextInput } from "../../components/inputs/TextInput"
-import { nameFields } from "../../utils/contactFields"
 import { Contact } from "../../models/contact"
 import { useAuth } from "../../context/AuthContext"
 import { useNavigate } from "react-router-dom"
@@ -17,7 +18,6 @@ import ConfirmationModal, {
   ModalInfo,
 } from "../../components/ConfirmationModal"
 import { DateInput } from "../inputs/DateInput"
-import Nameday from "../Nameday"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { db } from "src/firebase/fbConfig"
 
@@ -133,13 +133,13 @@ export const EditProfile = () => {
       if (userSnap.exists()) {
         const data = userSnap.data()
         setState(() => ({
-          firstName: user?.displayName?.split(" ")[0],
-          lastName: user?.displayName?.split(" ")[1],
+          firstName: user?.displayName?.split(" ")[0] || "",
+          lastName: user?.displayName?.split(" ")[1] || "",
           photoURL: user?.photoURL,
-          phoneNumber: data?.phoneNumber,
-          email: user?.email,
-          birthday: data.birthday,
-          nameday: data.nameday ?? "",
+          phoneNumber: data?.phoneNumber || "",
+          email: user?.email || "",
+          birthday: data.birthday || "",
+          nameday: data.nameday || undefined,
         }))
       }
     }
@@ -151,128 +151,169 @@ export const EditProfile = () => {
     error?.code === "storage/object-not-found" || error?.code === 403
 
   const id = "profileImg"
+  
+  // Display logic for header
+  const firstName = state.firstName || ''
+  const lastName = state.lastName || ''
+  const fullName = `${firstName} ${lastName}`.trim()
+  const displayName = fullName || state.email || user?.email || 'Edit Profile'
+  
   return (
     <div className={styles.container}>
-      <div className={styles.grid}>
-        {isUploading ? (
-          <div className={styles.imgUploadWrapper}>
-            <CircularProgress size={24} color="inherit" />
-          </div>
-        ) : (
-          <div className={styles.imgUploadWrapper}>
-            <div className={styles.imageUpload}>
-              <label htmlFor="file-input">
-                <IconButton
-                  component="span"
-                  disabled={isUploading}
-                  className={styles.fab}
-                >
-                  <AddAPhotoSharpIcon />
-                </IconButton>
-              </label>
-              <input
-                id="file-input"
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-              />{" "}
-            </div>
-            {!hasNoAvatar ? (
-              <div className={styles.profileContainer}>
-                <Fab className="deletePhoto">
-                  <CloseIcon className={styles.closeIcon} onClick={onDelete} />
-                </Fab>
-                <img
-                  id={id}
-                  src={state.photoURL ?? ""}
-                  alt="profile"
-                  width={167}
-                  height={167}
-                  className={styles.profileImg}
-                />
+      <Paper className={styles.paper}>
+        <Typography variant="h4" className={styles.title}>
+          {displayName}
+        </Typography>
+
+        <Grid container spacing={4}>
+          {/* Profile Picture Section */}
+          <Grid item xs={12} className={styles.avatarSection}>
+            {isUploading ? (
+              <div className={styles.imgUploadWrapper}>
+                <CircularProgress size={24} color="inherit" />
               </div>
             ) : (
-              <AccountCircleSharpIcon className={styles.avatar} />
+              <div className={styles.imgUploadWrapper}>
+                <div className={styles.imageUpload}>
+                  <label htmlFor="file-input">
+                    <IconButton
+                      component="span"
+                      disabled={isUploading}
+                      className={styles.fab}
+                    >
+                      <AddAPhotoSharpIcon />
+                    </IconButton>
+                  </label>
+                  <input
+                    id="file-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                </div>
+                {!hasNoAvatar ? (
+                  <div className={styles.profileContainer}>
+                    <Fab className="deletePhoto">
+                      <CloseIcon
+                        className={styles.closeIcon}
+                        onClick={onDelete}
+                      />
+                    </Fab>
+                    <img
+                      id={id}
+                      src={state.photoURL ?? ""}
+                      alt="profile"
+                      width={167}
+                      height={167}
+                      className={styles.profileImg}
+                    />
+                  </div>
+                ) : (
+                  <AccountCircleSharpIcon className={styles.avatar} />
+                )}
+              </div>
             )}
-          </div>
-        )}
-        {nameFields.map((cf, idx) => {
-          const Cmp = cf?.icon
-          return (
+          </Grid>
+
+          {/* Name Fields */}
+          <Grid item xs={12} sm={6}>
             <TextInput
-              key={idx}
-              name={cf?.value}
-              label={cf?.label}
-              placeholder={cf?.label}
-              value={state[cf?.value as keyof Contact] || ""}
+              name="firstName"
+              label="First Name"
+              value={firstName}
               onChange={handleChange}
-              // error={!!error && !!error[cf?.value]}
-              // errorMessage={!!errors ? errors[cf?.value] : ""}
-              icon={<Cmp className={styles.commonIcon} />}
-              className="input"
+              icon={<PersonIcon className={styles.fieldIcon} />}
+              fullWidth
+              size="small"
+              margin="dense"
             />
-          )
-        })}
-        <TextInput
-          name="phoneNumber"
-          label="Phone"
-          placeholder="Phone"
-          value={state["phoneNumber"] || ""}
-          onChange={handleChange}
-          // error={!!error && !!error[cf?.value]}
-          // errorMessage={!!errors ? errors[cf?.value] : ""}
-          icon={<PhoneIcon className={styles.commonIcon} />}
-          className="input"
-        />
-        <DateInput
-          name="birthday"
-          label="Birthday"
-          placeholder={"Birthday"}
-          value={state?.birthday || ""}
-          disableFuture
-          margin="dense"
-          size="small"
-          onChange={handleDateChange}
-          icon={<CakeIcon className={styles.commonIcon} />}
-          className="input"
-          // error={hasError(state?.birthday, index)}
-          // errorMessage={errorMsg(state?.birthday, index)}
-        />
-        <Nameday
-          contact={state}
-          // hasError={hasError}
-          // errorMsg={errorMsg}
-          margin="dense"
-          size="small"
-          onContactChange={(updatedContact?: Partial<Contact>) =>
-            setState(updatedContact ?? {})
-          }
-          className="input"
-        />
-      </div>
-      <div className={styles.actions}>
-        <Button
-          variant="outlined"
-          disableElevation
-          onClick={handleCancel}
-          size="large"
-          className={styles.outlined}
-        >
-          Go back
-        </Button>
-        <Button
-          variant="contained"
-          type="submit"
-          form="edit_contact"
-          disableElevation
-          size="large"
-          onClick={handleSubmit}
-          disabled={!state || !state["firstName"]}
-          classes={{ containedSizeLarge: styles.contained }}
-        >
-          Save
-        </Button>
-      </div>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextInput
+              name="lastName"
+              label="Last Name"
+              value={lastName}
+              onChange={handleChange}
+              icon={<PersonIcon className={styles.fieldIcon} />}
+              fullWidth
+              size="small"
+              margin="dense"
+            />
+          </Grid>
+
+          {/* Contact Fields */}
+          <Grid item xs={12} sm={6}>
+            <TextInput
+              name="phoneNumber"
+              label="Phone"
+              value={state.phoneNumber || ""}
+              onChange={handleChange}
+              icon={<PhoneIcon className={styles.fieldIcon} />}
+              fullWidth
+              size="small"
+              margin="dense"
+            />
+          </Grid>
+
+          {/* Date Fields */}
+          <Grid item xs={12} sm={6}>
+            <DateInput
+              name="birthday"
+              label="Birthday"
+              value={state.birthday || ""}
+              onChange={handleDateChange}
+              error={false}
+              errorMessage={""}
+              icon={<CakeIcon className={styles.fieldIcon} />}
+              fullWidth
+              disableFuture
+              size="small"
+              margin="dense"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <DateInput
+              name="nameday.date"
+              label="Nameday"
+              value={state.nameday?.date || ""}
+              onChange={(date) => {
+                const nameday = date
+                  ? { nameday_id: "", date: date.toISOString() }
+                  : undefined
+                setState((prev) => ({ ...prev, nameday }))
+              }}
+              error={false}
+              errorMessage={""}
+              icon={<PermContactCalendarIcon className={styles.fieldIcon} />}
+              fullWidth
+              size="small"
+              margin="dense"
+            />
+          </Grid>
+        </Grid>
+
+        <div className={styles.actions}>
+          <Button
+            onClick={handleCancel}
+            color="inherit"
+            className={styles.cancelButton}
+          >
+            Go back
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            color="primary"
+            className={styles.saveButton}
+            disabled={!firstName}
+          >
+            Save Changes
+          </Button>
+        </div>
+      </Paper>
+
       <ConfirmationModal
         open={isModalOpen}
         onCancel={() => setModalInfo(undefined)}
@@ -284,46 +325,45 @@ export const EditProfile = () => {
 
 const styles = {
   container: css`
-    padding: 120px 35px 0;
-    background-color: var(--light-grey-3);
+    padding: 40px 24px;
+    background-color: var(--bg-primary);
     min-height: calc(100vh - 70px);
-    ::before {
-      content: "";
-      height: 100%;
-      width: 100%;
-      position: fixed;
-      top: 10%;
-      left: 25%;
-      z-index: 0;
-      opacity: 0.05;
-      background-size: 800px;
-      background-repeat: no-repeat;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   `,
-  grid: css`
-    display: grid;
-    grid-template-columns: max-content auto;
-    grid-template-rows: repeat(5, 1fr);
-    .input:nth-child(5),
-    .input:nth-child(6),
-    .input:nth-child(7),
-    .input:nth-child(8) {
-      grid-column-start: 1;
-      grid-column-end: 3;
-    }
+  paper: css`
+    padding: 32px;
+    border-radius: 16px;
+    background: var(--bg-surface);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+    margin-top: 40px;
+  `,
+  title: css`
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 32px;
+    text-align: center;
+  `,
+  avatarSection: css`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
   `,
   imgUploadWrapper: css`
     display: flex;
     align-items: center;
     justify-content: center;
-    grid-row-start: 1;
-    grid-row-end: 4;
     position: relative;
   `,
   imageUpload: css`
     position: absolute;
-    right: 35px;
-    bottom: 25px;
+    right: -10px;
+    bottom: 10px;
+    z-index: 2;
     > label {
       cursor: pointer;
     }
@@ -333,6 +373,8 @@ const styles = {
   `,
   profileImg: css`
     border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   `,
   fab: css`
     display: flex;
@@ -340,89 +382,91 @@ const styles = {
     justify-content: center;
     background-color: var(--primary-main);
     color: var(--white);
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     padding: 0;
     box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%),
       0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%);
     box-sizing: border-box;
-    transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
-      box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
-      border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 50%;
-    :hover {
-      background-color: var(--primary-light);
+
+    &:hover {
+      background-color: var(--primary-dark);
+      transform: scale(1.05);
     }
   `,
   avatar: css`
-    width: 200px;
-    height: 200px;
-    color: var(--primary-dark);
+    width: 167px;
+    height: 167px;
+    color: var(--primary-main);
+    background-color: rgba(99, 102, 241, 0.1);
+    border-radius: 50%;
+    padding: 20px;
   `,
-  commonIcon: css`
-    color: var(--primary-dark);
+  fieldIcon: css`
+    color: var(--primary-main);
+    width: 20px;
+    height: 20px;
   `,
   actions: css`
-    --gap: 8px;
-    padding-top: 20px;
-    text-align: right;
-    > *:not(:last-child) {
-      margin-inline-end: var(--gap);
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-primary);
+  `,
+  cancelButton: css`
+    padding: 10px 24px;
+    font-weight: 500;
+    color: var(--text-secondary);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
     }
   `,
-  outlined: css`
-    color: black;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    text-transform: capitalize;
-    font-size: 13px;
-    background-color: var(--white);
-  `,
-  contained: css`
+  saveButton: css`
+    padding: 10px 24px;
+    font-weight: 600;
     background-color: var(--primary-main);
-    color: white;
-    text-transform: capitalize;
-    font-size: 13px;
-    :hover {
+
+    &:hover {
       background-color: var(--primary-dark);
+    }
+
+    &:disabled {
+      background-color: var(--text-tertiary);
+      color: var(--text-secondary);
     }
   `,
   profileContainer: css`
+    position: relative;
+
     .deletePhoto {
-      width: 24px;
-      height: 24px;
+      width: 32px;
+      height: 32px;
       min-height: unset;
-      background-color: var(--red);
+      background-color: #ef4444;
       color: var(--white);
       position: absolute;
-      right: 35px;
-      top: 25px;
+      right: 5px;
+      top: 5px;
       opacity: 0;
-    }
-    :hover {
-      .deletePhoto {
-        opacity: 1;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+
+      &:hover {
+        background-color: #dc2626;
       }
+    }
+
+    &:hover .deletePhoto {
+      opacity: 1;
     }
   `,
   closeIcon: css`
-    width: 16px;
-    height: 16px;
-  `,
-  avatarImage: css`
-    border-radius: 50%;
-    object-fit: cover;
-  `,
-  avatarIcon: css`
-    width: 48px;
-    height: 48px;
-    color: var(--primary-main);
-    background-color: rgba(147, 51, 234, 0.1);
-    border-radius: 50%;
-    padding: 8px;
-    transition: all 0.3s ease;
-    &:hover {
-      transform: scale(1.05);
-      background-color: rgba(147, 51, 234, 0.15);
-    }
+    width: 18px;
+    height: 18px;
   `,
 }

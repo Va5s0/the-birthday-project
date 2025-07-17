@@ -162,7 +162,8 @@ function useProvideAuth() {
     photoURL?: string | null
   }) => {
     const profile = {
-      displayName: `${firstName} ${lastName}`,
+      displayName:
+        !!firstName || !!lastName ? `${firstName} ${lastName}` : undefined,
       photoURL,
     }
     await updateProfile(user, profile).catch((e) => {
