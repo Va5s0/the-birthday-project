@@ -74,13 +74,7 @@ const Contacts = () => {
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          margin: "0 0 12px 50px",
-        }}
-      >
+      <div className={styles.toggleContainer}>
         <ToggleButtonGroup
           value={treeView ? "tree" : "cards"}
           exclusive
@@ -89,12 +83,13 @@ const Contacts = () => {
           }}
           aria-label="contacts view toggle"
           size="small"
+          className={styles.toggleGroup}
         >
-          <ToggleButton value="cards" aria-label="cards view">
-            Cards view
+          <ToggleButton value="cards" aria-label="cards view" className={styles.toggleButton}>
+            📋 Cards view
           </ToggleButton>
-          <ToggleButton value="tree" aria-label="tree list view">
-            Tree list view
+          <ToggleButton value="tree" aria-label="tree list view" className={styles.toggleButton}>
+            🌳 Tree view
           </ToggleButton>
         </ToggleButtonGroup>
       </div>
@@ -116,47 +111,73 @@ export default Contacts
 const styles = {
   container: css`
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    padding: 32px;
+    background-color: var(--bg-primary);
+    margin: 0 auto;
+    max-width: 1400px;
+    transition: background-color 0.3s ease;
+    
+    @media (max-width: 1440px) {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 24px;
+    }
+    
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      padding: 16px;
+    }
+    
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 12px;
+    }
+  `,
+  toggleContainer: css`
+    display: flex;
     justify-content: center;
-    padding: 35px;
-    background-color: var(--light-grey-3);
-    min-height: 100vh;
-    margin: 0 auto;
-    max-width: 1400px;
-    @media (max-width: 1461px) {
-      grid-template-columns: repeat(3, 1fr);
-      height: inherit;
+    align-items: center;
+    padding: 16px 32px;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
+  `,
+  toggleGroup: css`
+    background: var(--bg-surface);
+    border: 1px solid var(--border-primary);
+    border-radius: 16px;
+    padding: 4px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+  `,
+  toggleButton: css`
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 8px 16px !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    color: var(--text-secondary) !important;
+    background: transparent !important;
+    transition: all 0.3s ease !important;
+    
+    &:hover {
+      background: var(--bg-tertiary) !important;
+      color: var(--text-primary) !important;
     }
-    @media (max-width: 1009px) {
-      grid-template-columns: repeat(2, 1fr);
-      height: inherit;
+    
+    &.Mui-selected {
+      background: var(--primary-main) !important;
+      color: var(--text-inverse) !important;
+      box-shadow: var(--shadow-sm) !important;
+      
+      &:hover {
+        background: var(--primary-dark) !important;
+        color: var(--text-inverse) !important;
+      }
     }
-    @media (max-width: 557px) {
-      grid-template-columns: repeat(1, 1fr);
-      height: inherit;
-    }
-  `,
-  treeList: css`
-    padding: 0 35px;
-    background-color: var(--light-grey-3);
-    min-height: 100vh;
-    margin: 0 auto;
-    max-width: 1400px;
-  `,
-  treeUl: css`
-    list-style-type: none;
-    padding-left: 20px;
-  `,
-  treeItem: css`
-    margin: 8px 0;
-  `,
-  contactName: css`
-    font-weight: 600;
-    font-size: 1.1rem;
-  `,
-  connectionName: css`
-    font-weight: 400;
-    font-size: 1rem;
-    margin-left: 10px;
   `,
 }

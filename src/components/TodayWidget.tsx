@@ -5,6 +5,7 @@ import { collection, query, onSnapshot } from "firebase/firestore"
 import { db } from "../firebase/fbConfig"
 import { dateFormatter } from "../utils/index"
 import { css } from "@emotion/css"
+import { motion } from "framer-motion"
 
 function isToday(dateString?: string) {
   if (!dateString) return false
@@ -87,76 +88,313 @@ const TodayWidget = () => {
     return matches
   })
 
-  if (loading) return <div className={styles.widget}>Loading...</div>
+  if (loading) {
+    return (
+      <motion.div 
+        className={styles.widget}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <span className={styles.loadingText}>Loading celebrations...</span>
+        </div>
+      </motion.div>
+    )
+  }
 
   return (
-    <div className={styles.widget}>
-      <h3 className={styles.title}>🎉 Today's Celebrations</h3>
-      {todayContacts.length === 0 ? (
-        <div className={styles.empty}>
-          No birthdays or namedays today. Enjoy the day! 🎈
+    <motion.div 
+      className={styles.widget}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className={styles.header}>
+        <div className={styles.titleContainer}>
+          <h3 className={styles.title}>Today's Celebrations</h3>
+          <div className={styles.titleIcon}>🎉</div>
         </div>
+        <div className={styles.dateContainer}>
+          <span className={styles.date}>{new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric' 
+          })}</span>
+        </div>
+      </div>
+      
+      {todayContacts.length === 0 ? (
+        <motion.div 
+          className={styles.empty}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className={styles.emptyIcon}>🎈</div>
+          <div className={styles.emptyText}>
+            <span className={styles.emptyTitle}>No celebrations today</span>
+            <span className={styles.emptySubtitle}>Enjoy the peaceful day!</span>
+          </div>
+        </motion.div>
       ) : (
-        <ul className={styles.list}>
+        <motion.div 
+          className={styles.celebrationsList}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
           {todayContacts.map((item, idx) => (
-            <li key={idx}>
-              <b>{item.name}</b>
-              {item.parent ? ` (connection of ${item.parent})` : ""} –{" "}
-              {item.type} ({dateFormatter(item.date)})
-            </li>
+            <motion.div 
+              key={idx}
+              className={styles.celebrationItem}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + idx * 0.1 }}
+            >
+              <div className={styles.celebrationIcon}>
+                {item.type === 'Birthday' ? '🎂' : '🎊'}
+              </div>
+              <div className={styles.celebrationContent}>
+                <div className={styles.celebrationName}>{item.name}</div>
+                <div className={styles.celebrationDetails}>
+                  {item.parent && (
+                    <span className={styles.connectionInfo}>
+                      connected to {item.parent}
+                    </span>
+                  )}
+                  <span className={styles.celebrationType}>
+                    {item.type} • {dateFormatter(item.date)}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.celebrationBadge}>
+                {item.type}
+              </div>
+            </motion.div>
           ))}
-        </ul>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   )
 }
 
 const styles = {
   widget: css`
-    background: #fff;
+    background: var(--bg-surface);
     border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    padding: 40px 48px 40px 32px;
-    margin: 24px 0 16px 50px;
-    min-width: 260px;
-    max-width: 440px;
-    border-left: 6px solid #008dcd;
-    transition: box-shadow 0.2s;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-primary);
+    padding: 20px;
+    margin: 16px 32px 12px 32px;
+    max-width: 480px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, 
+        var(--primary-main) 0%, 
+        var(--primary-light) 50%, 
+        var(--secondary-main) 100%
+      );
+    }
+    
     &:hover {
-      box-shadow: 0 8px 24px rgba(0, 141, 205, 0.13);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-1px);
+      border-color: var(--border-secondary);
     }
   `,
-  title: css`
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 18px;
-    color: #008dcd;
+  
+  loadingContainer: css`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+  `,
+  
+  loadingSpinner: css`
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border-primary);
+    border-top: 2px solid var(--primary-main);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `,
+  
+  loadingText: css`
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+  `,
+  
+  header: css`
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    gap: 12px;
+  `,
+  
+  titleContainer: css`
     display: flex;
     align-items: center;
-    gap: 10px;
-    letter-spacing: 0.5px;
+    gap: 8px;
   `,
-  empty: css`
-    color: #aaa;
-    font-style: italic;
-    padding: 18px 0;
-    font-size: 1.08rem;
-  `,
-  list: css`
-    list-style: none;
-    padding: 0;
+  
+  title: css`
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
     margin: 0;
-    li {
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 1.08rem;
-      &:last-child {
-        border-bottom: none;
-      }
-      b {
-        color: #004e72;
-      }
+    letter-spacing: -0.025em;
+  `,
+  
+  titleIcon: css`
+    font-size: 1.25rem;
+    background: linear-gradient(135deg, var(--primary-main), var(--secondary-main));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  `,
+  
+  dateContainer: css`
+    padding: 6px 12px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+  `,
+  
+  date: css`
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  `,
+  
+  empty: css`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 16px;
+    text-align: center;
+  `,
+  
+  emptyIcon: css`
+    font-size: 2rem;
+    opacity: 0.6;
+  `,
+  
+  emptyText: css`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  `,
+  
+  emptyTitle: css`
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  `,
+  
+  emptySubtitle: css`
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  `,
+  
+  celebrationsList: css`
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  `,
+  
+  celebrationItem: css`
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-secondary);
+      transform: translateX(2px);
     }
+  `,
+  
+  celebrationIcon: css`
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-surface);
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+    box-shadow: var(--shadow-sm);
+  `,
+  
+  celebrationContent: css`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  `,
+  
+  celebrationName: css`
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  `,
+  
+  celebrationDetails: css`
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  `,
+  
+  connectionInfo: css`
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  `,
+  
+  celebrationType: css`
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  `,
+  
+  celebrationBadge: css`
+    padding: 4px 8px;
+    background: linear-gradient(135deg, var(--primary-main), var(--primary-light));
+    color: var(--text-inverse);
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: var(--shadow-sm);
   `,
 }
 

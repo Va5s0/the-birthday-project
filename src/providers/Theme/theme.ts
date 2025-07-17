@@ -1,8 +1,103 @@
-import { createTheme } from "@mui/material"
+import { createTheme, ThemeOptions } from "@mui/material"
 import { css } from "@emotion/css"
 
-export const theme = createTheme({
+const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
+  palette: {
+    mode,
+    primary: {
+      main: mode === 'dark' ? '#8b5cf6' : '#6366f1',
+      dark: mode === 'dark' ? '#7c3aed' : '#4f46e5',
+      light: mode === 'dark' ? '#a78bfa' : '#8b5cf6',
+    },
+    secondary: {
+      main: mode === 'dark' ? '#f472b6' : '#ec4899',
+      dark: mode === 'dark' ? '#ec4899' : '#db2777',
+      light: mode === 'dark' ? '#f9a8d4' : '#f472b6',
+    },
+    background: {
+      default: mode === 'dark' ? '#0f172a' : '#ffffff',
+      paper: mode === 'dark' ? '#1e293b' : '#ffffff',
+    },
+    text: {
+      primary: mode === 'dark' ? '#f8fafc' : '#1e293b',
+      secondary: mode === 'dark' ? '#cbd5e1' : '#64748b',
+    },
+    divider: mode === 'dark' ? '#334155' : '#e2e8f0',
+  },
+  typography: {
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+    h1: {
+      fontWeight: 700,
+      fontSize: '2.5rem',
+      lineHeight: 1.2,
+    },
+    h2: {
+      fontWeight: 700,
+      fontSize: '2rem',
+      lineHeight: 1.3,
+    },
+    h3: {
+      fontWeight: 600,
+      fontSize: '1.5rem',
+      lineHeight: 1.4,
+    },
+    h4: {
+      fontWeight: 600,
+      fontSize: '1.25rem',
+      lineHeight: 1.4,
+    },
+    body1: {
+      fontSize: '1rem',
+      lineHeight: 1.6,
+    },
+    body2: {
+      fontSize: '0.875rem',
+      lineHeight: 1.5,
+    },
+  },
+  shape: {
+    borderRadius: 12,
+  },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: 'var(--bg-primary)',
+          color: 'var(--text-primary)',
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--bg-elevated)',
+          color: 'var(--text-primary)',
+          boxShadow: 'var(--shadow-md)',
+          borderBottom: '1px solid var(--border-primary)',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--bg-surface)',
+          color: 'var(--text-primary)',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--border-primary)',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--bg-surface)',
+          color: 'var(--text-primary)',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--border-primary)',
+          borderRadius: 16,
+        },
+      },
+    },
     MuiInputBase: {
       styleOverrides: {
         root: {
@@ -12,7 +107,8 @@ export const theme = createTheme({
           fontStretch: "normal",
           fontStyle: "normal",
           letterSpacing: "normal",
-          color: "black",
+          color: "var(--text-primary)",
+          backgroundColor: "var(--bg-surface)",
           cursor: "text",
           display: "inline-flex",
           position: "relative",
@@ -172,6 +268,11 @@ export const theme = createTheme({
     },
   },
 })
+
+export const createAppTheme = (mode: 'light' | 'dark') => createTheme(getTheme(mode))
+
+// Export default light theme for backward compatibility
+export const theme = createAppTheme('light')
 
 css`
   /* Inputs */

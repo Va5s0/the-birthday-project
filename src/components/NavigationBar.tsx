@@ -1,5 +1,5 @@
 import React from "react"
-import { AppBar, Button, Fab, Toolbar, Typography } from "@mui/material"
+import { AppBar, Button, Fab, Toolbar, Typography, Avatar, Box } from "@mui/material"
 import { useLocation, useNavigate } from "react-router-dom"
 import { css } from "@emotion/css"
 import AddIcon from "@mui/icons-material/Add"
@@ -15,6 +15,7 @@ import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
 import { storage } from "src/firebase/fbConfig"
 import { ref } from "firebase/storage"
 import { SnackBar } from "./SnackBar"
+import { ThemeToggle } from "./ThemeToggle"
 
 export const NavigationBar = () => {
   const {
@@ -91,8 +92,8 @@ export const NavigationBar = () => {
         <Toolbar className={styles.toolbar}>
           <motion.div
             className={styles.titleContainer}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <Button
               color="inherit"
@@ -100,45 +101,52 @@ export const NavigationBar = () => {
               className={styles.title}
             >
               <Typography variant="h4" className={styles.titleText}>
-                The Birthday Project
+                🎂 The Birthday Project
               </Typography>
             </Button>
           </motion.div>
-          <div className={styles.profileSection}>
-            <span>{user?.displayName || user?.email}</span>
-            {!hasNoAvatar ? (
-              <img
-                id={id}
-                src={user?.photoURL ?? ""}
+          
+          <Box className={styles.rightSection}>
+            <ThemeToggle />
+            
+            <div className={styles.profileSection}>
+              <Typography variant="body2" className={styles.userName}>
+                {user?.displayName || user?.email}
+              </Typography>
+              
+              <Avatar
+                src={!hasNoAvatar ? user?.photoURL ?? "" : undefined}
                 alt="profile"
-                width={40}
-                height={40}
-                className={styles.profileImg}
+                className={styles.avatar}
+                sx={{ width: 40, height: 40 }}
+              >
+                {!user?.photoURL && (user?.displayName?.[0] || user?.email?.[0] || 'U')}
+              </Avatar>
+              
+              <MoreActions
+                options={[
+                  // EDIT PROFILE
+                  {
+                    label: "Edit profile",
+                    icon: <EditSharpIcon className={styles.icon} />,
+                    onClick: onEditProfile,
+                  },
+                  // LOGOUT
+                  {
+                    label: "Logout",
+                    icon: <ExitToAppSharpIcon className={styles.icon} />,
+                    onClick: onLogout,
+                  },
+                  // DELETE
+                  {
+                    label: "Delete account",
+                    icon: <DeleteForeverSharpIcon className={styles.icon} />,
+                    onClick: onDelete,
+                  },
+                ]}
               />
-            ) : null}
-            <MoreActions
-              options={[
-                // EDIT PROFILE
-                {
-                  label: "Edit profile",
-                  icon: <EditSharpIcon className={styles.icon} />,
-                  onClick: onEditProfile,
-                },
-                // LOGOUT
-                {
-                  label: "Logout",
-                  icon: <ExitToAppSharpIcon className={styles.icon} />,
-                  onClick: onLogout,
-                },
-                // DELETE
-                {
-                  label: "Delete account",
-                  icon: <DeleteForeverSharpIcon className={styles.icon} />,
-                  onClick: onDelete,
-                },
-              ]}
-            />
-          </div>
+            </div>
+          </Box>
         </Toolbar>
       </AppBar>
       {pathname !== "/profile" ? (
@@ -176,21 +184,68 @@ export const NavigationBar = () => {
 
 const styles = {
   appBar: css`
-    background: linear-gradient(135deg, #9333ea 0%, #4f46e5 100%);
-    color: white;
-    backdrop-filter: blur(10px);
+    background: var(--primary-main);
+    color: var(--text-inverse);
+    backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    display: flex;
-    justify-content: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        var(--primary-main) 0%, 
+        var(--primary-light) 50%, 
+        var(--secondary-main) 100%
+      );
+      opacity: 1;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        transparent 50%, 
+        rgba(255, 255, 255, 0.05) 100%
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    /* Hide gradients during theme transition */
+    .theme-transitioning & {
+      &::before,
+      &::after {
+        opacity: 0 !important;
+        transition: none !important;
+      }
+    }
   `,
   toolbar: css`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 16px;
-    min-height: 64px;
+    padding: 0 24px;
+    min-height: 72px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 2;
   `,
   titleContainer: css`
     display: flex;
@@ -198,64 +253,103 @@ const styles = {
     cursor: pointer;
   `,
   title: css`
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border-radius: 16px;
     transition: all 0.3s ease;
+    text-transform: none;
     &:hover {
-      background-color: transparent;
-      backdrop-filter: blur(5px);
-    grid-column-gap: 10px;
-    cursor: pointer;
-    .logo {
-      fill: var(--secondary-main);
+      background-color: var(--bg-tertiary);
+      transform: translateY(-1px);
     }
   `,
   titleText: css`
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     font-weight: 700;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     letter-spacing: -0.5px;
     line-height: 1.2;
     text-transform: none;
-    background: linear-gradient(to right, #ffffff, #e2e8f0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  `,
+  rightSection: css`
+    display: flex;
+    align-items: center;
+    gap: 16px;
   `,
   profileSection: css`
     display: flex;
     align-items: center;
-    height: 100%;
-    padding: 0 18px 0 30px;
-    grid-column-gap: 10px;
+    gap: 12px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+  `,
+  userName: css`
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  `,
+  avatar: css`
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
   `,
   addButtonWrapper: css`
     position: fixed;
-    right: 50px;
-    top: 92px;
+    right: 32px;
+    bottom: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none; /* So only the button gets pointer events */
+    pointer-events: none;
     z-index: 1300;
   `,
   addButton: css`
     pointer-events: auto;
-    background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
-    color: #9333ea;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, var(--primary-main) 0%, var(--primary-light) 100%);
+    color: var(--text-inverse);
+    box-shadow: var(--shadow-lg);
     transform-origin: center;
+    border: none;
+    width: 64px;
+    height: 64px;
     &:hover {
-      background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
-      box-shadow: 0 6px 8px rgba(147, 51, 234, 0.2);
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-main) 100%);
+      box-shadow: var(--shadow-xl);
+      transform: translateY(-2px);
+    }
+    &:active {
+      transform: translateY(0) scale(0.95);
     }
   `,
   icon: css`
-    color: var(--dark-grey-3);
-  `,
-  profileImg: css`
-    border-radius: 50%;
-    margin-left: 20px;
+    color: var(--text-primary);
+    font-size: 1.25rem;
   `,
 }

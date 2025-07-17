@@ -145,17 +145,19 @@ const Layout = (props: Props) => {
   }, [])
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <NavigationBar />
-      <TodayWidget />
-      {children}
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        <TodayWidget />
+        {children}
+      </div>
       <SnackBar
         open={namedaySnackbar}
         onClose={() => setNamedaySnackbar && setNamedaySnackbar(false)}
         message="Some namedays were outdated and have been updated for the current year."
         severity="info"
       />
-    </>
+    </div>
   )
 }
 

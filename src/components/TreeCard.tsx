@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { Contact, Common } from "../models/contact"
 import { css } from "@emotion/css"
 import { contactFields } from "../utils/contactFields"
@@ -10,23 +10,32 @@ import ConfirmationModal from "./ConfirmationModal"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 import AddIcon from "@mui/icons-material/Add"
-import { db } from "../firebase/fbConfig"
 import { doc, updateDoc } from "firebase/firestore"
-import { getAuth } from "firebase/auth"
+import { db } from "../firebase/fbConfig"
+import { useAuth } from "../context/AuthContext"
 
 const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
+  const authContext = useAuth()
+  const currentUser = authContext?.user
+
   // Track which contacts/connections are expanded
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
-  const [addOpen, setAddOpen] = useState<{ open: boolean; contact?: Contact }>({ open: false })
-  const [deleteInfo, setDeleteInfo] = useState<{ open: boolean; contact?: Contact; connectionIdx?: number }>({ open: false })
+  const [addOpen, setAddOpen] = useState<{ open: boolean; contact?: Contact }>({
+    open: false,
+  })
+  const [deleteInfo, setDeleteInfo] = useState<{
+    open: boolean
+    contact?: Contact
+    connectionIdx?: number
+  }>({ open: false })
 
   // Remove editOpen and related logic, and implement edit as an inline form for contacts/connections
   // Add state for editing contact/connection inline
-  const [editing, setEditing] = useState<{ contactId?: string; connIdx?: number } | null>(null)
+  const [editing, setEditing] = useState<{
+    contactId?: string
+    connIdx?: number
+  } | null>(null)
   const [editState, setEditState] = useState<Partial<Contact> | null>(null)
-
-  const auth = getAuth();
-  const { currentUser } = auth;
 
   const toggleExpand = (id: string) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -67,7 +76,8 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
 
   // Add/Edit/Delete handlers
   const handleAdd = (contact?: Contact) => setAddOpen({ open: true, contact })
-  const handleDelete = (contact: Contact, connectionIdx?: number) => setDeleteInfo({ open: true, contact, connectionIdx })
+  const handleDelete = (contact: Contact, connectionIdx?: number) =>
+    setDeleteInfo({ open: true, contact, connectionIdx })
   const closeAdd = () => setAddOpen({ open: false })
   const closeDelete = () => setDeleteInfo({ open: false })
 
@@ -97,12 +107,18 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
       const contact = contacts.find((c) => c.id === editing.contactId)
       if (!contact) return
       const updatedConnections = [...(contact.connections || [])]
-      updatedConnections[editing.connIdx] = { ...updatedConnections[editing.connIdx], ...editState }
+      updatedConnections[editing.connIdx] = {
+        ...updatedConnections[editing.connIdx],
+        ...editState,
+      }
       const contactRef = doc(
         db,
         `users/${currentUser?.uid}/contacts/${editing.contactId}`
       )
-      await updateDoc(contactRef, { ...contact, connections: updatedConnections })
+      await updateDoc(contactRef, {
+        ...contact,
+        connections: updatedConnections,
+      })
     }
     setEditing(null)
     setEditState(null)
@@ -161,23 +177,34 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
               </span>
               {renderActions(contact)}
             </div>
-            {expanded[contact.id] && (
-              editing?.contactId === contact.id && editing.connIdx === undefined ? (
-                <div className={styles.infoBox}>
-                  {/* Simple inline form for editing contact */}
+            {expanded[contact.id] &&
+              (editing?.contactId === contact.id &&
+              editing.connIdx === undefined ? (
+                <div className={styles.editForm}>
                   {contactFields.map((field) => (
                     <input
                       key={field.value}
-                      value={editState?.[field.value] || ""}
-                      onChange={e => setEditState(s => ({ ...s, [field.value]: e.target.value }))}
+                      value={
+                        (editState?.[field.value as keyof Contact] as string) ||
+                        ""
+                      }
+                      onChange={(e) =>
+                        setEditState((s) => ({
+                          ...s,
+                          [field.value]: e.target.value,
+                        }))
+                      }
                       placeholder={field.label}
                     />
                   ))}
-                  <button onClick={handleEditSave}>Save</button>
-                  <button onClick={handleEditCancel}>Cancel</button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={handleEditSave}>Save</button>
+                    <button onClick={handleEditCancel}>Cancel</button>
+                  </div>
                 </div>
-              ) : renderInfo(contact)
-            }
+              ) : (
+                renderInfo(contact)
+              ))}
             {contact.connections && contact.connections.length > 0 && (
               <ul className={styles.treeUl}>
                 {contact.connections.map((conn, idx) => (
@@ -185,7 +212,9 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
                     <div className={styles.headerRow}>
                       <span
                         className={styles.connectionName}
-                        onClick={() => toggleExpand(`${contact.id}-conn-${idx}`)}
+                        onClick={() =>
+                          toggleExpand(`${contact.id}-conn-${idx}`)
+                        }
                         style={{ cursor: "pointer" }}
                       >
                         <span className={styles.avatarCircleSmall}>
@@ -200,23 +229,35 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
                       </span>
                       {renderActions(contact, idx)}
                     </div>
-                    {expanded[`${contact.id}-conn-${idx}`] && (
-                      editing?.contactId === contact.id && editing.connIdx === idx ? (
-                        <div className={styles.infoBox}>
-                          {/* Simple inline form for editing connection */}
+                    {expanded[`${contact.id}-conn-${idx}`] &&
+                      (editing?.contactId === contact.id &&
+                      editing.connIdx === idx ? (
+                        <div className={styles.editForm}>
                           {contactFields.map((field) => (
                             <input
                               key={field.value}
-                              value={editState?.[field.value] || ""}
-                              onChange={e => setEditState(s => ({ ...s, [field.value]: e.target.value }))}
+                              value={
+                                (editState?.[
+                                  field.value as keyof Contact
+                                ] as string) || ""
+                              }
+                              onChange={(e) =>
+                                setEditState((s) => ({
+                                  ...s,
+                                  [field.value]: e.target.value,
+                                }))
+                              }
                               placeholder={field.label}
                             />
                           ))}
-                          <button onClick={handleEditSave}>Save</button>
-                          <button onClick={handleEditCancel}>Cancel</button>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={handleEditSave}>Save</button>
+                            <button onClick={handleEditCancel}>Cancel</button>
+                          </div>
                         </div>
-                      ) : renderInfo(conn)
-                    )}
+                      ) : (
+                        renderInfo(conn)
+                      ))}
                   </li>
                 ))}
               </ul>
@@ -254,119 +295,208 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
 }
 
 const styles = {
+  treeList: css`
+    padding: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--bg-surface);
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+  `,
+  treeUl: css`
+    list-style: none;
+    padding-left: 24px;
+    margin: 0;
+  `,
+  treeItem: css`
+    margin-bottom: 16px;
+    position: relative;
+    border-left: 2px solid var(--border-primary);
+    padding-left: 16px;
+    transition: all 0.3s ease;
+    &::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      top: 16px;
+      width: 16px;
+      height: 1px;
+      background: var(--border-secondary);
+    }
+    &:hover {
+      border-left-color: var(--primary-main);
+    }
+  `,
   headerRow: css`
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 2px;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
+    &:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-secondary);
+      transform: translateX(4px);
+    }
   `,
   avatarCircle: css`
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: #008dcd;
-    color: #fff;
+    background: linear-gradient(135deg, var(--primary-main), var(--primary-light));
+    color: var(--text-inverse);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 1.1em;
-    margin-right: 10px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-lg);
+    }
   `,
   avatarCircleSmall: css`
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: #008dcd;
-    color: #fff;
+    background: linear-gradient(135deg, var(--secondary-main), var(--secondary-light));
+    color: var(--text-inverse);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-weight: 500;
-    font-size: 0.95em;
-    margin-right: 8px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  `,
-  treeList: css`
-    padding: 40px 35px;
-    max-width: 900px;
-    margin: 0 50px;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 141, 205, 0.09);
-  `,
-  treeUl: css`
-    list-style: none;
-    padding-left: 1.5em;
-    margin: 0;
-  `,
-  treeItem: css`
-    margin-bottom: 0.7em;
-    position: relative;
-    border-left: 2px solid #e3f3fa;
-    padding-left: 0.7em;
-    &::before {
-      content: "";
-      position: absolute;
-      left: -1em;
-      top: 1.1em;
-      width: 1em;
-      height: 1px;
-      background: #c0bebe;
+    font-size: 0.875rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-md);
     }
   `,
   contactName: css`
-    font-weight: bold;
-    color: #008dcd;
+    font-weight: 600;
+    color: var(--text-primary);
     user-select: none;
-    font-size: 1.08em;
-    transition: color 0.15s;
+    font-size: 1.125rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
     &:hover {
-      color: #004e72;
-      text-decoration: underline;
+      color: var(--primary-main);
     }
   `,
   connectionName: css`
     font-weight: 500;
-    color: #004e72;
-    margin-left: 8px;
+    color: var(--text-secondary);
     user-select: none;
-    font-size: 1em;
-    transition: color 0.15s;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
     &:hover {
-      color: #008dcd;
-      text-decoration: underline;
+      color: var(--secondary-main);
     }
   `,
   toggleBtn: css`
-    font-size: 0.9em;
+    font-size: 0.875rem;
     margin-left: 8px;
-    color: #aaa;
-    transition: color 0.15s;
+    color: var(--text-tertiary);
+    transition: all 0.3s ease;
     &:hover {
-      color: #008dcd;
+      color: var(--primary-main);
+      transform: scale(1.1);
     }
   `,
   infoBox: css`
-    margin: 8px 0 8px 16px;
-    padding: 12px 16px;
-    background: none;
-    border-radius: 10px;
-    box-shadow: none;
-    font-size: 1em;
-    border-left: none;
+    margin: 12px 0 12px 24px;
+    padding: 16px 20px;
+    background: var(--bg-primary);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
+    &:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-secondary);
+    }
   `,
   infoRow: css`
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 6px;
-    color: #333;
+    gap: 12px;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    &:last-child {
+      margin-bottom: 0;
+    }
   `,
   infoIcon: css`
-    font-size: 1.1em;
-    color: #008dcd;
+    font-size: 1.125rem;
+    color: var(--primary-main);
+    flex-shrink: 0;
+  `,
+  editForm: css`
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 12px 0 12px 24px;
+    padding: 16px 20px;
+    background: var(--bg-primary);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-primary);
+    
+    input {
+      padding: 8px 12px;
+      border: 1px solid var(--border-primary);
+      border-radius: 8px;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+      
+      &:focus {
+        outline: none;
+        border-color: var(--primary-main);
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+      }
+    }
+    
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:first-of-type {
+        background: var(--primary-main);
+        color: var(--text-inverse);
+        &:hover {
+          background: var(--primary-dark);
+          transform: translateY(-1px);
+        }
+      }
+      
+      &:last-of-type {
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+        &:hover {
+          background: var(--border-secondary);
+          color: var(--text-primary);
+        }
+      }
+    }
   `,
 }
 
