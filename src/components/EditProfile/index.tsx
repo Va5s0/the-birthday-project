@@ -2,13 +2,11 @@ import React, { ChangeEvent } from "react"
 import { css } from "@emotion/css"
 import { getStorage, ref, getDownloadURL } from "firebase/storage"
 import { Button, Fab, Grid, Paper, Typography } from "@mui/material"
-import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp"
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp"
 import CakeIcon from "@mui/icons-material/Cake"
 import PhoneIcon from "@mui/icons-material/Phone"
 import CloseIcon from "@mui/icons-material/Close"
 import PersonIcon from "@mui/icons-material/Person"
-import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
 import { IconButton, CircularProgress } from "@mui/material"
 import { TextInput } from "../../components/inputs/TextInput"
 import { Contact } from "../../models/contact"
@@ -20,6 +18,8 @@ import ConfirmationModal, {
 import { DateInput } from "../inputs/DateInput"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { db } from "src/firebase/fbConfig"
+import { getInitials, getAvatarColor } from "../../utils/avatar"
+import Nameday from "../Nameday"
 
 export const EditProfile = () => {
   const navigate = useNavigate()
@@ -151,13 +151,17 @@ export const EditProfile = () => {
     error?.code === "storage/object-not-found" || error?.code === 403
 
   const id = "profileImg"
-  
+
   // Display logic for header
-  const firstName = state.firstName || ''
-  const lastName = state.lastName || ''
+  const firstName = state.firstName || ""
+  const lastName = state.lastName || ""
   const fullName = `${firstName} ${lastName}`.trim()
-  const displayName = fullName || state.email || user?.email || 'Edit Profile'
-  
+  const displayName = fullName || state.email || user?.email || "Edit Profile"
+
+  // Generate initials and colors for avatar
+  const initials = getInitials(firstName, lastName)
+  const { background, color } = getAvatarColor(firstName, lastName)
+
   return (
     <div className={styles.container}>
       <Paper className={styles.paper}>
@@ -209,7 +213,15 @@ export const EditProfile = () => {
                     />
                   </div>
                 ) : (
-                  <AccountCircleSharpIcon className={styles.avatar} />
+                  <div
+                    className={styles.initialsAvatar}
+                    style={{
+                      background,
+                      color,
+                    }}
+                  >
+                    {initials}
+                  </div>
                 )}
               </div>
             )}
@@ -274,22 +286,18 @@ export const EditProfile = () => {
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <DateInput
-              name="nameday.date"
-              label="Nameday"
-              value={state.nameday?.date || ""}
-              onChange={(date) => {
-                const nameday = date
-                  ? { nameday_id: "", date: date.toISOString() }
-                  : undefined
-                setState((prev) => ({ ...prev, nameday }))
-              }}
-              error={false}
-              errorMessage={""}
-              icon={<PermContactCalendarIcon className={styles.fieldIcon} />}
-              fullWidth
-              size="small"
+            <Nameday
+              contact={state}
+              hasError={() => false}
+              errorMsg={() => ""}
+              onContactChange={(updatedContact?: Partial<Contact>) =>
+                setState(
+                  updatedContact ? { ...state, ...updatedContact } : state
+                )
+              }
               margin="dense"
+              size="small"
+              className={styles.fullWidth}
             />
           </Grid>
         </Grid>
@@ -404,6 +412,29 @@ const styles = {
     border-radius: 50%;
     padding: 20px;
   `,
+  initialsAvatar: css`
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 42px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2),
+      inset 0 0 0 3px rgba(255, 255, 255, 0.1);
+    border: 3px solid transparent;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+  `,
   fieldIcon: css`
     color: var(--primary-main);
     width: 20px;
@@ -468,5 +499,8 @@ const styles = {
   closeIcon: css`
     width: 18px;
     height: 18px;
+  `,
+  fullWidth: css`
+    width: 100%;
   `,
 }

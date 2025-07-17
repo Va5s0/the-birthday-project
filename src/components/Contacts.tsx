@@ -90,14 +90,14 @@ const Contacts = () => {
             aria-label="cards view"
             className={styles.toggleButton}
           >
-            📋 Cards view
+            ⊞ Cards view
           </ToggleButton>
           <ToggleButton
             value="tree"
             aria-label="tree list view"
             className={styles.toggleButton}
           >
-            🌳 Tree view
+            ☰ Tree view
           </ToggleButton>
         </ToggleButtonGroup>
       </div>

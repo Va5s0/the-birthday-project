@@ -26,6 +26,7 @@ import { storage } from "src/firebase/fbConfig"
 import { ref } from "firebase/storage"
 import { SnackBar } from "./SnackBar"
 import { ThemeToggle } from "./ThemeToggle"
+import { getInitials, getAvatarColor } from "../utils/avatar"
 
 export const NavigationBar = () => {
   const {
@@ -41,7 +42,7 @@ export const NavigationBar = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
-  const [_, setUserData] = React.useState<any>(null)
+  const [, setUserData] = React.useState<any>(null)
 
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
 
@@ -145,10 +146,23 @@ export const NavigationBar = () => {
                 src={!hasNoAvatar ? user?.photoURL ?? "" : undefined}
                 alt="profile"
                 className={styles.avatar}
-                sx={{ width: 40, height: 40 }}
+                sx={{ 
+                  width: 40, 
+                  height: 40,
+                  ...(hasNoAvatar && (() => {
+                    const nameParts = user?.displayName?.split(' ') || [];
+                    const firstName = nameParts[0];
+                    const lastName = nameParts[1];
+                    return getAvatarColor(firstName, lastName);
+                  })())
+                }}
               >
-                {!user?.photoURL &&
-                  (user?.displayName?.[0] || user?.email?.[0] || "U")}
+                {hasNoAvatar && (() => {
+                  const nameParts = user?.displayName?.split(' ') || [];
+                  const firstName = nameParts[0];
+                  const lastName = nameParts[1];
+                  return getInitials(firstName, lastName);
+                })()}
               </Avatar>
 
               <MoreActions

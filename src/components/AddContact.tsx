@@ -18,9 +18,9 @@ import { DateInput } from "./inputs/DateInput"
 import { db } from "../firebase/fbConfig"
 import { v1 as getUuid } from "uuid"
 import CloseIcon from "@mui/icons-material/Close"
-import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
 import PersonIcon from "@mui/icons-material/Person"
 import { contactFields } from "../utils/contactFields"
+import Nameday from "./Nameday"
 
 type Props = {
   open: boolean
@@ -189,22 +189,15 @@ const AddContact = (props: Props) => {
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <DateInput
-              name="nameday.date"
-              label="Nameday"
-              value={state.nameday?.date || ""}
-              onChange={(date) => {
-                const nameday = date
-                  ? { nameday_id: "", date: date.toISOString() }
-                  : undefined
-                setState((prev) => ({ ...prev, nameday }))
-              }}
-              error={!!errors?.["nameday.date"]}
-              errorMessage={errors?.["nameday.date"]}
-              icon={<PermContactCalendarIcon className={styles.fieldIcon} />}
-              fullWidth
-              size="small"
+            <Nameday
+              contact={state}
+              hasError={() => !!errors?.["nameday.date"]}
+              errorMsg={() => errors?.["nameday.date"] || ""}
+              onContactChange={(updatedContact?: Partial<Contact>) =>
+                setState(updatedContact ?? {})
+              }
               margin="dense"
+              size="small"
             />
           </Grid>
         </Grid>

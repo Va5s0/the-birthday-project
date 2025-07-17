@@ -10,7 +10,6 @@ import {
   UserCredential,
   onAuthStateChanged,
   updateProfile,
-  // updateEmail,
   deleteUser,
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"

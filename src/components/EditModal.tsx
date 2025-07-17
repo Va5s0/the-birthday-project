@@ -16,8 +16,8 @@ import { contactFields } from "../utils/contactFields"
 import { set } from "lodash/fp"
 import CloseIcon from "@mui/icons-material/Close"
 import CakeIcon from "@mui/icons-material/Cake"
-import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
 import PersonIcon from "@mui/icons-material/Person"
+import Nameday from "./Nameday"
 
 type Props = {
   open: boolean
@@ -181,15 +181,16 @@ export const EditModal = (props: Props) => {
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <DateInput
-              name="nameday.date"
-              label="Nameday"
-              value={editedContact.nameday?.date || ""}
-              onChange={handleDateChange}
-              error={!!errors["nameday.date"]}
-              errorMessage={errors["nameday.date"]}
-              icon={<PermContactCalendarIcon className={styles.fieldIcon} />}
-              fullWidth
+            <Nameday
+              contact={editedContact}
+              hasError={() => !!errors["nameday.date"]}
+              errorMsg={() => errors["nameday.date"] || ""}
+              onContactChange={(updatedContact?: Partial<Contact>) =>
+                setEditedContact(updatedContact ? { ...editedContact, ...updatedContact } : editedContact)
+              }
+              margin="dense"
+              size="small"
+              className={styles.fullWidth}
             />
           </Grid>
         </Grid>
@@ -250,5 +251,8 @@ const styles = {
   saveButton: css`
     padding: 10px 24px;
     font-weight: 600;
+  `,
+  fullWidth: css`
+    width: 100%;
   `,
 }

@@ -86,7 +86,10 @@ const styles = {
     grid-column-gap: 10px;
   `,
   listIcon: css`
-    min-width: 20px;
+    &.MuiListItemIcon-root {
+      min-width: 20px;
+      width: 20px;
+    }
     > svg {
       width: 20px;
       height: 20px;

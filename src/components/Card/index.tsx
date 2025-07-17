@@ -189,6 +189,8 @@ const Card = (props: Props) => {
                   userId={currentUser?.uid || ""}
                   currentAvatarUrl={avatarUrl}
                   onAvatarChange={handleAvatarChange}
+                  firstName={contact.firstName}
+                  lastName={contact.lastName}
                 />
                 <div className={styles.ghostContainer}>
                   <div className={styles.name}>
@@ -208,16 +210,6 @@ const Card = (props: Props) => {
                     ),
                     onClick: onOpenEdit,
                   },
-                  // ADD
-                  {
-                    label: "add",
-                    icon: (
-                      <AddIcon
-                        className={cx(styles.primaryIcon, styles.smallIcon)}
-                      />
-                    ),
-                    onClick: onOpenAdd,
-                  },
                   // DELETE
                   {
                     label: "delete",
@@ -233,15 +225,20 @@ const Card = (props: Props) => {
                 editable={false}
               />
             </div>
-            {!!contact?.connections?.length ? (
-              <div className={styles.connectionsRow}>
+            <div className={styles.connectionsRow}>
+              {!!contact?.connections?.length && (
                 <IconButton onClick={onOpenConnections}>
                   <EmojiPeopleIcon
                     className={cx(styles.primaryIcon, styles.smallIcon)}
                   />
                 </IconButton>
-              </div>
-            ) : null}
+              )}
+              <IconButton onClick={onOpenAdd} className={styles.addConnectionButton}>
+                <AddIcon
+                  className={cx(styles.primaryIcon, styles.smallIcon)}
+                />
+              </IconButton>
+            </div>
             <Connections
               contact={updatedContact as Contact}
               open={openConnections}
@@ -561,6 +558,19 @@ const styles = {
     @media (max-width: 480px) {
       padding: 12px 0 0;
       margin-top: 12px;
+    }
+  `,
+  addConnectionButton: css`
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: var(--primary-main);
+    margin-left: 8px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: scale(1.05);
     }
   `,
 }

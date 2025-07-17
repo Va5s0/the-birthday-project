@@ -1,15 +1,18 @@
 import React, { useState } from "react"
-import { AccountCircle, CloudUpload } from "@mui/icons-material"
+import { CloudUpload } from "@mui/icons-material"
 import { IconButton, CircularProgress } from "@mui/material"
 import { css } from "@emotion/css"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { storage } from "../firebase/fbConfig"
+import { getInitials, getAvatarColor } from "../utils/avatar"
 
 interface AvatarUploadProps {
   contactId: string
   userId: string
   currentAvatarUrl?: string
   onAvatarChange: (url: string) => void
+  firstName?: string
+  lastName?: string
 }
 
 const AvatarUpload: React.FC<AvatarUploadProps> = ({
@@ -17,8 +20,14 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
   userId,
   currentAvatarUrl,
   onAvatarChange,
+  firstName,
+  lastName,
 }) => {
   const [isUploading, setIsUploading] = useState(false)
+
+  // Generate initials and colors
+  const initials = getInitials(firstName, lastName)
+  const { background, color } = getAvatarColor(firstName, lastName)
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -52,7 +61,15 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
           className={styles.avatarImage}
         />
       ) : (
-        <AccountCircle className={styles.avatarIcon} />
+        <div
+          className={styles.initialsAvatar}
+          style={{
+            background,
+            color,
+          }}
+        >
+          {initials}
+        </div>
       )}
       <input
         type="file"
@@ -101,6 +118,28 @@ const styles = {
     &:hover {
       transform: scale(1.05);
       background-color: rgba(147, 51, 234, 0.15);
+    }
+  `,
+  initialsAvatar: css`
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 
+                  inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     }
   `,
   fileInput: css`
