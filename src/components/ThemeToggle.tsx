@@ -24,66 +24,88 @@ export const ThemeToggle: React.FC = () => {
 
   return (
     <Tooltip title={`Switch to ${isDark ? 'light' : 'dark'} mode`}>
-      <motion.div
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className={styles.wrapper}
+      <IconButton
+        onClick={toggleTheme}
+        className={styles.toggleButton}
+        size="medium"
+        aria-label="toggle theme"
       >
-        <IconButton
-          onClick={toggleTheme}
-          className={styles.toggleButton}
-          size="medium"
-          aria-label="toggle theme"
-        >
+        <div className={styles.iconContainer}>
           <motion.div
-            initial={false}
-            animate={{
-              rotate: isDark ? 180 : 0,
-              scale: isDark ? 0.8 : 1,
+            animate={{ 
+              rotate: isDark ? 0 : 180,
+              opacity: isDark ? 1 : 0
             }}
-            transition={{
-              duration: 0.3,
-              ease: "easeInOut"
-            }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className={styles.icon}
           >
-            {isDark ? <MoonIcon /> : <SunIcon />}
+            <MoonIcon />
           </motion.div>
-        </IconButton>
-      </motion.div>
+          <motion.div
+            animate={{ 
+              rotate: isDark ? 180 : 0,
+              opacity: isDark ? 0 : 1
+            }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className={styles.icon}
+          >
+            <SunIcon />
+          </motion.div>
+        </div>
+      </IconButton>
     </Tooltip>
   )
 }
 
 const styles = {
-  wrapper: css`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `,
   toggleButton: css`
     color: rgba(255, 255, 255, 0.9);
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     padding: 10px;
-    transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
+    transition: all 0.2s ease !important;
+    
+    /* Override global transition disabling */
+    .theme-transitioning & {
+      transition: all 0.2s ease !important;
+    }
     
     &:hover {
       background: rgba(255, 255, 255, 0.2);
       border-color: rgba(255, 255, 255, 0.3);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(-1px);
+      transform: translateY(-1px) scale(1.02);
     }
     
     &:active {
-      transform: scale(0.95);
+      transform: translateY(0) scale(0.98);
     }
+  `,
+  iconContainer: css`
+    position: relative;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `,
+  icon: css`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
     svg {
-      transition: all 0.3s ease;
       filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+      width: 20px;
+      height: 20px;
     }
   `,
 }

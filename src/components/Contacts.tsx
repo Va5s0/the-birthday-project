@@ -85,10 +85,18 @@ const Contacts = () => {
           size="small"
           className={styles.toggleGroup}
         >
-          <ToggleButton value="cards" aria-label="cards view" className={styles.toggleButton}>
+          <ToggleButton
+            value="cards"
+            aria-label="cards view"
+            className={styles.toggleButton}
+          >
             📋 Cards view
           </ToggleButton>
-          <ToggleButton value="tree" aria-label="tree list view" className={styles.toggleButton}>
+          <ToggleButton
+            value="tree"
+            aria-label="tree list view"
+            className={styles.toggleButton}
+          >
             🌳 Tree view
           </ToggleButton>
         </ToggleButtonGroup>
@@ -118,19 +126,19 @@ const styles = {
     margin: 0 auto;
     max-width: 1400px;
     transition: background-color 0.3s ease;
-    
+
     @media (max-width: 1440px) {
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 20px;
       padding: 24px;
     }
-    
+
     @media (max-width: 768px) {
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 16px;
       padding: 16px;
     }
-    
+
     @media (max-width: 480px) {
       grid-template-columns: 1fr;
       gap: 12px;
@@ -153,6 +161,7 @@ const styles = {
     padding: 4px;
     box-shadow: var(--shadow-sm);
     transition: all 0.3s ease;
+    gap: 4px;
   `,
   toggleButton: css`
     border: none !important;
@@ -163,17 +172,17 @@ const styles = {
     color: var(--text-secondary) !important;
     background: transparent !important;
     transition: all 0.3s ease !important;
-    
+
     &:hover {
       background: var(--bg-tertiary) !important;
       color: var(--text-primary) !important;
     }
-    
+
     &.Mui-selected {
       background: var(--primary-main) !important;
       color: var(--text-inverse) !important;
       box-shadow: var(--shadow-sm) !important;
-      
+
       &:hover {
         background: var(--primary-dark) !important;
         color: var(--text-inverse) !important;
