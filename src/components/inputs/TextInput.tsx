@@ -43,7 +43,7 @@ export const TextInput = (props: TextInputProps) => {
         startAdornment: icon ? (
           <InputAdornment position="start">{icon}</InputAdornment>
         ) : undefined,
-        classes: { input: styles.input },
+        classes: { input: styles.input, root: styles.field },
       }}
       InputLabelProps={{
         shrink: true,
@@ -56,5 +56,8 @@ export const TextInput = (props: TextInputProps) => {
 const styles = {
   input: css`
     padding-left: 0;
+  `,
+  field: css`
+    background-color: var(--white);
   `,
 }

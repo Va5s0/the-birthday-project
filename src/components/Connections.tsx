@@ -1,23 +1,22 @@
 import React from "react"
 import { IconButton, Collapse } from "@mui/material"
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { Common, Contact } from "../models/contact"
 import GhostTextInput from "./inputs/GhostTextInput"
 import { get } from "lodash/fp"
-import { CardInfo } from "./Card/CardInfo"
 import CloseIcon from "@mui/icons-material/Close"
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
-import PersonIcon from "@mui/icons-material/Person"
+import CakeIcon from "@mui/icons-material/Cake"
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
+import EditIcon from "@mui/icons-material/Edit"
+import { dateFormatter } from "../utils/index"
 
 type Props = {
   contact?: Contact
   open: boolean
   editable: boolean
   onDelete: (id?: string) => Promise<void>
+  onEditConnection?: (connection: Common) => void
   errors?: Record<string, any>
-  handleChange: (
-    evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => void
   onContactChange: (contact?: Partial<Contact>) => void
 }
 
@@ -27,17 +26,7 @@ const nameFields = [
 ]
 
 const Connections = (props: Props) => {
-  const {
-    contact,
-    open,
-    editable,
-    onDelete,
-    errors,
-    handleChange,
-    onContactChange,
-    ...rest
-  } = props
-  const [expanded, setExpanded] = React.useState<string>()
+  const { contact, open, editable, onDelete, onEditConnection, errors } = props
 
   const handleClick = (evt: React.MouseEvent<HTMLInputElement>) =>
     evt?.stopPropagation()
@@ -54,33 +43,15 @@ const Connections = (props: Props) => {
     <div className={styles.connectionsContainer}>
       <Collapse in={open} timeout={0}>
         <div className={styles.connectionsContent}>
-          {!!contact?.connections?.length && (
-            <div className={styles.connectionsHeader}>
-              <div className={styles.connectionsTitle}>
-                <PersonIcon className={styles.connectionsIcon} />
-                <span>
-                  {contact.connections.length} connection
-                  {contact.connections.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-            </div>
-          )}
           {!!contact?.connections?.length
             ? contact?.connections?.map((c, cidx) => (
-                <div key={cidx} className={styles.connectionItem}>
-                  <div
-                    className={cx(styles.connectionHeader, {
-                      [styles.expanded]: expanded === c?.id,
-                    })}
-                    onClick={() =>
-                      setExpanded(expanded === c?.id ? undefined : c?.id)
-                    }
-                  >
+                <div key={cidx} className={styles.connectionCard}>
+                  <div className={styles.connectionHeader}>
                     <div className={styles.connectionInfo}>
                       <div className={styles.connectionAvatar}>
                         {(c.firstName?.charAt(0) || "C").toUpperCase()}
                       </div>
-                      <div className={styles.connectionDetailsInfo}>
+                      <div className={styles.connectionDetails}>
                         {editable ? (
                           <div className={styles.editableNames}>
                             {nameFields.map((nf, idx) => (
@@ -91,7 +62,7 @@ const Connections = (props: Props) => {
                                 value={
                                   (c[nf?.value as keyof Common] as string) || ""
                                 }
-                                onChange={handleChange}
+                                onChange={() => {}}
                                 onClick={handleClick}
                                 className={styles.ghostConnectionInput}
                                 error={
@@ -113,23 +84,57 @@ const Connections = (props: Props) => {
                             ))}
                           </div>
                         ) : (
-                          <div className={styles.connectionName}>
-                            {`${c.firstName} ${c?.lastName || ""}`}
-                          </div>
-                        )}
-                        {!editable && (c.email || c.phone) && (
-                          <div className={styles.connectionMeta}>
-                            {c.email && (
-                              <span className={styles.metaItem}>{c.email}</span>
-                            )}
-                            {c.phone && (
-                              <span className={styles.metaItem}>{c.phone}</span>
-                            )}
+                          <div className={styles.connectionContent}>
+                            <div className={styles.connectionName}>
+                              {`${c.firstName} ${c?.lastName || ""}`}
+                            </div>
+                            <div className={styles.connectionMeta}>
+                              {c.email && (
+                                <span className={styles.metaItem}>
+                                  {c.email}
+                                </span>
+                              )}
+                              {c.phone && (
+                                <span className={styles.metaItem}>
+                                  {c.phone}
+                                </span>
+                              )}
+                            </div>
+                            <div className={styles.connectionDates}>
+                              {c.birthday && (
+                                <div className={styles.dateItem}>
+                                  <CakeIcon className={styles.dateIcon} />
+                                  <span className={styles.dateText}>
+                                    {dateFormatter(c.birthday)}
+                                  </span>
+                                </div>
+                              )}
+                              {c.nameday?.date && (
+                                <div className={styles.dateItem}>
+                                  <PermContactCalendarIcon className={styles.dateIcon} />
+                                  <span className={styles.dateText}>
+                                    {dateFormatter(c.nameday.date)}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
                     </div>
                     <div className={styles.connectionActions}>
+                      {onEditConnection && (
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (c) onEditConnection(c)
+                          }}
+                          className={styles.editButton}
+                          size="small"
+                        >
+                          <EditIcon className={styles.editIcon} />
+                        </IconButton>
+                      )}
                       <IconButton
                         onClick={(e) => handleDelete(e, c?.id)}
                         className={styles.deleteButton}
@@ -137,29 +142,8 @@ const Connections = (props: Props) => {
                       >
                         <CloseIcon className={styles.deleteIcon} />
                       </IconButton>
-                      <IconButton
-                        className={cx(styles.expandButton, {
-                          [styles.expandedButton]: expanded === c?.id,
-                        })}
-                        size="small"
-                      >
-                        <ExpandMoreIcon className={styles.expandIcon} />
-                      </IconButton>
                     </div>
                   </div>
-                  <Collapse in={expanded === c?.id} timeout={0} mountOnEnter unmountOnExit>
-                    <div className={styles.connectionDetails}>
-                      <CardInfo
-                        contact={contact}
-                        editable={editable}
-                        errors={errors}
-                        index={String(cidx)}
-                        onContactChange={onContactChange}
-                        isConnection
-                        {...rest}
-                      />
-                    </div>
-                  </Collapse>
                 </div>
               ))
             : null}
@@ -173,23 +157,33 @@ export default Connections
 
 const styles = {
   connectionsContainer: css`
-    position: absolute;
     width: 100%;
-    top: 100%;
-    left: 0;
-    z-index: 10;
-    padding-top: 8px;
+    margin-top: 16px;
   `,
   connectionsContent: css`
     /* Content wrapper for collapsed connections */
   `,
   connectionsHeader: css`
-    padding: 8px 16px;
+    padding: 12px 0 8px 0;
     margin-bottom: 8px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-primary);
-    border-radius: 8px;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border-top: 1px solid var(--border-primary);
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--border-primary) 20%,
+        var(--border-primary) 80%,
+        transparent 100%
+      );
+    }
   `,
   connectionsTitle: css`
     display: flex;
@@ -206,55 +200,32 @@ const styles = {
     height: 16px;
     color: var(--primary-main);
   `,
-  connectionItem: css`
-    background: var(--bg-surface);
+  connectionCard: css`
+    background: rgba(0, 0, 0, 0.02);
     border: 1px solid var(--border-primary);
-    border-radius: 12px;
-    margin-bottom: 8px;
+    border-radius: 8px;
+    margin-bottom: 6px;
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 
     &:hover {
-      box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15),
-        0 2px 4px 0 rgba(0, 0, 0, 0.1);
-      transform: translateY(-1px);
+      background: rgba(0, 0, 0, 0.04);
       border-color: var(--border-secondary);
+    }
+
+    &:last-child {
+      margin-bottom: 0;
     }
   `,
   connectionHeader: css`
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: 12px 16px;
-    cursor: pointer;
+    padding: 12px;
     transition: all 0.2s ease;
-    position: relative;
-
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--border-primary) 20%,
-        var(--border-primary) 80%,
-        transparent 100%
-      );
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    &:hover {
-      background: var(--bg-secondary);
-    }
 
     @media (max-width: 768px) {
-      padding: 10px 12px;
+      padding: 10px;
     }
 
     @media (max-width: 480px) {
@@ -268,7 +239,7 @@ const styles = {
   `,
   connectionInfo: css`
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     flex: 1;
     min-width: 0;
@@ -282,8 +253,8 @@ const styles = {
     }
   `,
   connectionAvatar: css`
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: linear-gradient(
       135deg,
@@ -294,32 +265,76 @@ const styles = {
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     flex-shrink: 0;
-
-    &:hover {
-      transform: scale(1.05);
-    }
+    margin-top: 2px;
 
     @media (max-width: 768px) {
-      width: 32px;
-      height: 32px;
-      font-size: 0.8rem;
-    }
-
-    @media (max-width: 480px) {
       width: 28px;
       height: 28px;
       font-size: 0.75rem;
+      margin-top: 1px;
+    }
+
+    @media (max-width: 480px) {
+      width: 26px;
+      height: 26px;
+      font-size: 0.7rem;
+      margin-top: 1px;
     }
   `,
-  connectionDetailsInfo: css`
+  connectionDetails: css`
     flex: 1;
     min-width: 0;
+  `,
+  connectionContent: css`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  `,
+  connectionMeta: css`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  `,
+  metaItem: css`
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+  `,
+  connectionDates: css`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+  `,
+  dateItem: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+  `,
+  dateIcon: css`
+    color: var(--primary-dark);
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  `,
+  dateText: css`
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    
+    @media (max-width: 480px) {
+      font-size: 0.7rem;
+    }
   `,
   connectionName: css`
     font-size: 0.95rem;
@@ -330,42 +345,6 @@ const styles = {
 
     &:hover {
       color: var(--primary-main);
-    }
-  `,
-  connectionMeta: css`
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-
-    @media (max-width: 768px) {
-      gap: 6px;
-    }
-
-    @media (max-width: 480px) {
-      gap: 4px;
-    }
-  `,
-  metaItem: css`
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    background: var(--bg-tertiary);
-    padding: 2px 6px;
-    border-radius: 4px;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    @media (max-width: 768px) {
-      font-size: 0.75rem;
-      padding: 1px 4px;
-      max-width: 100px;
-    }
-
-    @media (max-width: 480px) {
-      font-size: 0.7rem;
-      padding: 1px 3px;
-      max-width: 80px;
     }
   `,
   editableNames: css`
@@ -395,6 +374,24 @@ const styles = {
     display: flex;
     align-items: center;
     gap: 4px;
+  `,
+  editButton: css`
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      transform: scale(1.1) rotate(5deg);
+    }
+  `,
+  editIcon: css`
+    width: 16px;
+    height: 16px;
+    color: var(--primary-main);
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: var(--primary-dark);
+      filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3));
+    }
   `,
   deleteButton: css`
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -429,14 +426,5 @@ const styles = {
     height: 18px;
     color: var(--primary-main);
     transition: all 0.3s ease;
-  `,
-  connectionDetails: css`
-    padding: 16px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-primary);
-
-    @media (max-width: 768px) {
-      padding: 12px;
-    }
   `,
 }

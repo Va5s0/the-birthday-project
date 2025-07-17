@@ -5,17 +5,19 @@ import { InputAdornment } from "@mui/material"
 
 type Props = {
   name: string
-  label: string
-  placeholder: string
+  label?: string
+  placeholder?: string
   value: string
   onChange: (date: Date | null, name: string) => void
   icon?: React.ReactNode
   error?: boolean
   errorMessage?: string
   disableFuture?: boolean
-  margin?: "dense" | "normal"
+  margin?: "dense" | "normal" | "none"
   size?: "small" | "medium"
   className?: string
+  fullWidth?: boolean
+  onKeyDown?: (e: React.KeyboardEvent) => void
 }
 
 export const DateInput = (props: Props) => {
@@ -32,6 +34,8 @@ export const DateInput = (props: Props) => {
     margin = "dense",
     size = "small",
     className,
+    fullWidth = false,
+    onKeyDown,
   } = props
 
   return (
@@ -44,13 +48,14 @@ export const DateInput = (props: Props) => {
       className={className}
       slotProps={{
         textField: {
-          fullWidth: true,
+          fullWidth: fullWidth,
           variant: "outlined",
-          margin,
+          margin: margin === "none" ? undefined : margin,
           size,
           placeholder,
           error,
           helperText: errorMessage,
+          onKeyDown,
           InputProps: {
             startAdornment: icon ? (
               <InputAdornment position="start">{icon}</InputAdornment>
