@@ -9,7 +9,7 @@ export const nameFields = [
 ]
 
 export const contactFields = [
-  { label: "Phone", value: "phone", icon: PhoneIcon },
   { label: "Mobile", value: "mobile", icon: PhoneIphoneIcon },
+  { label: "Phone", value: "phone", icon: PhoneIcon },
   { label: "Email", value: "email", icon: AlternateEmailIcon },
 ]

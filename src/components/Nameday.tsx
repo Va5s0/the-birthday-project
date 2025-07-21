@@ -143,6 +143,7 @@ const Nameday = (props: Props) => {
       variant="outlined"
       margin={margin}
       className={cx(styles.form, className)}
+      fullWidth
     >
       <InputLabel id="outlined-label">Nameday</InputLabel>
       <Select
@@ -188,6 +189,7 @@ const Nameday = (props: Props) => {
         !!errorMsg ? errorMsg(value?.nameday?.date, index) : undefined
       }
       className={className}
+      fullWidth
     />
   )
 }

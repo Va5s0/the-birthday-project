@@ -36,9 +36,7 @@ export const CardInfo = (props: Props) => {
             return (
               <div key={idx} className={styles.commonContainer}>
                 <Cmp className={styles.commonIcon} />
-                <div className={styles.textContent}>
-                  {fieldValue || cf?.label}
-                </div>
+                <div className={styles.textContent}>{fieldValue || ""}</div>
               </div>
             )
           })}
@@ -50,15 +48,13 @@ export const CardInfo = (props: Props) => {
         <div className={styles.commonContainer}>
           <CakeIcon className={styles.commonIcon} />
           <div className={styles.dateContent}>
-            {value?.birthday ? dateFormatter(value.birthday) : "Birthday"}
+            {value?.birthday ? dateFormatter(value.birthday) : ""}
           </div>
         </div>
         <div className={styles.commonContainer}>
           <PermContactCalendarIcon className={styles.commonIcon} />
           <div className={styles.dateContent}>
-            {value?.nameday?.date
-              ? dateFormatter(value.nameday.date)
-              : "Nameday"}
+            {value?.nameday?.date ? dateFormatter(value.nameday.date) : ""}
           </div>
         </div>
       </div>

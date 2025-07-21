@@ -54,7 +54,11 @@ export const EditModal = (props: Props) => {
   }
 
   const handleDateChange = (date: Date | null, name: string) => {
-    setEditedContact(prev => set(name, date?.toISOString(), prev))
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      setEditedContact(prev => set(name, date.toISOString(), prev))
+    } else {
+      setEditedContact(prev => set(name, null, prev))
+    }
     
     // Clear error when user changes date
     if (errors[name]) {
