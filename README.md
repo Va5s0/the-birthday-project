@@ -17,22 +17,22 @@ We've all been there. That's why Birthday Project exists!
 ## 🎯 How It Works (It's Really Simple!)
 
 **Step 1:** Add your friend's info (name, birthday, maybe a cute photo)
-![Add a new friend card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/AddContact.png)
+![alt text](./screenshots/AddContact.png "Add a new friend card")
 
 **Step 2:** Add their family connections (spouse, kids, pets - we don't judge!)
-![Add a new friend's connection card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/AddConnection.png)
+![alt text](./screenshots/AddConnection.png "Add a new friend's connection card")
 
 **Step 3:** Let the magic happen! For Greek names, our smart nameday search finds celebration dates automatically ✨
-![Automatic friend nameday search](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/AutomaticNamedaySearch.png)
+![alt text](./screenshots/AutomaticNamedaySearch.png "Automatic friend nameday search")
 
 **Voilà!** Your friend's card now looks professional and you look like you have your life together:
-![Friend & connections card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/ContactConnectionsCards.png)
+![alt text](./screenshots/ContactConnectionsCards.png "Friend & connections card")
 
 **The Big Picture:** All your friends, beautifully organized:
-![General Layout](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/ContactCards.png)
+![alt text](./screenshots/ContactCards.png "General Layout")
 
 **Never Miss Another Day:** The Today widget keeps track of what's happening right now:
-![Today Widget](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/TodayWidget.png)
+![alt text](./screenshots/TodayWidget.png "Today Widget")
 
 ## ✨ What Makes It Special
 
@@ -72,7 +72,7 @@ cd the-birthday-project
 npm install
 ```
 
-### 3. Set up Firebase 🔥
+### 3. Set up Firebas 🔥
 
 - Create a Firebase project at [firebase.google.com](https://firebase.google.com/).
 - Enable **Authentication** (Email/Password).
