@@ -17,22 +17,22 @@ We've all been there. That's why Birthday Project exists!
 ## 🎯 How It Works (It's Really Simple!)
 
 **Step 1:** Add your friend's info (name, birthday, maybe a cute photo)
-![alt text](screenshots/AddContact.png "Add a new friend card")
+![Add a new friend card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/AddContact.png)
 
 **Step 2:** Add their family connections (spouse, kids, pets - we don't judge!)
-![alt text](screenshots/AddConnection.png "Add a new friend's connection card")
+![Add a new friend's connection card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/AddConnection.png)
 
 **Step 3:** Let the magic happen! For Greek names, our smart nameday search finds celebration dates automatically ✨
-![alt text](screenshots/AutomaticNamedaySearch.png "Automatic friend nameday search")
+![Automatic friend nameday search](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/AutomaticNamedaySearch.png)
 
 **Voilà!** Your friend's card now looks professional and you look like you have your life together:
-![alt text](screenshots/ContactConnectionsCards.png "Friend & connections card")
+![Friend & connections card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/ContactConnectionsCards.png)
 
 **The Big Picture:** All your friends, beautifully organized:
-![alt text](screenshots/ContactCards.png "General Layout")
+![General Layout](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/ContactCards.png)
 
 **Never Miss Another Day:** The Today widget keeps track of what's happening right now:
-![alt text](screenshots/TodayWidget.png "Today Widget")
+![Today Widget](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/TodayWidget.png)
 
 ## ✨ What Makes It Special
 
