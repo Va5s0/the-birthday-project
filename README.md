@@ -17,22 +17,22 @@ We've all been there. That's why Birthday Project exists!
 ## 🎯 How It Works (It's Really Simple!)
 
 **Step 1:** Add your friend's info (name, birthday, maybe a cute photo)
-![Add a new friend card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/AddContact.png)
+![Add a new friend card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/AddContact.png)
 
 **Step 2:** Add their family connections (spouse, kids, pets - we don't judge!)
-![Add a new friend's connection card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/AddConnection.png)
+![Add a new friend's connection card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/AddConnection.png)
 
 **Step 3:** Let the magic happen! For Greek names, our smart nameday search finds celebration dates automatically ✨
-![Automatic friend nameday search](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/AutomaticNamedaySearch.png)
+![Automatic friend nameday search](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/AutomaticNamedaySearch.png)
 
 **Voilà!** Your friend's card now looks professional and you look like you have your life together:
-![Friend & connections card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/ContactConnectionsCards.png)
+![Friend & connections card](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/ContactConnectionsCards.png)
 
 **The Big Picture:** All your friends, beautifully organized:
-![General Layout](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/ContactCards.png)
+![General Layout](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/ContactCards.png)
 
 **Never Miss Another Day:** The Today widget keeps track of what's happening right now:
-![Today Widget](https://raw.githubusercontent.com/Va5s0/the-birthday-project/develop/screenshots/TodayWidget.png)
+![Today Widget](https://raw.githubusercontent.com/Va5s0/the-birthday-project/HEAD/screenshots/TodayWidget.png)
 
 ## ✨ What Makes It Special
 
