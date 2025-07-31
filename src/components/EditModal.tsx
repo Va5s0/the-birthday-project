@@ -93,6 +93,12 @@ export const EditModal = (props: Props) => {
     onClose()
   }
 
+  const handleNamedayChange = (updatedContact?: Partial<Contact>) => {
+    if (updatedContact) {
+      setEditedContact(prev => ({ ...prev, ...updatedContact }))
+    }
+  }
+
   return (
     <Dialog 
       open={open} 
@@ -189,9 +195,7 @@ export const EditModal = (props: Props) => {
               contact={editedContact}
               hasError={() => !!errors["nameday.date"]}
               errorMsg={() => errors["nameday.date"] || ""}
-              onContactChange={(updatedContact?: Partial<Contact>) =>
-                setEditedContact(updatedContact ? { ...editedContact, ...updatedContact } : editedContact)
-              }
+              onContactChange={handleNamedayChange}
               margin="dense"
               size="small"
               className={styles.fullWidth}

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { DatePicker } from "@mui/x-date-pickers"
 import { css } from "@emotion/css"
 import { InputAdornment } from "@mui/material"
@@ -38,17 +38,21 @@ export const DateInput = (props: Props) => {
     onKeyDown,
   } = props
 
+  const dateValue = useMemo(() => {
+    return value ? new Date(value) : null
+  }, [value])
+
   return (
     <DatePicker
       label={label}
-      value={value ? new Date(value) : null}
+      value={dateValue}
       onChange={(date: Date | null) => onChange(date, name)}
       disableFuture={disableFuture}
       format="dd/MM/yyyy"
       className={className}
       slotProps={{
         textField: {
-          fullWidth: fullWidth,
+          fullWidth,
           variant: "outlined",
           margin: margin === "none" ? undefined : margin,
           size,
@@ -76,7 +80,7 @@ const styles = {
     padding-left: 0;
     display: flex;
     flex-direction: column;
-    justif-content: center;
+    justify-content: center;
   `,
   field: css`
     background-color: var(--white);

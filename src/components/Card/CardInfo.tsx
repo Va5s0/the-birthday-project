@@ -103,7 +103,6 @@ const styles = {
   commonIcon: css`
     color: var(--primary-dark);
 
-    /* Fix alignment for specific icons */
     &.MuiSvgIcon-root {
       margin-left: 0;
       margin-right: 0;

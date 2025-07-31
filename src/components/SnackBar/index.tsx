@@ -1,3 +1,4 @@
+import { memo } from "react"
 import Snackbar, { SnackbarProps } from "@mui/material/Snackbar"
 import { AlertDlg } from "../AlertDlg"
 
@@ -6,14 +7,14 @@ export type CustomSnackbarProps = {
   severity?: "success" | "info" | "warning" | "error"
 } & Omit<SnackbarProps, "children">
 
-const SnackBar = ({
+const SnackBar = memo(function SnackBar({
   open,
   message,
   severity,
   onClose,
   ...props
-}: CustomSnackbarProps) => {
-  const handleClose = (event: React.SyntheticEvent | Event) => {
+}: CustomSnackbarProps) {
+  const handleAlertClose = (event: React.SyntheticEvent) => {
     onClose?.(event, "escapeKeyDown")
   }
 
@@ -25,12 +26,11 @@ const SnackBar = ({
       disableWindowBlurListener
       {...props}
     >
-      {/* Pass ref automatically via forwardRef in AlertDlg */}
-      <AlertDlg onClose={handleClose} severity={severity} elevation={6}>
+      <AlertDlg onClose={handleAlertClose} severity={severity} elevation={6}>
         {message}
       </AlertDlg>
     </Snackbar>
   )
-}
+})
 
 export { SnackBar }
