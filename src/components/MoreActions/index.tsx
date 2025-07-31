@@ -1,12 +1,13 @@
 import React, { ReactNode } from "react"
 
-import IconButton, { IconButtonProps } from "@material-ui/core/IconButton"
-import ListItemIcon from "@material-ui/core/ListItemIcon"
-import Menu from "@material-ui/core/Menu"
-import MenuItem from "@material-ui/core/MenuItem"
+import IconButton, { IconButtonProps } from "@mui/material/IconButton"
+import ListItemIcon from "@mui/material/ListItemIcon"
+import Menu from "@mui/material/Menu"
+import MenuItem from "@mui/material/MenuItem"
 
-import MoreVertIcon from "@material-ui/icons/MoreVert"
-import { css } from "emotion"
+import MoreVertIcon from "@mui/icons-material/MoreVert"
+import { css } from "@emotion/css"
+import { ListItemText } from "@mui/material"
 
 type Option = {
   label?: string
@@ -59,8 +60,10 @@ function MoreActions(props: Props & IconButtonProps) {
               obj.onClick()
               setAnchorEl(null)
             }}
+            className={styles.listItem}
           >
-            <ListItemIcon className={styles.listItem}>{obj.icon}</ListItemIcon>
+            <ListItemIcon className={styles.listIcon}>{obj.icon}</ListItemIcon>
+            {!!obj?.label ? <ListItemText primary={obj?.label} /> : null}
           </MenuItem>
         ))}
       </Menu>
@@ -76,7 +79,17 @@ const styles = {
     height: 20px;
   `,
   listItem: css`
-    min-width: 20px;
+    &.MuiListItemIcon-root {
+      min-width: 20px;
+    }
+    color: var(--dark-grey-3);
+    grid-column-gap: 10px;
+  `,
+  listIcon: css`
+    &.MuiListItemIcon-root {
+      min-width: 20px;
+      width: 20px;
+    }
     > svg {
       width: 20px;
       height: 20px;

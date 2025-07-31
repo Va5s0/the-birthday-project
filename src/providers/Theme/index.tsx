@@ -1,23 +1,25 @@
-import React from "react"
-import { create } from "jss"
-import { jssPreset, StylesProvider, ThemeProvider } from "@material-ui/core"
-import { theme } from "./theme"
+import React, { useMemo } from "react"
+import { ThemeProvider, StyledEngineProvider, CssBaseline } from "@mui/material"
+import { createAppTheme } from "./theme"
+import { useTheme } from "../../contexts/ThemeContext"
 
-const jss = create({
-  plugins: [...jssPreset().plugins],
-  insertionPoint: document.getElementById("jss-insertion-point")!!,
-})
-
-type StylesConfigProps = {
+type Props = {
   children: React.ReactNode
 }
 
-export function Theme(props: StylesConfigProps) {
+export const Theme = (props: Props) => {
   const { children } = props
-
+  const { mode } = useTheme()
+  
+  // Memoize theme to prevent unnecessary re-renders
+  const theme = useMemo(() => createAppTheme(mode), [mode])
+  
   return (
-    <StylesProvider jss={jss}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
-    </StylesProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </ThemeProvider>
+    </StyledEngineProvider>
   )
 }

@@ -9,9 +9,17 @@ import {
   confirmPasswordReset,
   UserCredential,
   onAuthStateChanged,
+  updateProfile,
+  deleteUser,
 } from "firebase/auth"
 import { errorCodes } from "./errorCodes"
-import { firebase } from "firebase/fbConfig"
+import { firebase } from "../firebase/fbConfig"
+import {
+  StorageReference,
+  uploadBytes,
+  getBlob,
+  deleteObject,
+} from "firebase/storage"
 
 const actionCodeSettings = (email: string) => ({
   url: `http://localhost:3001/reset?email=${email}`,
@@ -26,8 +34,26 @@ type AuthContextType = {
   logout: () => Promise<void>
   sendPswdResetEmail: (email: string) => Promise<boolean>
   confirmPswdReset: (code: string, password: string) => Promise<boolean>
-  error?: string
+  editProfile: ({
+    firstName,
+    lastName,
+    photoURL,
+  }: {
+    firstName?: string
+    lastName?: string
+    photoURL?: string | null
+  }) => Promise<void>
+  userDelete: (user: User) => Promise<any>
+  error?: Error
   resetError: (error?: string) => void
+  upload: (
+    storageRef: StorageReference,
+    file: Blob | Uint8Array | ArrayBuffer
+  ) => Promise<void>
+  fetchFile: (id: string, ref: StorageReference) => Promise<any>
+  deleteFile: (ref: StorageReference) => Promise<void>
+  snackbar?: boolean
+  file?: Blob | Uint8Array | ArrayBuffer
 }
 
 export type Sign = {
@@ -36,14 +62,18 @@ export type Sign = {
   callback: VoidFunction
 }
 
+export type Error = {
+  code: string | number
+  message: string
+}
+
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
 
 export const ProvideAuth = ({ children }: { children: ReactNode }) => {
   const auth = useProvideAuth() || {}
   return (
     <AuthContext.Provider value={{ ...auth, ...firebase }}>
-      {" "}
-      {children}{" "}
+      {children}
     </AuthContext.Provider>
   )
 }
@@ -52,9 +82,12 @@ export const useAuth = () => React.useContext(AuthContext)
 
 function useProvideAuth() {
   const auth = getAuth()
-  const [user, setUser] = React.useState<User | null>(auth.currentUser)
+  const [user, setUser] = React.useState<any>(auth.currentUser)
+  const [timestamp, setTimestamp] = React.useState<number>()
   const [loading, setLoading] = React.useState<boolean>(true)
-  const [error, setError] = React.useState<string | undefined>()
+  const [error, setError] = React.useState<Error>()
+  const [snackbar, setSnackbar] = React.useState<boolean>()
+  const [file, setFile] = React.useState<Blob | Uint8Array | ArrayBuffer>()
 
   const onComplete = (user: User | null) => {
     setUser(user)
@@ -66,7 +99,10 @@ function useProvideAuth() {
       .then((user) => user)
       .catch((e) => {
         const errorCode = e?.code as string
-        setError(errorCodes[errorCode as keyof typeof errorCodes])
+        setError({
+          code: errorCode,
+          message: errorCodes[errorCode as keyof typeof errorCodes],
+        })
         return e
       })
 
@@ -78,7 +114,10 @@ function useProvideAuth() {
       })
       .catch((e) => {
         const errorCode = e?.code as string
-        setError(errorCodes[errorCode as keyof typeof errorCodes])
+        setError({
+          code: errorCode,
+          message: errorCodes[errorCode as keyof typeof errorCodes],
+        })
         return e
       })
 
@@ -91,7 +130,10 @@ function useProvideAuth() {
       })
       .catch((e) => {
         const errorCode = e?.code as string
-        setError(errorCodes[errorCode as keyof typeof errorCodes])
+        setError({
+          code: errorCode,
+          message: errorCodes[errorCode as keyof typeof errorCodes],
+        })
         return e
       })
 
@@ -102,16 +144,123 @@ function useProvideAuth() {
       })
       .catch((e) => {
         const errorCode = e?.code as string
-        setError(errorCodes[errorCode as keyof typeof errorCodes])
+        setError({
+          code: errorCode,
+          message: errorCodes[errorCode as keyof typeof errorCodes],
+        })
         return e
       })
 
-  const resetError = (error?: string) => setError(error)
+  const editProfile = async ({
+    firstName,
+    lastName,
+    photoURL,
+  }: {
+    firstName?: string
+    lastName?: string
+    photoURL?: string | null
+  }) => {
+    const profile = {
+      displayName:
+        !!firstName || !!lastName ? `${firstName} ${lastName}` : undefined,
+      photoURL,
+    }
+    await updateProfile(user, profile).catch((e) => {
+      const errorCode = e?.code as string
+      setError({
+        code: errorCode,
+        message: errorCodes[errorCode as keyof typeof errorCodes],
+      })
+      return e
+    })
+    setTimestamp(Date.now())
+  }
+
+  // const editEmail = async (email: string) => {
+  //   await updateEmail(user, email).catch((e) => {
+  //     const errorCode = e?.code as string
+  //     setError({
+  //       code: errorCode,
+  //       message: errorCodes[errorCode as keyof typeof errorCodes],
+  //     })
+  //     return e
+  //   })
+  //   setTimestamp(Date.now())
+  // }
+
+  const userDelete = (user: User) =>
+    deleteUser(user).catch((e) => {
+      const errorCode = e?.code as string
+      setError({
+        code: errorCode,
+        message: errorCodes[errorCode as keyof typeof errorCodes],
+      })
+      return e
+    })
+
+  const resetError = () => setError(undefined)
+
+  const upload = async (
+    storageRef: StorageReference,
+    file: Blob | Uint8Array | ArrayBuffer
+  ) => {
+    await uploadBytes(storageRef, file)
+      .then(() => {
+        console.log("Uploaded a blob or file!")
+      })
+      .catch((e) => {
+        const errorCode = e?.code as string
+        setError({
+          code: errorCode,
+          message: errorCodes[errorCode as keyof typeof errorCodes],
+        })
+        return e
+      })
+    setTimestamp(Date.now())
+    setFile(file)
+  }
+
+  const fetchFile = async (id: string, ref: StorageReference) => {
+    await getBlob(ref)
+      .then((blob) => {
+        const image = document.getElementById(id) as HTMLImageElement
+        const objectUrl = URL.createObjectURL(blob)
+        image.src = objectUrl
+      })
+      .catch((e) => {
+        const errorCode = e?.code as string
+        setSnackbar(false)
+        setError({
+          code: errorCode,
+          message: errorCodes[errorCode as keyof typeof errorCodes],
+        })
+        return e
+      })
+    setTimestamp(Date.now())
+  }
+
+  const deleteFile = async (ref: StorageReference) => {
+    await deleteObject(ref).catch((e) => {
+      const errorCode = e?.code as string
+      setError({
+        code: errorCode,
+        message: errorCodes[errorCode as keyof typeof errorCodes],
+      })
+      return e
+    })
+    setFile(undefined)
+  }
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, onComplete)
     return () => unsubscribe()
-  }, [auth])
+  }, [auth, auth.currentUser])
+
+  React.useEffect(
+    () => setUser(auth.currentUser),
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+    [timestamp]
+  )
 
   return {
     user,
@@ -122,6 +271,13 @@ function useProvideAuth() {
     error,
     sendPswdResetEmail,
     confirmPswdReset,
+    editProfile,
+    userDelete,
     resetError,
+    upload,
+    fetchFile,
+    snackbar,
+    file,
+    deleteFile,
   }
 }

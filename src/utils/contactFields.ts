@@ -1,0 +1,15 @@
+import AccountBoxIcon from "@mui/icons-material/AccountBox"
+import PhoneIcon from "@mui/icons-material/Phone"
+import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone"
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail"
+
+export const nameFields = [
+  { label: "First Name", value: "firstName", icon: AccountBoxIcon },
+  { label: "Last Name", value: "lastName", icon: AccountBoxIcon },
+]
+
+export const contactFields = [
+  { label: "Mobile", value: "mobile", icon: PhoneIphoneIcon },
+  { label: "Phone", value: "phone", icon: PhoneIcon },
+  { label: "Email", value: "email", icon: AlternateEmailIcon },
+]

@@ -1,35 +1,45 @@
-import { Route, Router, Switch } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Base from "./routes/Base"
-import { history } from "./my-history"
-import { Theme } from "providers/Theme"
-import { ProvideAuth } from "context/AuthContext"
-import { Landing } from "routes/Auth/Landing"
-import { Auth } from "routes/Auth"
-import { ResetConfirmation } from "routes/Auth/ResetConfirmation"
-import { Forgot } from "routes/Auth/Forgot"
+import { Theme } from "./providers/Theme"
+import { ThemeProvider } from "./contexts/ThemeContext"
+import { ProvideAuth } from "./context/AuthContext"
+import { Landing } from "./routes/Auth/Landing"
+import { Auth } from "./routes/Auth"
+import { ResetConfirmation } from "./routes/Auth/ResetConfirmation"
+import { Forgot } from "./routes/Auth/Forgot"
+import { LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
+import "./styles/global.css"
 
 export function App() {
   return (
-    <Theme>
-      <ProvideAuth>
-        <Router history={history}>
-          <Switch>
-            <Route path="/reset">
-              <Auth component={ResetConfirmation} />
-            </Route>
-            <Route path="/forgot">
-              <Auth component={Forgot} />
-            </Route>
-            <Route path="/signup">
-              <Auth component={Landing} path="signup" />
-            </Route>
-            <Route path="/login">
-              <Auth component={Landing} path="login" />
-            </Route>
-            <Route component={Base} />
-          </Switch>
-        </Router>
-      </ProvideAuth>
-    </Theme>
+    <ThemeProvider>
+      <Theme>
+        <ProvideAuth>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <BrowserRouter
+              future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+            >
+              <Routes>
+                <Route
+                  path="/reset"
+                  element={<Auth component={ResetConfirmation} />}
+                />
+                <Route path="/forgot" element={<Auth component={Forgot} />} />
+                <Route
+                  path="/signup"
+                  element={<Auth component={Landing} path="signup" />}
+                />
+                <Route
+                  path="/login"
+                  element={<Auth component={Landing} path="login" />}
+                />
+                <Route path="/*" element={<Base />} />
+              </Routes>
+            </BrowserRouter>
+          </LocalizationProvider>
+        </ProvideAuth>
+      </Theme>
+    </ThemeProvider>
   )
 }

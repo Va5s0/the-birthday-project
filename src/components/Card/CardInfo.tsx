@@ -1,140 +1,62 @@
-import React from "react"
-import { Contact, Common } from "models/contact"
-import PhoneIcon from "@material-ui/icons/Phone"
-import PhoneIphoneIcon from "@material-ui/icons/PhoneIphone"
-import AlternateEmailIcon from "@material-ui/icons/AlternateEmail"
-import CakeIcon from "@material-ui/icons/Cake"
-import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar"
-import { dateFormatter } from "utils/index"
-import { css } from "@emotion/css"
-import { TextInput } from "components/inputs/TextInput"
-import { cx } from "emotion"
-import { DateInput } from "components/inputs/DateInput"
-import { get, set } from "lodash/fp"
-import Nameday from "components/Nameday"
+import { Contact, Common } from "../../models/contact"
+import CakeIcon from "@mui/icons-material/Cake"
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
+import { dateFormatter } from "../../utils/index"
+import { css, cx } from "@emotion/css"
+import { contactFields } from "src/utils/contactFields"
 
 type Props = {
   contact: Contact
   editable: boolean
   index?: string
-  errors?: Record<string, string>
-  onContactChange: (contact?: Contact) => void
+  isConnection?: boolean
 }
 
-const contactFields = [
-  { value: "phone", label: "Phone", icon: PhoneIcon },
-  { value: "mobile", label: "Mobile", icon: PhoneIphoneIcon },
-  { value: "email", label: "Email", icon: AlternateEmailIcon },
-]
-
 export const CardInfo = (props: Props) => {
-  const { contact, editable, errors, index, onContactChange } = props
-
-  const handleChange = (
-    evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    const { name, value } = evt.target
-    const updated = set(name, value, contact)
-    onContactChange(updated)
-  }
-
-  const handleDateChange = (date: Date | null, name: string) => {
-    const updated = set(name, date?.toISOString(), contact)
-    onContactChange(updated)
-  }
-
-  const hasError = (value?: string, index?: string) =>
-    !!errors &&
-    (!index
-      ? !!errors[value || ""]
-      : !!get(`connections.${index}.${value}`, errors))
-
-  const errorMsg = (value?: string, index?: string) =>
-    !!errors
-      ? !index
-        ? errors[value || ""]
-        : get(`connections.${index}.${value}`, errors)
-      : ""
+  const { contact, editable, index, isConnection = false } = props
 
   const value = !index ? contact : (contact?.connections || [])[Number(index)]
 
-  const activeFields = editable
-    ? contactFields
-    : contactFields?.filter((f) => !!value[f.value as keyof typeof value])
+  const activeFields = isConnection ? [] : contactFields
 
   return (
-    <div className={cx(styles.wrapper, { [styles.narrow]: editable })}>
-      {!!activeFields.length ? (
+    <div
+      className={cx(
+        styles.wrapper,
+        editable && styles.narrow,
+        isConnection && styles.singleColumn
+      )}
+    >
+      {/* First Column - Contact Info */}
+      {!isConnection && (
         <div className={styles.commonRow}>
           {activeFields.map((cf, idx) => {
             const Cmp = cf.icon
-            return editable ? (
-              <TextInput
-                key={idx}
-                name={!index ? cf?.value : `connections.${index}.${cf.value}`}
-                label={cf?.label}
-                margin="dense"
-                size="small"
-                placeholder={cf?.label}
-                value={value[cf?.value as keyof Common]}
-                onChange={handleChange}
-                error={hasError(cf?.value, index)}
-                errorMessage={errorMsg(cf?.value, index)}
-                icon={<Cmp className={styles.commonIcon} />}
-                fullWidth
-              />
-            ) : !!value[cf.value as keyof Common] ? (
-              <div className={styles.commonContainer} key={idx}>
+            const fieldValue = String(value[cf?.value as keyof Common] || "")
+            return (
+              <div key={idx} className={styles.commonContainer}>
                 <Cmp className={styles.commonIcon} />
-                <div>{value[cf.value as keyof Common]}</div>
+                <div className={styles.textContent}>{fieldValue || ""}</div>
               </div>
-            ) : null
+            )
           })}
         </div>
-      ) : null}
+      )}
+
+      {/* Second Column - Dates */}
       <div className={styles.commonRow}>
-        {editable ? (
-          <DateInput
-            name={!index ? "birthday" : `connections.${index}.birthday`}
-            label={"Birthday"}
-            placeholder={"Birthday"}
-            value={value?.birthday}
-            disableFuture
-            margin="dense"
-            size="small"
-            onChange={handleDateChange}
-            icon={<CakeIcon />}
-            error={hasError(value?.birthday, index)}
-            errorMessage={errorMsg(value?.birthday, index)}
-          />
-        ) : !!value?.birthday ? (
-          <div
-            className={cx(styles.commonContainer, {
-              [styles.alignRight]: !!activeFields.length,
-            })}
-          >
-            <CakeIcon className={styles.commonIcon} />
-            <div>{dateFormatter(value?.birthday)}</div>
+        <div className={styles.commonContainer}>
+          <CakeIcon className={styles.commonIcon} />
+          <div className={styles.dateContent}>
+            {value?.birthday ? dateFormatter(value.birthday) : ""}
           </div>
-        ) : null}
-        {editable ? (
-          <Nameday
-            index={index}
-            contact={contact}
-            hasError={hasError}
-            errorMsg={errorMsg}
-            onContactChange={onContactChange}
-          />
-        ) : !!value?.nameday?.date ? (
-          <div
-            className={cx(styles.commonContainer, {
-              [styles.alignRight]: !!activeFields.length,
-            })}
-          >
-            <PermContactCalendarIcon className={styles.commonIcon} />
-            <div>{dateFormatter(value?.nameday?.date)}</div>
+        </div>
+        <div className={styles.commonContainer}>
+          <PermContactCalendarIcon className={styles.commonIcon} />
+          <div className={styles.dateContent}>
+            {value?.nameday?.date ? dateFormatter(value.nameday.date) : ""}
           </div>
-        ) : null}
+        </div>
       </div>
     </div>
   )
@@ -142,26 +64,37 @@ export const CardInfo = (props: Props) => {
 
 const styles = {
   wrapper: css`
-    display: flex;
-    align-items: center;
-    grid-column-gap: 30px;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 10px;
+    display: grid;
+    grid-template-columns: 155px 125px;
+    grid-column-gap: 16px;
+    align-items: start;
     z-index: 10;
+    min-width: 0;
+    overflow: hidden;
+
+    @media (max-width: 480px) {
+      grid-template-columns: 130px 100px;
+    }
   `,
   commonRow: css`
     display: flex;
     flex-direction: column;
     grid-row-gap: 8px;
     width: 100%;
+    min-width: 0;
+    overflow: hidden;
   `,
   commonContainer: css`
     display: flex;
     align-items: center;
-    grid-column-gap: 12px;
+    gap: 12px;
+    min-width: 0;
+    overflow: hidden;
     > svg {
       width: 16px;
       height: 16px;
+      flex-shrink: 0;
+      margin: 0;
     }
   `,
   alignRight: css`
@@ -169,8 +102,70 @@ const styles = {
   `,
   commonIcon: css`
     color: var(--primary-dark);
+
+    /* Fix alignment for specific icons */
+    &.MuiSvgIcon-root {
+      margin-left: 0;
+      margin-right: 0;
+    }
   `,
   narrow: css`
     grid-column-gap: 16px;
+  `,
+  singleColumn: css`
+    grid-template-columns: 1fr;
+    grid-column-gap: 0;
+  `,
+  textContent: css`
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    font-size: 0.75rem;
+    line-height: 1.4;
+
+    @media (max-width: 480px) {
+      font-size: 0.75rem;
+    }
+  `,
+  noWrapContent: css`
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.75rem;
+    line-height: 1.4;
+
+    @media (max-width: 480px) {
+      font-size: 0.7rem;
+    }
+  `,
+  dateContent: css`
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-align: left;
+    overflow: visible;
+
+    @media (max-width: 480px) {
+      font-size: 0.7rem;
+    }
+  `,
+  dateContentLeft: css`
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-align: left;
+    overflow: visible;
+
+    @media (max-width: 480px) {
+      font-size: 0.7rem;
+    }
   `,
 }

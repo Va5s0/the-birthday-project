@@ -1,8 +1,8 @@
 import { ReactNode } from "react"
-import MUIDialog from "@material-ui/core/Dialog"
+import MUIDialog from "@mui/material/Dialog"
 import { css, cx } from "@emotion/css"
-import { Button, IconButton } from "@material-ui/core"
-import CloseIcon from "@material-ui/icons/Close"
+import { Button, IconButton } from "@mui/material"
+import CloseIcon from "@mui/icons-material/Close"
 
 export type ModalInfo =
   | {
@@ -107,7 +107,7 @@ const styles = {
     height: 24px;
   `,
   footer: css`
-    padding: 24px;
+    padding: 0 24px 20px;
     display: flex;
     align-items: center;
     justify-content: flex-end;

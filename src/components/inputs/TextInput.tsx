@@ -1,16 +1,17 @@
-import { InputAdornment } from "@material-ui/core"
-import TextField, { TextFieldProps } from "@material-ui/core/TextField"
-import { ReactNode } from "react"
+import React from "react"
+import { InputAdornment } from "@mui/material"
+import TextField, { TextFieldProps } from "@mui/material/TextField"
+import { css } from "@emotion/css"
 
 type Extra = {
   errorMessage?: string
-  icon?: ReactNode
+  icon?: React.ReactNode
   isPhone?: boolean
   placeholder?: string
 }
 export type TextInputProps = TextFieldProps & Extra
 
-export function TextInput(props: TextInputProps) {
+export const TextInput = (props: TextInputProps) => {
   const {
     value,
     error,
@@ -39,11 +40,24 @@ export function TextInput(props: TextInputProps) {
       type={isPhone ? "number" : "text"}
       placeholder={placeholder}
       InputProps={{
-        startAdornment: (
+        startAdornment: icon ? (
           <InputAdornment position="start">{icon}</InputAdornment>
-        ),
+        ) : undefined,
+        classes: { input: styles.input, root: styles.field },
+      }}
+      InputLabelProps={{
+        shrink: true,
       }}
       {...rest}
     />
   )
+}
+
+const styles = {
+  input: css`
+    padding-left: 0;
+  `,
+  field: css`
+    background-color: var(--white);
+  `,
 }

@@ -1,9 +1,8 @@
 import React from "react"
-import { css } from "emotion"
-import { Button } from "@material-ui/core"
+import { css } from "@emotion/css"
+import { Button } from "@mui/material"
 import { actions } from "./utils"
-import { useHistory, useLocation } from "react-router-dom"
-import img from "assets/celebration.jpg"
+import { useNavigate, useLocation } from "react-router-dom"
 
 type Props = {
   component: (props: any) => JSX.Element
@@ -12,7 +11,7 @@ type Props = {
 
 export const Auth = (props: Props) => {
   const { component, path } = props
-  const history = useHistory()
+  const navigate = useNavigate()
   const { pathname } = useLocation()
   const [activeAction, setActiveAction] = React.useState<"login" | "signup">(
     "login"
@@ -23,7 +22,7 @@ export const Auth = (props: Props) => {
 
   const handleChange = () => {
     setActiveAction(actionToToggle)
-    history.push(`/${actions[actionToToggle].value}`)
+    navigate(`/${actions[actionToToggle].value}`)
   }
 
   const hasFooter = pathname !== "/reset"
@@ -51,7 +50,6 @@ const styles = {
   shell: css`
     display: flex;
     overflow: hidden;
-    background: url(${img});
     height: 100vh;
     background-position: center;
     background-repeat: no-repeat;

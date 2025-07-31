@@ -1,34 +1,36 @@
-import * as React from "react"
-import Snackbar from "@material-ui/core/Snackbar"
-import { AlertDlg } from "components/AlertDlg"
-import { TransitionHandlerProps } from "@material-ui/core/transitions"
+import Snackbar, { SnackbarProps } from "@mui/material/Snackbar"
+import { AlertDlg } from "../AlertDlg"
 
-export type SnackbarProps = {
-  open: boolean
+export type CustomSnackbarProps = {
   message: string
-  onClose: (event?: React.SyntheticEvent, reason?: string) => void
   severity?: "success" | "info" | "warning" | "error"
-  onExited?: TransitionHandlerProps["onExited"]
-}
+} & Omit<SnackbarProps, "children">
 
 const SnackBar = ({
   open,
   message,
   severity,
   onClose,
-  onExited,
-}: SnackbarProps) => (
-  <Snackbar
-    open={open}
-    autoHideDuration={6000}
-    onClose={onClose}
-    onExited={onExited}
-    disableWindowBlurListener
-  >
-    <AlertDlg onClose={onClose} severity={severity} elevation={6}>
-      {message}
-    </AlertDlg>
-  </Snackbar>
-)
+  ...props
+}: CustomSnackbarProps) => {
+  const handleClose = (event: React.SyntheticEvent | Event) => {
+    onClose?.(event, "escapeKeyDown")
+  }
+
+  return (
+    <Snackbar
+      open={open}
+      autoHideDuration={6000}
+      onClose={onClose}
+      disableWindowBlurListener
+      {...props}
+    >
+      {/* Pass ref automatically via forwardRef in AlertDlg */}
+      <AlertDlg onClose={handleClose} severity={severity} elevation={6}>
+        {message}
+      </AlertDlg>
+    </Snackbar>
+  )
+}
 
 export { SnackBar }

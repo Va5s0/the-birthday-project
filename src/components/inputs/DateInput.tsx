@@ -1,119 +1,84 @@
 import React from "react"
-import {
-  DatePickerProps,
-  DatePicker,
-  MuiPickersUtilsProvider,
-} from "@material-ui/pickers"
-import { css, cx } from "@emotion/css"
-import DateFnsUtils from "@date-io/date-fns"
-import { startOfDay } from "date-fns"
+import { DatePicker } from "@mui/x-date-pickers"
+import { css } from "@emotion/css"
+import { InputAdornment } from "@mui/material"
 
-export type DateInputProps = {
+type Props = {
   name: string
+  label?: string
+  placeholder?: string
+  value: string
   onChange: (date: Date | null, name: string) => void
-  value: string | Date | undefined
-  dropdownIcon?: boolean
   icon?: React.ReactNode
+  error?: boolean
   errorMessage?: string
   disableFuture?: boolean
-  disableToolbar?: boolean
-} & Omit<DatePickerProps, "name" | "onChange">
+  margin?: "dense" | "normal" | "none"
+  size?: "small" | "medium"
+  className?: string
+  fullWidth?: boolean
+  onKeyDown?: (e: React.KeyboardEvent) => void
+}
 
-export function DateInput(props: DateInputProps) {
+export const DateInput = (props: Props) => {
   const {
     name,
+    label,
+    placeholder,
     value,
     onChange,
-    dropdownIcon,
-    InputProps,
+    icon,
     error,
     errorMessage,
-    fullWidth = true,
-    icon,
-    margin = "normal",
-    size = "medium",
-    disableFuture = false,
-    disableToolbar = false,
-    ...rest
+    disableFuture,
+    margin = "dense",
+    size = "small",
+    className,
+    fullWidth = false,
+    onKeyDown,
   } = props
-  const [open, setOpen] = React.useState<boolean>(false)
-
-  const handleChange = (d: Date | null) => {
-    if (!!d) {
-      const _d = startOfDay(new Date(d || ""))
-      onChange(_d, name)
-    } else {
-      onChange(null, name)
-    }
-  }
-
-  const handleOpen = () => {
-    setOpen(!open)
-  }
 
   return (
-    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <DatePicker
-        disableFuture={disableFuture}
-        disableToolbar={disableToolbar}
-        format="dd/MM/yyyy"
-        variant="inline"
-        inputVariant="outlined"
-        clearable
-        fullWidth={fullWidth}
-        error={error}
-        {...rest}
-        name={name}
-        value={value || null}
-        margin={margin}
-        size={size}
-        onChange={handleChange}
-        onOpen={handleOpen}
-        onClose={handleOpen}
-        helperText={errorMessage}
-        rightArrowButtonProps={{ classes: { root: styles.arrow } }}
-        leftArrowButtonProps={{ classes: { root: styles.arrow } }}
-        InputProps={{
-          classes: {
-            notchedOutline: cx({ [styles.focusedError]: open && !!error }),
-            adornedStart: styles.startAdornment,
+    <DatePicker
+      label={label}
+      value={value ? new Date(value) : null}
+      onChange={(date: Date | null) => onChange(date, name)}
+      disableFuture={disableFuture}
+      format="dd/MM/yyyy"
+      className={className}
+      slotProps={{
+        textField: {
+          fullWidth: fullWidth,
+          variant: "outlined",
+          margin: margin === "none" ? undefined : margin,
+          size,
+          placeholder,
+          error,
+          helperText: errorMessage,
+          onKeyDown,
+          InputProps: {
+            startAdornment: icon ? (
+              <InputAdornment position="start">{icon}</InputAdornment>
+            ) : undefined,
+            classes: { input: styles.input, root: styles.field },
           },
-          startAdornment: icon,
-          autoComplete: "off",
-        }}
-      />
-    </MuiPickersUtilsProvider>
+          InputLabelProps: {
+            shrink: true,
+          },
+        },
+      }}
+    />
   )
 }
 
 const styles = {
-  btn: css`
-    margin-right: -0.5rem;
+  input: css`
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    justif-content: center;
   `,
-  focusedError: css`
-    border: 2px solid red;
-  `,
-  icon: css`
-    .MuiIconButton-root {
-      padding: 0;
-    }
-  `,
-  startAdornment: css`
-    padding: 0 16px;
-    > svg {
-      width: 24px;
-      height: 24px;
-      color: var(--primary-dark);
-      margin-right: 8px;
-    }
-  `,
-  arrow: css`
-    .MuiIconButton-label {
-      > svg {
-        width: 24px;
-        height: 24px;
-        color: var(--primary-dark);
-      }
-    }
+  field: css`
+    background-color: var(--white);
   `,
 }

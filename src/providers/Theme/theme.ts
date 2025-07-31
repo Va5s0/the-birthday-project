@@ -1,11 +1,281 @@
-import { createTheme } from "@material-ui/core"
-import { injectGlobal } from "@emotion/css"
+import { createTheme, ThemeOptions } from "@mui/material"
+import { css } from "@emotion/css"
 
-export const theme = createTheme()
+const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
+  palette: {
+    mode,
+    primary: {
+      main: mode === 'dark' ? '#8b5cf6' : '#6366f1',
+      dark: mode === 'dark' ? '#7c3aed' : '#4f46e5',
+      light: mode === 'dark' ? '#a78bfa' : '#8b5cf6',
+    },
+    secondary: {
+      main: mode === 'dark' ? '#f472b6' : '#ec4899',
+      dark: mode === 'dark' ? '#ec4899' : '#db2777',
+      light: mode === 'dark' ? '#f9a8d4' : '#f472b6',
+    },
+    background: {
+      default: mode === 'dark' ? '#0f172a' : '#ffffff',
+      paper: mode === 'dark' ? '#1e293b' : '#ffffff',
+    },
+    text: {
+      primary: mode === 'dark' ? '#f8fafc' : '#1e293b',
+      secondary: mode === 'dark' ? '#cbd5e1' : '#64748b',
+    },
+    divider: mode === 'dark' ? '#334155' : '#e2e8f0',
+  },
+  typography: {
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+    h1: {
+      fontWeight: 700,
+      fontSize: '2.5rem',
+      lineHeight: 1.2,
+    },
+    h2: {
+      fontWeight: 700,
+      fontSize: '2rem',
+      lineHeight: 1.3,
+    },
+    h3: {
+      fontWeight: 600,
+      fontSize: '1.5rem',
+      lineHeight: 1.4,
+    },
+    h4: {
+      fontWeight: 600,
+      fontSize: '1.25rem',
+      lineHeight: 1.4,
+    },
+    body1: {
+      fontSize: '1rem',
+      lineHeight: 1.6,
+    },
+    body2: {
+      fontSize: '0.875rem',
+      lineHeight: 1.5,
+    },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: 'var(--bg-primary)',
+          color: 'var(--text-primary)',
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--bg-elevated)',
+          color: 'var(--text-primary)',
+          boxShadow: 'var(--shadow-md)',
+          borderBottom: '1px solid var(--border-primary)',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--bg-surface)',
+          color: 'var(--text-primary)',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--border-primary)',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--bg-surface)',
+          color: 'var(--text-primary)',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--border-primary)',
+          borderRadius: 16,
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontSize: "14px",
+          lineHeight: "1rem",
+          fontWeight: "normal",
+          fontStretch: "normal",
+          fontStyle: "normal",
+          letterSpacing: "normal",
+          color: "var(--text-primary)",
+          backgroundColor: "var(--bg-surface)",
+          cursor: "text",
+          display: "inline-flex",
+          position: "relative",
+          boxSizing: "border-box",
+          alignItems: "center",
+          "&.MuiInputBase-marginDense": {
+            paddingLeft: "8px",
+            height: "40px",
+          },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        input: {
+          padding: "16px",
+          height: "16px",
+          "&.MuiOutlinedInput-inputMarginDense": {
+            display: "flex",
+            alignItems: "center",
+            padding: "12px 0",
+            fontSize: "12px",
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        outlined: {
+          fontSize: "14px",
+          transform: "translate(14px, 17px) scale(1)",
+          "&.MuiInputLabel-shrink": {
+            margin: 0,
+            transform: "translate(15px, -6px) scale(0.75)",
+          },
+        },
+      },
+    },
+    MuiInputAdornment: {
+      styleOverrides: {
+        root: {
+          "& .MuiSvgIcon-root": {
+            width: "20px",
+            height: "20px",
+          },
+          "&.MuiInputAdornment-marginDense .MuiSvgIcon-root": {
+            width: "16px",
+            height: "16px",
+          },
+        },
+      },
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        marginNormal: {
+          height: "fit-content",
+          backgroundColor: "#fcfcfc",
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        outlined: {
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          color: "var(--black)",
+          padding: "8px 0",
+          "&:focus": {
+            backgroundColor: "transparent",
+          },
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        body1: {
+          lineHeight: "1rem",
+          fontSize: "14px",
+          fontWeight: "normal",
+          fontStretch: "normal",
+          fontStyle: "normal",
+          letterSpacing: "normal",
+          color: "var(--dark-grey)",
+        },
+        body2: {
+          lineHeight: "1rem",
+          fontSize: "14px",
+          fontWeight: "normal",
+          fontStretch: "normal",
+          fontStyle: "normal",
+          letterSpacing: "normal",
+          color: "inherit",
+        },
+        caption: {
+          lineHeight: "1rem",
+          fontSize: "14px",
+          fontWeight: "normal",
+          fontStretch: "normal",
+          fontStyle: "normal",
+          letterSpacing: "normal",
+          color: "var(--dark-grey)",
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        textColorPrimary: {
+          "&.Mui-selected": {
+            color: "var(--primary-main)",
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        containedPrimary: {
+          backgroundColor: "var(--primary-main)",
+          "&:hover": {
+            backgroundColor: "var(--primary-dark)",
+          },
+        },
+      },
+    },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "capitalize",
+          fontWeight: 600,
+          fontSize: "1rem",
+          paddingLeft: "24px",
+          paddingRight: "24px",
+          paddingTop: "9.6px",
+          paddingBottom: "9.6px",
+          borderRadius: "16px",
+          border: "1.5px solid",
+          borderColor: "var(--primary-main)",
+          backgroundColor: "#fff",
+          color: "var(--primary-main)",
+          transition: "all 0.2s",
+          "&:hover": {
+            backgroundColor: "var(--light-grey)",
+            color: "var(--primary-main)",
+          },
+          "&.Mui-selected": {
+            color: "var(--white)",
+            backgroundColor: "var(--primary-main)",
+            boxShadow: "0 2px 8px rgba(0,141,205,0.13)",
+            "&:hover": {
+              backgroundColor: "var(--primary-dark)",
+              color: "var(--white)",
+              borderColor: "var(--primary-dark)",
+            },
+          },
+        },
+      },
+    },
+  },
+})
 
-injectGlobal`
+export const createAppTheme = (mode: 'light' | 'dark') => createTheme(getTheme(mode))
+
+// Export default light theme for backward compatibility
+export const theme = createAppTheme('light')
+
+css`
   /* Inputs */
-
   .MuiInputBase-root {
     font-size: 14px;
     line-height: 1rem;
@@ -15,7 +285,6 @@ injectGlobal`
     line-height: normal;
     letter-spacing: normal;
     color: black;
-
     cursor: text;
     display: inline-flex;
     position: relative;
@@ -35,7 +304,7 @@ injectGlobal`
 
   .MuiOutlinedInput-input.MuiOutlinedInput-inputMarginDense {
     display: flex;
-      align-items: center;
+    align-items: center;
     padding: 12px 0;
     font-size: 12px;
   }
@@ -55,8 +324,8 @@ injectGlobal`
 
   .MuiInputAdornment-root {
     .MuiSvgIcon-root {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
     }
   }
 
@@ -80,7 +349,6 @@ injectGlobal`
 
   .MuiSelect-outlined.MuiSelect-outlined {
     color: var(--black);
-    padding: 8px 0;
   }
 
   .MuiSelect-select:focus {
@@ -96,7 +364,7 @@ injectGlobal`
     font-style: normal;
     line-height: normal;
     letter-spacing: normal;
-    color: var(--dark-grey);
+    color: inherit;
   }
 
   .MuiTypography-body2 {
@@ -125,6 +393,7 @@ injectGlobal`
     color: var(--primary-main);
   }
 
+  /* Buttons */
   .MuiButton-containedPrimary {
     background-color: var(--primary-main);
     :hover {
@@ -143,12 +412,11 @@ injectGlobal`
   .MuiPickersDay-dayDisabled {
     .MuiIconButton-label {
       .MuiTypography-body2 {
-        color: var(--light-grey-2)
+        color: var(--light-grey-2);
       }
     }
   }
   .MuiPickersToolbar-toolbar {
     background-color: var(--primary-dark);
   }
-
 `

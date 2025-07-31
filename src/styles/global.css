@@ -1,0 +1,234 @@
+/* Modern CSS Variables for Light/Dark Mode */
+:root {
+  /* Light theme colors */
+  --primary-main: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #8b5cf6;
+  
+  --secondary-main: #ec4899;
+  --secondary-dark: #db2777;
+  --secondary-light: #f472b6;
+  
+  /* Light theme backgrounds - using solid colors for smooth transitions */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
+  --bg-elevated: #ffffff;
+  --bg-surface: #ffffff;
+  
+  /* Light theme text */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --text-inverse: #ffffff;
+  
+  /* Light theme borders */
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+  --border-focus: #6366f1;
+  
+  /* Light theme shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Legacy variables for backward compatibility */
+  --light-grey-3: #f8fafc;
+  --dark-grey: #64748b;
+  --dark-grey-3: #1e293b;
+  --white: #ffffff;
+  --black: #000000;
+  --light-grey: #f1f5f9;
+  --light-grey-2: #e2e8f0;
+}
+
+[data-theme="dark"] {
+  /* Dark theme colors */
+  --primary-main: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  
+  --secondary-main: #f472b6;
+  --secondary-dark: #ec4899;
+  --secondary-light: #f9a8d4;
+  
+  /* Dark theme backgrounds */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-elevated: #1e293b;
+  --bg-surface: #334155;
+  
+  /* Dark theme text */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-inverse: #1e293b;
+  
+  /* Dark theme borders */
+  --border-primary: #334155;
+  --border-secondary: #475569;
+  --border-focus: #8b5cf6;
+  
+  /* Dark theme shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  
+  /* Legacy variables for backward compatibility */
+  --light-grey-3: #1e293b;
+  --dark-grey: #cbd5e1;
+  --dark-grey-3: #f8fafc;
+  --white: #0f172a;
+  --black: #f8fafc;
+  --light-grey: #334155;
+  --light-grey-2: #475569;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden; /* Prevent body scroll */
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: none;
+  position: relative;
+}
+
+/* Add subtle pattern as a pseudo-element for light mode */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+[data-theme="light"] body::before {
+  opacity: 1;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(139, 92, 246, 0.02) 0%, transparent 50%);
+}
+
+/* Hide background patterns during theme transition */
+.theme-transitioning body::before {
+  opacity: 0 !important;
+  transition: none !important;
+}
+
+/* Smooth transitions for theme changes - only for specific properties */
+* {
+  transition: 
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+/* Disable all transitions during theme change */
+.theme-transitioning * {
+  transition: none !important;
+}
+
+/* Gradients and complex backgrounds - no transitions */
+*::before,
+*::after {
+  transition: opacity 0.2s ease;
+}
+
+/* Modern Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, 
+    rgba(99, 102, 241, 0.6) 0%, 
+    rgba(139, 92, 246, 0.6) 100%);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  min-height: 40px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, 
+    rgba(99, 102, 241, 0.8) 0%, 
+    rgba(139, 92, 246, 0.8) 100%);
+  border: 1px solid transparent;
+  background-clip: content-box;
+  transform: scale(1.1);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, 
+    rgba(99, 102, 241, 1) 0%, 
+    rgba(139, 92, 246, 1) 100%);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox scrollbar support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.6) transparent;
+}
+
+/* Dark theme scrollbar adjustments */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, 
+    rgba(139, 92, 246, 0.7) 0%, 
+    rgba(168, 139, 250, 0.7) 100%);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, 
+    rgba(139, 92, 246, 0.9) 0%, 
+    rgba(168, 139, 250, 0.9) 100%);
+}
+
+[data-theme="dark"] * {
+  scrollbar-color: rgba(139, 92, 246, 0.7) transparent;
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}

@@ -1,9 +1,55 @@
+import React from "react"
 import { css, cx } from "@emotion/css"
-import Alert, { AlertProps } from "@material-ui/lab/Alert"
-import InfoIcon from "@material-ui/icons/Info"
-import ErrorIcon from "@material-ui/icons/Error"
-import WarningIcon from "@material-ui/icons/Warning"
-import CheckCircleIcon from "@material-ui/icons/CheckCircle"
+import Alert, { AlertProps } from "@mui/material/Alert"
+import InfoIcon from "@mui/icons-material/Info"
+import ErrorIcon from "@mui/icons-material/Error"
+import WarningIcon from "@mui/icons-material/Warning"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+
+export type AlertDlgProps = AlertProps
+
+export const AlertDlg = React.forwardRef<HTMLDivElement, AlertDlgProps>(
+  function AlertDlg(props, ref) {
+    const {
+      severity,
+      children,
+      action,
+      elevation,
+      variant = "filled",
+      ...rest
+    } = props
+
+    return (
+      <Alert
+        ref={ref}
+        severity={severity}
+        onClose={props.onClose}
+        action={action}
+        variant={variant}
+        iconMapping={{
+          info: <InfoIcon />,
+          error: <ErrorIcon />,
+          warning: <WarningIcon />,
+          success: <CheckCircleIcon />,
+        }}
+        classes={{
+          root: styles.root,
+          action: styles.action,
+          icon: styles.icon,
+          message: cx("BodyBody-1WhiteRegular", styles.message),
+          filledInfo: styles.info,
+          filledError: styles.error,
+          filledWarning: styles.warning,
+          filledSuccess: styles.success,
+        }}
+        elevation={elevation}
+        {...rest}
+      >
+        {children}
+      </Alert>
+    )
+  }
+)
 
 const styles = {
   root: css`
@@ -34,48 +80,4 @@ const styles = {
   success: css`
     background-color: var(--primary-main);
   `,
-}
-
-export type AlertDlgProps = {
-  close?: () => void
-} & AlertProps
-
-export function AlertDlg(props: AlertDlgProps) {
-  const {
-    severity,
-    close,
-    children,
-    action,
-    elevation,
-    variant = "filled",
-  } = props
-
-  return (
-    <Alert
-      severity={severity}
-      onClose={close}
-      action={action}
-      variant={variant}
-      iconMapping={{
-        info: <InfoIcon />,
-        error: <ErrorIcon />,
-        warning: <WarningIcon />,
-        success: <CheckCircleIcon />,
-      }}
-      classes={{
-        root: styles.root,
-        action: styles.action,
-        icon: styles.icon,
-        message: cx("BodyBody-1WhiteRegular", styles.message),
-        filledInfo: styles.info,
-        filledError: styles.error,
-        filledWarning: styles.warning,
-        filledSuccess: styles.success,
-      }}
-      elevation={elevation}
-      {...props}
-    >
-      {children}
-    </Alert>
-  )
 }

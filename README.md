@@ -1,49 +1,191 @@
-# [The Birthday project](https://github.com/Va5s0/the-birthday-project.git)
+# Birthday Project
 
-## About
+_Never forget another birthday again!_ 🎉
 
-If you have many friends with many kids and you constantly forget their birthdays and their namedays and you are ashamed of it, you might find some help here...
+A delightfully modern React web application that saves you from the eternal embarrassment of forgetting your friends' birthdays and namedays. Built with love, Firebase, and a healthy dose of "I-really-should-remember-this-stuff" guilt.
 
-All you have to do is add your friend's name and data...
-![alt text](screenshots/AddFriendCard.png "Add a new friend card")
+---
 
-...add all your friend's dependent connections at the same card...
-![alt text](screenshots/AddFriendConnectionsCard.png "Add a new friend's connection card")
+## The Problem We All Face
 
-...and store all their birthdays and namedays together! For the Greek names especially, there is an automatic search and a dropdown menu with the possible celebration dates a name might have.
-![alt text](screenshots/AutomaticFriendNamedaySearch.png "Automatic friend nameday search")
+You know that sinking feeling when you realize you forgot your friend's birthday... _again_? 😅
 
-In the end your friend's card will look like this:
-![alt text](screenshots/FriendConnectionsCard.png "Friend & connections card")
+Or worse - you forgot their kid's birthday AND their nameday?
 
-...and all your friends cards like this:
-![alt text](screenshots/GeneralLayout.png "General Layout")
+We've all been there. That's why Birthday Project exists!
 
-React.js - Typescript - Material UI project. Firebase Realtime and Firestore Database CRUD.
+## How It Works (It's Really Simple!)
 
-## Installation & setup
+**Step 1:** Add your friend's info (name, birthday, maybe a cute photo)
+![alt text](./screenshots/AddContact.png "Add a new friend card")
 
-- Clone this repo
-- Run `yarn`
-- In order to use the application, you must sign up at https://firebase.google.com/, initialize Firebase and find your Firebase configuration.
-- Store your configuration at a secrets.js file inside the src dir.
-- You're all set!
+**Step 2:** Add their family connections (spouse, kids, pets - we don't judge!)
+![alt text](./screenshots/AddConnection.png "Add a new friend's connection card")
 
-### Development server
+**Step 3:** Let the magic happen! For Greek names, our smart nameday search finds celebration dates automatically
+![alt text](./screenshots/AutomaticNamedaySearch.png "Automatic friend nameday search")
 
-- Start the development server with `npm start`
-- Point your browser at http://localhost:3000
+**Voilà!** Your friend's card now looks professional and you look like you have your life together:
+![alt text](./screenshots/ContactConnectionsCards.png "Friend & connections card")
 
-### Dependencies
+**The Big Picture:** All your friends, beautifully organized:
+![alt text](./screenshots/ContactCards.png "General Layout")
 
-- react: 17.0.2
-- react-dom: 17.0.2
-- typescript: 4.0.3
-- material-ui: 4.12.3
-- firebase: 9.6.8
-- react-router-dom: 5.3.0
-- lodash: 4.17.21
+**Never Miss Another Day:** The Today widget keeps track of what's happening right now:
+![alt text](./screenshots/TodayWidget.png "Today Widget")
 
-### License
+## What Makes It Special
 
-MIT
+- **Fort Knox Security:** Your data is locked down tighter than your birthday cake recipe
+- **Pretty Profiles:** Upload avatars, edit info, look good doing it
+- **Contact Wizardry:** Add, edit, delete contacts with their own birthdays and namedays
+- **Greek Nameday Magic:** Automatic nameday search because we know you can't remember them all
+- **Family Connections:** Link people together (because families are complicated)
+- **Today Widget:** See who's celebrating today and upcoming events at a glance
+- **Mobile-Friendly:** Works great on your phone when you're panic-checking dates at 11 PM
+- **No Awkward Moments:** Confirmation modals prevent you from accidentally deleting Uncle George
+- **Beautiful Design:** Material-UI styling that doesn't look like it's from 2003
+
+---
+
+## 🛠️ Built With
+
+- **React**
+- **Firebase** (Firestore, Storage, Auth, Realtime Database)
+- **Material-UI**
+- **TypeScript**
+
+---
+
+## Getting Started
+
+### 1. Grab the code
+
+```bash
+git clone https://github.com/Va5s0/the-birthday-project.git
+cd the-birthday-project
+```
+
+### 2. Install everything
+
+```bash
+npm install
+```
+
+### 3. Set up Firebase
+
+- Create a Firebase project at [firebase.google.com](https://firebase.google.com/).
+- Enable **Authentication** (Email/Password).
+- Create a **Firestore** database.
+- Enable **Storage**.
+- Create a **Realtime Database**.
+- Create a `.env` file in the root directory and add your Firebase config:
+
+```bash
+# .env
+VITE_API_KEY="your-api-key"
+VITE_AUTH_DOMAIN="your-project.firebaseapp.com"
+VITE_PROJECT_ID="your-project-id"
+VITE_STORAGE_BUCKET="your-project.appspot.com"
+VITE_MESSAGING_SENDER_ID="your-sender-id"
+VITE_APP_ID="your-app-id"
+VITE_DATABASE_URL="https://your-project.firebaseio.com"
+```
+
+### 4. Set Firebase Security Rules
+
+#### **Firestore Rules**
+
+```plaintext
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+#### **Storage Rules**
+
+```plaintext
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // User profile picture
+    match /users/{userId}/avatar.jpg {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    // Contact avatars
+    match /users/{userId}/contacts/{contactId}/avatar.jpg {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+> **Remember to deploy your rules via the Firebase Console or CLI.**
+
+---
+
+## Running the App (with Vite)
+
+```bash
+npm start
+```
+
+or directly:
+
+```bash
+vite
+```
+
+This will start Vite’s development server. Open the URL shown in your terminal (usually [http://localhost:3000](http://localhost:3000)).
+
+### Build for production
+
+```bash
+npm run build
+```
+
+This runs TypeScript type checking and builds the app with Vite.
+
+### Preview the production build
+
+```bash
+npm run serve
+```
+
+or
+
+```bash
+vite preview
+```
+
+---
+
+## Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+## License
+
+This project is licensed under a **custom non-commercial license**:
+
+- **Personal and internal business use only.**
+- **Commercial use is prohibited** without prior written permission from the copyright holder.
+- **Attribution required** in all copies or substantial portions of the software.
+- The software is provided **"as is" without warranty** of any kind.
+
+See the [LICENSE](./LICENSE) file for full details.
+
+---
+
+## Acknowledgements
+
+- [Firebase](https://firebase.google.com/)
+- [Material-UI](https://mui.com/)
+- [Emotion](https://emotion.sh/)
