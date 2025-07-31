@@ -27,3 +27,6 @@ src/secrets.js
 
 #assets
 src/assets
+
+# prevent nested git repositories
+the-birthday-project.git/

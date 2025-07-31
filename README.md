@@ -22,7 +22,7 @@ We've all been there. That's why Birthday Project exists!
 **Step 2:** Add their family connections (spouse, kids, pets - we don't judge!)
 ![alt text](./screenshots/AddConnection.png "Add a new friend's connection card")
 
-**Step 3:** Let the magic happen! For Greek names, our smart nameday search finds celebration dates automatically ✨
+**Step 3:** Let the magic happen! For Greek names, our smart nameday search finds celebration dates automatically
 ![alt text](./screenshots/AutomaticNamedaySearch.png "Automatic friend nameday search")
 
 **Voilà!** Your friend's card now looks professional and you look like you have your life together:
