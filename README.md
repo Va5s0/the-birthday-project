@@ -6,7 +6,7 @@ A delightfully modern React web application that saves you from the eternal emba
 
 ---
 
-## 🤦‍♀️ The Problem We All Face
+## The Problem We All Face
 
 You know that sinking feeling when you realize you forgot your friend's birthday... _again_? 😅
 
@@ -14,7 +14,7 @@ Or worse - you forgot their kid's birthday AND their nameday?
 
 We've all been there. That's why Birthday Project exists!
 
-## 🎯 How It Works (It's Really Simple!)
+## How It Works (It's Really Simple!)
 
 **Step 1:** Add your friend's info (name, birthday, maybe a cute photo)
 ![alt text](./screenshots/AddContact.png "Add a new friend card")
@@ -34,45 +34,45 @@ We've all been there. That's why Birthday Project exists!
 **Never Miss Another Day:** The Today widget keeps track of what's happening right now:
 ![alt text](./screenshots/TodayWidget.png "Today Widget")
 
-## ✨ What Makes It Special
+## What Makes It Special
 
-- 🔐 **Fort Knox Security:** Your data is locked down tighter than your birthday cake recipe
-- 👤 **Pretty Profiles:** Upload avatars, edit info, look good doing it
-- 🎭 **Contact Wizardry:** Add, edit, delete contacts with their own birthdays and namedays
-- 🇬🇷 **Greek Nameday Magic:** Automatic nameday search because we know you can't remember them all
-- 🔗 **Family Connections:** Link people together (because families are complicated)
-- 📅 **Today Widget:** See who's celebrating today and upcoming events at a glance
-- 📱 **Mobile-Friendly:** Works great on your phone when you're panic-checking dates at 11 PM
-- 💬 **No Awkward Moments:** Confirmation modals prevent you from accidentally deleting Uncle George
-- 🎨 **Beautiful Design:** Material-UI styling that doesn't look like it's from 2003
+- **Fort Knox Security:** Your data is locked down tighter than your birthday cake recipe
+- **Pretty Profiles:** Upload avatars, edit info, look good doing it
+- **Contact Wizardry:** Add, edit, delete contacts with their own birthdays and namedays
+- **Greek Nameday Magic:** Automatic nameday search because we know you can't remember them all
+- **Family Connections:** Link people together (because families are complicated)
+- **Today Widget:** See who's celebrating today and upcoming events at a glance
+- **Mobile-Friendly:** Works great on your phone when you're panic-checking dates at 11 PM
+- **No Awkward Moments:** Confirmation modals prevent you from accidentally deleting Uncle George
+- **Beautiful Design:** Material-UI styling that doesn't look like it's from 2003
 
 ---
 
 ## 🛠️ Built With
 
-- **React** ⚛️
-- **Firebase** 🔥 (Firestore, Storage, Auth, Realtime Database)
-- **Material-UI** 💅
-- **TypeScript** 📘
+- **React**
+- **Firebase** (Firestore, Storage, Auth, Realtime Database)
+- **Material-UI**
+- **TypeScript**
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### 1. Grab the code 📥
+### 1. Grab the code
 
 ```bash
 git clone https://github.com/Va5s0/the-birthday-project.git
 cd the-birthday-project
 ```
 
-### 2. Install everything 📦
+### 2. Install everything
 
 ```bash
 npm install
 ```
 
-### 3. Set up Firebas 🔥
+### 3. Set up Firebase
 
 - Create a Firebase project at [firebase.google.com](https://firebase.google.com/).
 - Enable **Authentication** (Email/Password).
