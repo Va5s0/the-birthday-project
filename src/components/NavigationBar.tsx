@@ -146,23 +146,25 @@ export const NavigationBar = () => {
                 src={!hasNoAvatar ? user?.photoURL ?? "" : undefined}
                 alt="profile"
                 className={styles.avatar}
-                sx={{ 
-                  width: 40, 
+                sx={{
+                  width: 40,
                   height: 40,
-                  ...(hasNoAvatar && (() => {
-                    const nameParts = user?.displayName?.split(' ') || [];
-                    const firstName = nameParts[0];
-                    const lastName = nameParts[1];
-                    return getAvatarColor(firstName, lastName);
-                  })())
+                  ...(hasNoAvatar &&
+                    (() => {
+                      const nameParts = user?.displayName?.split(" ") || []
+                      const firstName = nameParts[0]
+                      const lastName = nameParts[1]
+                      return getAvatarColor(firstName, lastName)
+                    })()),
                 }}
               >
-                {hasNoAvatar && (() => {
-                  const nameParts = user?.displayName?.split(' ') || [];
-                  const firstName = nameParts[0];
-                  const lastName = nameParts[1];
-                  return getInitials(firstName, lastName);
-                })()}
+                {hasNoAvatar &&
+                  (() => {
+                    const nameParts = user?.displayName?.split(" ") || []
+                    const firstName = nameParts[0]
+                    const lastName = nameParts[1]
+                    return getInitials(firstName, lastName)
+                  })()}
               </Avatar>
 
               <MoreActions
@@ -242,12 +244,6 @@ const styles = {
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(
-        135deg,
-        var(--primary-main) 0%,
-        var(--primary-light) 50%,
-        var(--secondary-main) 100%
-      );
       opacity: 1;
       transition: opacity 0.2s ease;
       pointer-events: none;
