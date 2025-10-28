@@ -61,9 +61,9 @@ const styles = {
     border-top: 3px solid var(--primary-main);
   `,
   inputsContainer: css`
-    width: 256px;
+    width: 350px;
     margin: auto;
-    padding: 64px;
+    padding: 56px 18px;
     height: 100%;
     min-height: 325px;
   `,
