@@ -35,6 +35,17 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
     const file = event.target.files?.[0]
     if (!file) return
 
+    // Validate file
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be less than 5MB")
+      return
+    }
+    
+    if (!file.type.startsWith('image/')) {
+      alert("Please select an image file")
+      return
+    }
+
     try {
       setIsUploading(true)
       const storageRef = ref(
@@ -45,12 +56,17 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
       await uploadBytes(storageRef, file)
       const downloadURL = await getDownloadURL(storageRef)
       onAvatarChange(downloadURL)
+      
+      // Clear the input
+      event.target.value = ''
     } catch (error) {
       console.error("Error uploading image:", error)
+      alert("Failed to upload image. Please try again.")
     } finally {
       setIsUploading(false)
     }
   }
+
 
   return (
     <div className={styles.container}>
@@ -106,19 +122,6 @@ const styles = {
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-  `,
-  avatarIcon: css`
-    width: 48px;
-    height: 48px;
-    color: var(--primary-main);
-    background-color: rgba(147, 51, 234, 0.1);
-    border-radius: 50%;
-    padding: 8px;
-    transition: all 0.3s ease;
-    &:hover {
-      transform: scale(1.05);
-      background-color: rgba(147, 51, 234, 0.15);
-    }
   `,
   initialsAvatar: css`
     width: 48px;

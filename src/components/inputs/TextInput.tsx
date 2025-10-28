@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { InputAdornment } from "@mui/material"
 import TextField, { TextFieldProps } from "@mui/material/TextField"
 import { css } from "@emotion/css"
@@ -26,8 +26,18 @@ export const TextInput = (props: TextInputProps) => {
     placeholder,
     ...rest
   } = props
+  
   const _error = !!errorMessage || error
   const helper = _error ? errorMessage! : helperText
+  
+  const inputProps = useMemo(() => ({
+    ...InputProps,
+    startAdornment: icon ? (
+      <InputAdornment position="start">{icon}</InputAdornment>
+    ) : undefined,
+    classes: { input: styles.input, root: styles.field },
+  }), [icon, InputProps])
+  
   return (
     <TextField
       size={size}
@@ -37,14 +47,10 @@ export const TextInput = (props: TextInputProps) => {
       error={_error}
       helperText={helper}
       className={className}
-      type={isPhone ? "number" : "text"}
+      type={isPhone ? "tel" : "text"}
       placeholder={placeholder}
-      InputProps={{
-        startAdornment: icon ? (
-          <InputAdornment position="start">{icon}</InputAdornment>
-        ) : undefined,
-        classes: { input: styles.input, root: styles.field },
-      }}
+      inputMode={isPhone ? "tel" : undefined}
+      InputProps={inputProps}
       InputLabelProps={{
         shrink: true,
       }}

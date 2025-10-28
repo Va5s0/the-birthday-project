@@ -1,6 +1,59 @@
 import * as React from "react"
 import { css, cx } from "@emotion/css"
 
+type GhostTextInputProps = {
+  fullWidth?: boolean
+  className?: string
+  //
+  label?: string
+  error?: boolean
+  errorMessage?: string
+}
+
+const GhostTextInput = React.forwardRef(function (
+  props: GhostTextInputProps & React.InputHTMLAttributes<HTMLInputElement>,
+  ref: React.ForwardedRef<HTMLInputElement>
+) {
+  const {
+    className,
+    fullWidth,
+    error = false,
+    errorMessage,
+    disabled = false,
+    id,
+    type = "text",
+    label,
+    ...rest
+  } = props
+
+  const wrapperCn = cx(
+    "ghost-input-wrapper",
+    styles.root,
+    { [styles.fullWidth]: fullWidth },
+    className,
+    { [styles.error]: error }
+  )
+
+  const cn = cx("Input", styles.inputRoot, className)
+
+  return (
+    <div data-disabled={disabled} data-error={error} className={wrapperCn}>
+      <input
+        ref={ref}
+        type={type}
+        id={id}
+        aria-label={label}
+        disabled={disabled}
+        className={cn}
+        autoComplete="off"
+        {...rest}
+      />
+    </div>
+  )
+})
+
+export default GhostTextInput
+
 export const styles = {
   inputRoot: css`
     border: 0;
@@ -63,56 +116,3 @@ export const styles = {
     border-color: var(--red);
   `,
 }
-
-type GhostTextInputProps = {
-  fullWidth?: boolean
-  className?: string
-  //
-  label?: string
-  error?: boolean
-  errorMessage?: string
-}
-
-const GhostTextInput = React.forwardRef(function (
-  props: GhostTextInputProps & React.InputHTMLAttributes<HTMLInputElement>,
-  ref: React.ForwardedRef<HTMLInputElement>
-) {
-  const {
-    className,
-    fullWidth,
-    error = false,
-    errorMessage,
-    disabled = false,
-    id,
-    type = "text",
-    label,
-    ...rest
-  } = props
-
-  const wrapperCn = cx(
-    "ghost-input-wrapper",
-    styles.root,
-    { [styles.fullWidth]: fullWidth },
-    className,
-    { [styles.error]: error }
-  )
-
-  const cn = cx("Input", styles.inputRoot, className)
-
-  return (
-    <div data-disabled={disabled} data-error={error} className={wrapperCn}>
-      <input
-        ref={ref}
-        type={type}
-        id={id}
-        aria-label={label}
-        disabled={disabled}
-        className={cn}
-        autoComplete="off"
-        {...rest}
-      />
-    </div>
-  )
-})
-
-export default GhostTextInput

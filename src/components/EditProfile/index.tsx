@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react"
+import React, { ChangeEvent, useCallback, useMemo, memo } from "react"
 import { css } from "@emotion/css"
 import { getStorage, ref, getDownloadURL } from "firebase/storage"
 import { Button, Fab, Grid, Paper, Typography } from "@mui/material"
@@ -17,11 +17,11 @@ import ConfirmationModal, {
 } from "../../components/ConfirmationModal"
 import { DateInput } from "../inputs/DateInput"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
-import { db } from "src/firebase/fbConfig"
+import { db } from "../../firebase/fbConfig"
 import { getInitials, getAvatarColor } from "../../utils/avatar"
 import Nameday from "../Nameday"
 
-export const EditProfile = () => {
+const EditProfile = memo(() => {
   const navigate = useNavigate()
   const {
     user,
@@ -31,11 +31,10 @@ export const EditProfile = () => {
     file,
     upload = () => {},
   } = useAuth() ?? {}
-  const storage = getStorage()
+  const storage = useMemo(() => getStorage(), [])
 
   const [state, setState] = React.useState<Partial<Contact>>({})
   const [isUploading, setIsUploading] = React.useState(false)
-  // const [, setError] = React.useState<FirestoreError>()
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
 
   const handleChange = (
@@ -46,8 +45,7 @@ export const EditProfile = () => {
   }
 
   const handleAvatarChange = async (url: string | null | undefined) => {
-    const updated = { ...state, photoURL: url }
-    setState(updated)
+    setState(prev => ({ ...prev, photoURL: url }))
   }
 
   const handleDateChange = (date: Date | null, name: string) => {
@@ -58,27 +56,34 @@ export const EditProfile = () => {
     }
   }
 
-  const handleCancel = () => navigate("/")
+  const handleCancel = useCallback(() => navigate("/"), [navigate])
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!state || !user) return
-    await editProfile(state) // Updates Auth profile (displayName, photoURL)
-    // Save extra fields to Firestore
-    await updateDoc(doc(db, "users", user.uid), {
-      ...state,
-    })
-  }
+    try {
+      await editProfile(state) // Updates Auth profile (displayName, photoURL)
+      // Save extra fields to Firestore
+      await updateDoc(doc(db, "users", user.uid), {
+        ...state,
+      })
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      // TODO: Add proper error handling UI
+    }
+  }, [state, user, editProfile])
 
-  const handleImageUpload = async (
+  const handleImageUpload = useCallback(async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0]
     if (!file) return
     if (file.size > 2 * 1024 * 1024) {
+      // TODO: Replace with proper error handling UI
       alert("File size exceeds 2MB")
       return
     }
     if (!["image/jpeg", "image/png"].includes(file.type)) {
+      // TODO: Replace with proper error handling UI
       alert("Invalid file type. Only JPEG and PNG are allowed.")
       return
     }
@@ -105,25 +110,27 @@ export const EditProfile = () => {
     } finally {
       setIsUploading(false)
     }
-  }
+  }, [user, upload, editProfile, handleAvatarChange, storage])
 
-  const isModalOpen = Boolean(modalInfo)
+  const userStorageRef = useMemo(() => 
+    ref(storage, `users/${user?.uid}/user/avatar.jpg`), [storage, user?.uid]
+  )
 
-  const onDelete = async () =>
+  const handleDeleteFile = useCallback(async () => {
+    await deleteFile(userStorageRef)
+    setModalInfo(undefined)
+  }, [deleteFile, userStorageRef])
+
+  const onDelete = useCallback(() =>
     setModalInfo({
       title: "Delete Profile Picture",
       type: "destructive",
       description: "Are you sure you want to delete your profile picture?",
       confirmLabel: "Delete",
       onSubmit: handleDeleteFile,
-    })
+    }), [handleDeleteFile])
 
-  const handleDeleteFile = async () => {
-    await deleteFile(userStorageRef)
-    setModalInfo(undefined)
-  }
-
-  const userStorageRef = ref(storage, `users/${user?.uid}/user/avatar.jpg`)
+  const isModalOpen = Boolean(modalInfo)
 
   React.useEffect(() => {
     const fetchUser = async () => {
@@ -147,26 +154,27 @@ export const EditProfile = () => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file, user])
 
-  const hasNoAvatar =
-    error?.code === "storage/object-not-found" || error?.code === 403
+  const hasNoAvatar = error?.code === "storage/object-not-found" || error?.code === 403
 
   const id = "profileImg"
 
-  // Display logic for header
-  const firstName = state.firstName || ""
-  const lastName = state.lastName || ""
-  const fullName = `${firstName} ${lastName}`.trim()
-  const displayName = fullName || state.email || user?.email || "Edit Profile"
-
-  // Generate initials and colors for avatar
-  const initials = getInitials(firstName, lastName)
-  const { background, color } = getAvatarColor(firstName, lastName)
+  // Memoized display logic
+  const displayInfo = useMemo(() => {
+    const firstName = state.firstName || ""
+    const lastName = state.lastName || ""
+    const fullName = `${firstName} ${lastName}`.trim()
+    const displayName = fullName || state.email || user?.email || "Edit Profile"
+    const initials = getInitials(firstName, lastName)
+    const { background, color } = getAvatarColor(firstName, lastName)
+    
+    return { firstName, lastName, displayName, initials, background, color }
+  }, [state.firstName, state.lastName, state.email, user?.email])
 
   return (
     <div className={styles.container}>
       <Paper className={styles.paper}>
         <Typography variant="h4" className={styles.title}>
-          {displayName}
+          {displayInfo.displayName}
         </Typography>
 
         <Grid container spacing={4}>
@@ -216,11 +224,11 @@ export const EditProfile = () => {
                   <div
                     className={styles.initialsAvatar}
                     style={{
-                      background,
-                      color,
+                      background: displayInfo.background,
+                      color: displayInfo.color,
                     }}
                   >
-                    {initials}
+                    {displayInfo.initials}
                   </div>
                 )}
               </div>
@@ -232,7 +240,7 @@ export const EditProfile = () => {
             <TextInput
               name="firstName"
               label="First Name"
-              value={firstName}
+              value={displayInfo.firstName}
               onChange={handleChange}
               icon={<PersonIcon className={styles.fieldIcon} />}
               fullWidth
@@ -245,7 +253,7 @@ export const EditProfile = () => {
             <TextInput
               name="lastName"
               label="Last Name"
-              value={lastName}
+              value={displayInfo.lastName}
               onChange={handleChange}
               icon={<PersonIcon className={styles.fieldIcon} />}
               fullWidth
@@ -291,8 +299,8 @@ export const EditProfile = () => {
               hasError={() => false}
               errorMsg={() => ""}
               onContactChange={(updatedContact?: Partial<Contact>) =>
-                setState(
-                  updatedContact ? { ...state, ...updatedContact } : state
+                setState(prev =>
+                  updatedContact ? { ...prev, ...updatedContact } : prev
                 )
               }
               margin="dense"
@@ -315,7 +323,7 @@ export const EditProfile = () => {
             variant="contained"
             color="primary"
             className={styles.saveButton}
-            disabled={!firstName}
+            disabled={!displayInfo.firstName}
           >
             Save Changes
           </Button>
@@ -329,7 +337,9 @@ export const EditProfile = () => {
       />
     </div>
   )
-}
+})
+
+export { EditProfile }
 
 const styles = {
   container: css`

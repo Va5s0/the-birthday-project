@@ -1,9 +1,8 @@
-import React from "react"
+import React, { useMemo } from "react"
 import {
   collection,
   query,
   onSnapshot,
-  FirestoreError,
 } from "firebase/firestore"
 import { ref, getDownloadURL } from "firebase/storage"
 import { Contact } from "../models/contact"
@@ -17,13 +16,14 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 
 const Contacts = () => {
   const [contacts, setContacts] = React.useState<Contact[]>([])
-  const [, setError] = React.useState<FirestoreError>()
   const [treeView, setTreeView] = React.useState(false)
+  
   const auth = getAuth()
   const { currentUser } = auth
 
-  const contactsRef = query(
-    collection(db, `users/${currentUser?.uid}/contacts`)
+  const contactsRef = useMemo(() => 
+    query(collection(db, `users/${currentUser?.uid}/contacts`)),
+    [currentUser?.uid]
   )
 
   const fetchAvatarUrl = async (contactId: string) => {
@@ -65,12 +65,15 @@ const Contacts = () => {
         setContacts(_contacts)
       },
       (err) => {
-        setError(err)
+        console.error('Error fetching contacts:', err)
       }
     )
     return () => unsubscribe()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser])
+  }, [currentUser, contactsRef])
+
+  const handleToggleChange = (_: React.MouseEvent<HTMLElement>, value: string | null) => {
+    if (value !== null) setTreeView(value === "tree")
+  }
 
   return (
     <>
@@ -78,9 +81,7 @@ const Contacts = () => {
         <ToggleButtonGroup
           value={treeView ? "tree" : "cards"}
           exclusive
-          onChange={(_, value) => {
-            if (value !== null) setTreeView(value === "tree")
-          }}
+          onChange={handleToggleChange}
           aria-label="contacts view toggle"
           size="small"
           className={styles.toggleGroup}
@@ -106,7 +107,7 @@ const Contacts = () => {
       ) : (
         <div className={styles.container}>
           {contacts?.map((contact, idx) => (
-            <Card key={idx} cardKey={idx.toString()} contact={contact} />
+            <Card key={contact.id || `contact-${idx}`} cardKey={idx.toString()} contact={contact} />
           ))}
         </div>
       )}

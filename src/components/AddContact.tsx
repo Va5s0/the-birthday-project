@@ -29,14 +29,17 @@ type Props = {
   contact?: Contact
 }
 
+const initialState: Partial<Contact> = {
+  id: "",
+  firstName: "",
+  lastName: "",
+}
+
 const AddContact = (props: Props) => {
   const { open, onClose, type, contact } = props
-  const [state, setState] = React.useState<Partial<Contact>>({
-    id: "",
-    firstName: "",
-    lastName: "",
-  })
+  const [state, setState] = React.useState<Partial<Contact>>(initialState)
   const [errors, setErrors] = React.useState<Record<string, string>>()
+  
   const auth = getAuth()
   const { currentUser } = auth
 
@@ -53,6 +56,12 @@ const AddContact = (props: Props) => {
     } else {
       setState((s) => ({ ...s, [name]: null }))
     }
+  }
+
+  const handleClose = () => {
+    setState(initialState)
+    setErrors(undefined)
+    onClose()
   }
 
   const handleSubmit = async () => {
@@ -80,18 +89,16 @@ const AddContact = (props: Props) => {
         })
       }
       handleClose()
-    } catch (err: any) {
-      setErrors(err)
+    } catch (err) {
+      setErrors(err as Record<string, string>)
     }
   }
 
-  const handleClose = () => {
-    setState({ id: "", firstName: "", lastName: "" })
-    onClose()
-  }
+  const modalTitle = type === "connection" ? "Add New Connection" : "Add New Contact"
 
-  const modalTitle =
-    type === "connection" ? "Add New Connection" : "Add New Contact"
+  const handleNamedayChange = (updatedContact?: Partial<Contact>) => {
+    setState(updatedContact ?? {})
+  }
 
   return (
     <Dialog
@@ -166,6 +173,9 @@ const AddContact = (props: Props) => {
                     type={field.value === "email" ? "email" : "text"}
                     size="small"
                     margin="dense"
+                    isPhone={
+                      field.value === "mobile" || field.value === "phone"
+                    }
                   />
                 </Grid>
               )
@@ -193,9 +203,7 @@ const AddContact = (props: Props) => {
               contact={state}
               hasError={() => !!errors?.["nameday.date"]}
               errorMsg={() => errors?.["nameday.date"] || ""}
-              onContactChange={(updatedContact?: Partial<Contact>) =>
-                setState(updatedContact ?? {})
-              }
+              onContactChange={handleNamedayChange}
               margin="dense"
               size="small"
             />

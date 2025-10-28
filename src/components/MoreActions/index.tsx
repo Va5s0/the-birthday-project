@@ -12,13 +12,15 @@ import { ListItemText } from "@mui/material"
 type Option = {
   label?: string
   icon?: ReactNode
-  onClick: (e?: any) => void
+  onClick: () => void
 }
 
 type Props = {
   options: Option[]
 }
+
 function MoreActions(props: Props & IconButtonProps) {
+  const { options, ...iconButtonProps } = props
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
 
   const handleClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
@@ -27,7 +29,7 @@ function MoreActions(props: Props & IconButtonProps) {
     setAnchorEl(evt.currentTarget)
   }
 
-  const handleClosePopUp = (evt: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClosePopUp = (evt: React.MouseEvent) => {
     evt.preventDefault()
     evt.stopPropagation()
     setAnchorEl(null)
@@ -35,7 +37,7 @@ function MoreActions(props: Props & IconButtonProps) {
 
   return (
     <>
-      <IconButton onClick={handleClick}>
+      <IconButton onClick={handleClick} {...iconButtonProps}>
         <MoreVertIcon className={styles.more} />
       </IconButton>
 
@@ -50,20 +52,20 @@ function MoreActions(props: Props & IconButtonProps) {
         open={Boolean(anchorEl)}
         onClose={handleClosePopUp}
       >
-        {props.options.map((obj, idx) => (
+        {options.map((option) => (
           <MenuItem
-            key={idx}
-            data-test-id={`more-actions-${obj.label}`}
+            key={option.label || 'action'}
+            data-test-id={`more-actions-${option.label}`}
             onClick={(evt) => {
               evt.stopPropagation()
               evt.preventDefault()
-              obj.onClick()
+              option.onClick()
               setAnchorEl(null)
             }}
             className={styles.listItem}
           >
-            <ListItemIcon className={styles.listIcon}>{obj.icon}</ListItemIcon>
-            {!!obj?.label ? <ListItemText primary={obj?.label} /> : null}
+            <ListItemIcon className={styles.listIcon}>{option.icon}</ListItemIcon>
+            {option.label && <ListItemText primary={option.label} />}
           </MenuItem>
         ))}
       </Menu>
@@ -79,9 +81,6 @@ const styles = {
     height: 20px;
   `,
   listItem: css`
-    &.MuiListItemIcon-root {
-      min-width: 20px;
-    }
     color: var(--dark-grey-3);
     grid-column-gap: 10px;
   `,

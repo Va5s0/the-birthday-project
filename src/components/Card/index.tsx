@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo, useCallback } from "react"
 import { doc, deleteDoc, updateDoc } from "firebase/firestore"
 import { db } from "../../firebase/fbConfig"
 import { Card as MUICard, IconButton } from "@mui/material"
@@ -24,6 +24,17 @@ type Props = {
   cardKey?: string
 }
 
+// Ensures partial contact has all required Contact fields
+const enhancedContact = (contact: Partial<Contact>): Contact => {
+  return {
+    id: contact.id || "",
+    firstName: contact.firstName || "",
+    lastName: contact.lastName,
+    connections: contact.connections || [],
+    ...contact
+  } as Contact
+}
+
 const Card = (props: Props) => {
   const { contact, cardKey } = props
   const [errors, setErrors] = React.useState<Record<string, any>>()
@@ -32,10 +43,12 @@ const Card = (props: Props) => {
   const [openConnections, setOpenConnections] = React.useState<boolean>(false)
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
   const [openEdit, setOpenEdit] = React.useState<boolean>(false)
-  const [openEditConnection, setOpenEditConnection] = React.useState<boolean>(false)
-  const [editingConnection, setEditingConnection] = React.useState<Common | null>(null)
+  const [openEditConnection, setOpenEditConnection] =
+    React.useState<boolean>(false)
+  const [editingConnection, setEditingConnection] =
+    React.useState<Common | null>(null)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
-  const auth = getAuth()
+  const auth = useMemo(() => getAuth(), [])
   const { currentUser } = auth
   const [avatarUrl, setAvatarUrl] = React.useState<string | undefined>(
     contact.avatarUrl
@@ -46,71 +59,89 @@ const Card = (props: Props) => {
     setUpdatedContact(updatedContact)
   }
 
-  const handleEditSave = async (editedContact: Contact) => {
+  const handleEditSave = useCallback(async (editedContact: Contact) => {
     try {
       const contactRef = doc(
         db,
         `users/${currentUser?.uid}/contacts/${contact.id}`
       )
-      await updateDoc(contactRef, editedContact as any)
+      // Convert Contact to Firestore document format
+      const { id, ...contactData } = editedContact
+      await updateDoc(contactRef, contactData)
       setUpdatedContact(editedContact)
     } catch (error) {
       setErrors(error as Record<string, any>)
     }
-  }
-  
-  const handleConnectionEditSave = async (editedConnection: Contact) => {
+  }, [currentUser?.uid, contact.id])
+
+  const handleConnectionEditSave = useCallback(async (editedConnection: Contact) => {
     try {
-      const updatedConnections = contact.connections?.map(conn => 
-        conn.id === editedConnection.id ? editedConnection as Common : conn
-      ) || []
-      
+      const updatedConnections =
+        contact.connections?.map((conn) =>
+          conn.id === editedConnection.id ? {
+            ...editedConnection,
+            // Ensure only Common fields are included
+            photoURL: undefined,
+            phoneNumber: undefined
+          } as Common : conn
+        ) || []
+
       const updatedContact = {
         ...contact,
-        connections: updatedConnections
+        connections: updatedConnections,
       }
-      
+
       const contactRef = doc(
         db,
         `users/${currentUser?.uid}/contacts/${contact.id}`
       )
-      await updateDoc(contactRef, updatedContact)
+      // Remove id field for Firestore update
+      const { id, ...contactData } = updatedContact
+      await updateDoc(contactRef, contactData)
       setUpdatedContact(updatedContact)
     } catch (error) {
       setErrors(error as Record<string, any>)
     }
-  }
+  }, [contact, currentUser?.uid])
 
-  const deleteFbDoc = async () => {
-    const contactRef = doc(
-      db,
-      `users/${currentUser?.uid}/contacts/${contact?.id}`
-    )
-    await deleteDoc(contactRef)
-    setModalInfo(undefined)
-  }
+  const deleteFromFirestore = useCallback(async (path: string, updatedData?: Partial<Contact>) => {
+    try {
+      const docRef = doc(db, path)
+      if (updatedData) {
+        // Remove id field for Firestore update
+        const { id, ...dataToUpdate } = updatedData
+        await updateDoc(docRef, dataToUpdate)
+      } else {
+        await deleteDoc(docRef)
+      }
+      setModalInfo(undefined)
+    } catch (error) {
+      setErrors(error as Record<string, any>)
+    }
+  }, [])
 
-  const deleteConnection = async (id?: string) => {
+  const deleteFbDoc = useCallback(async () => {
+    const path = `users/${currentUser?.uid}/contacts/${contact?.id}`
+    await deleteFromFirestore(path)
+  }, [currentUser?.uid, contact?.id, deleteFromFirestore])
+
+  const deleteConnection = useCallback(async (id?: string) => {
     const updatedContact = {
       ...contact,
       connections: contact?.connections?.filter((c) => c?.id !== id),
     }
-    const contactRef = doc(
-      db,
-      `users/${currentUser?.uid}/contacts/${contact?.id}`
-    )
-    await updateDoc(contactRef, updatedContact)
-    setModalInfo(undefined)
-  }
+    const path = `users/${currentUser?.uid}/contacts/${contact?.id}`
+    await deleteFromFirestore(path, updatedContact)
+  }, [contact, currentUser?.uid, deleteFromFirestore])
 
   const onOpenConnections = () => setOpenConnections(!openConnections)
 
   const onOpenAdd = () => setOpenAdd(true)
   const onCloseAdd = () => setOpenAdd(false)
-  
+
   const onOpenEdit = () => setOpenEdit(true)
   const onCloseEdit = () => setOpenEdit(false)
-  
+
   const onOpenEditConnection = (connection: Common) => {
     setEditingConnection(connection)
     setOpenEditConnection(true)
@@ -120,16 +151,16 @@ const Card = (props: Props) => {
     setEditingConnection(null)
   }
 
-  const onDelete = async () =>
+  const onDelete = useCallback(() =>
     setModalInfo({
       title: "Delete Contact",
       type: "destructive",
       description: "Are you sure you want to delete this contact",
       confirmLabel: "Delete",
       onSubmit: deleteFbDoc,
-    })
+    }), [deleteFbDoc])
 
-  const onDeleteConnection = async (id?: string) =>
+  const onDeleteConnection = useCallback(async (id?: string) => {
     setModalInfo({
       title: "Delete Connection",
       type: "destructive",
@@ -137,14 +168,14 @@ const Card = (props: Props) => {
       confirmLabel: "Delete",
       onSubmit: () => deleteConnection(id),
     })
+  }, [deleteConnection])
 
   const isModalOpen = Boolean(modalInfo)
 
-  const handleAvatarChange = async (url: string) => {
+  const handleAvatarChange = useCallback(async (url: string) => {
     setAvatarUrl(url)
-    const updated = { ...updatedContact, avatarUrl: url }
-    setUpdatedContact(updated)
-    
+    setUpdatedContact(prev => ({ ...prev, avatarUrl: url }))
+
     // Auto-save avatar change
     try {
       const contactRef = doc(
@@ -155,9 +186,12 @@ const Card = (props: Props) => {
     } catch (error) {
       setErrors(error as Record<string, any>)
     }
-  }
+  }, [currentUser?.uid, contact.id])
 
-  React.useEffect(() => setUpdatedContact(contact), [contact])
+  React.useEffect(() => {
+    setUpdatedContact(contact)
+    setAvatarUrl(contact.avatarUrl)
+  }, [contact])
 
   return (
     <div
@@ -179,10 +213,7 @@ const Card = (props: Props) => {
           <div className={styles.content}>
             <div className={styles.firstRowContainer}>
               <div
-                className={cx(
-                  styles.avatarContainer,
-                  styles.avatarContainerGap
-                )}
+                className={styles.avatarContainer}
               >
                 <AvatarUpload
                   contactId={contact.id}
@@ -220,10 +251,7 @@ const Card = (props: Props) => {
               />
             </div>
             <div className={styles.cardInfoContainer}>
-              <CardInfo
-                contact={updatedContact as Contact}
-                editable={false}
-              />
+              <CardInfo contact={enhancedContact(updatedContact)} editable={false} />
             </div>
             <div className={styles.connectionsRow}>
               {!!contact?.connections?.length && (
@@ -233,14 +261,15 @@ const Card = (props: Props) => {
                   />
                 </IconButton>
               )}
-              <IconButton onClick={onOpenAdd} className={styles.addConnectionButton}>
-                <AddIcon
-                  className={cx(styles.primaryIcon, styles.smallIcon)}
-                />
+              <IconButton
+                onClick={onOpenAdd}
+                className={styles.addConnectionButton}
+              >
+                <AddIcon className={cx(styles.primaryIcon, styles.smallIcon)} />
               </IconButton>
             </div>
             <Connections
-              contact={updatedContact as Contact}
+              contact={enhancedContact(updatedContact)}
               open={openConnections}
               editable={false}
               onDelete={onDeleteConnection}
@@ -254,7 +283,7 @@ const Card = (props: Props) => {
           open={openAdd}
           onClose={onCloseAdd}
           type="connection"
-          contact={contact as Contact}
+          contact={contact}
         />
         <EditModal
           open={openEdit}
@@ -266,7 +295,7 @@ const Card = (props: Props) => {
           <EditModal
             open={openEditConnection}
             onClose={onCloseEditConnection}
-            contact={editingConnection as Contact}
+            contact={enhancedContact(editingConnection)}
             onSave={handleConnectionEditSave}
             isConnection={true}
           />
@@ -293,11 +322,6 @@ const styles = {
   `,
   connectionsContainer: css`
     position: relative;
-  `,
-  buttonsContainer: css`
-    display: flex;
-    gap: 4px;
-    align-items: center;
   `,
   cardContainer: css`
     padding: 24px;
@@ -403,34 +427,6 @@ const styles = {
     gap: 12px;
     flex: 1;
   `,
-  avatarContainerGap: css`
-    gap: 12px;
-  `,
-  avatar: css`
-    width: 48px;
-    height: 48px;
-    color: var(--primary-main);
-    background-color: rgba(99, 102, 241, 0.1);
-    border-radius: 50%;
-    padding: 6px;
-    transition: all 0.3s ease;
-    &:hover {
-      transform: scale(1.05);
-      background-color: rgba(99, 102, 241, 0.15);
-    }
-
-    @media (max-width: 768px) {
-      width: 42px;
-      height: 42px;
-      padding: 5px;
-    }
-
-    @media (max-width: 480px) {
-      width: 38px;
-      height: 38px;
-      padding: 4px;
-    }
-  `,
   ghostContainer: css`
     display: flex;
     flex-direction: column;
@@ -463,10 +459,6 @@ const styles = {
     @media (max-width: 480px) {
       font-size: 0.95rem;
     }
-  `,
-  more: css`
-    width: 20px;
-    height: 20px;
   `,
   connectionsRow: css`
     display: flex;
@@ -513,19 +505,6 @@ const styles = {
       filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3));
     }
   `,
-  cancelIcon: css`
-    width: 32px;
-    height: 32px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    &:hover {
-      transform: scale(1.1) rotate(5deg);
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    }
-  `,
-  disabledIcon: css`
-    color: var(--text-tertiary);
-    cursor: not-allowed;
-  `,
   paddingBottom: css`
     padding-bottom: 20px;
   `,
@@ -566,7 +545,7 @@ const styles = {
     color: var(--primary-main);
     margin-left: 8px;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background: rgba(99, 102, 241, 0.15);
       border-color: rgba(99, 102, 241, 0.3);
