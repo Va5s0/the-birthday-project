@@ -1,57 +1,58 @@
 import { createTheme, ThemeOptions } from "@mui/material"
 import { css } from "@emotion/css"
 
-const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
+const getTheme = (mode: "light" | "dark"): ThemeOptions => ({
   palette: {
     mode,
     primary: {
-      main: mode === 'dark' ? '#8b5cf6' : '#6366f1',
-      dark: mode === 'dark' ? '#7c3aed' : '#4f46e5',
-      light: mode === 'dark' ? '#a78bfa' : '#8b5cf6',
+      main: mode === "dark" ? "#0ea5e9" : "#0369a1",
+      dark: mode === "dark" ? "#0369a1" : "#075985",
+      light: mode === "dark" ? "#38bdf8" : "#0ea5e9",
     },
     secondary: {
-      main: mode === 'dark' ? '#f472b6' : '#ec4899',
-      dark: mode === 'dark' ? '#ec4899' : '#db2777',
-      light: mode === 'dark' ? '#f9a8d4' : '#f472b6',
+      main: mode === "dark" ? "#94a3b8" : "#64748b",
+      dark: mode === "dark" ? "#64748b" : "#475569",
+      light: mode === "dark" ? "#cbd5e1" : "#94a3b8",
     },
     background: {
-      default: mode === 'dark' ? '#0f172a' : '#ffffff',
-      paper: mode === 'dark' ? '#1e293b' : '#ffffff',
+      default: mode === "dark" ? "#0f172a" : "#ffffff",
+      paper: mode === "dark" ? "#1e293b" : "#ffffff",
     },
     text: {
-      primary: mode === 'dark' ? '#f8fafc' : '#1e293b',
-      secondary: mode === 'dark' ? '#cbd5e1' : '#64748b',
+      primary: mode === "dark" ? "#f8fafc" : "#1e293b",
+      secondary: mode === "dark" ? "#cbd5e1" : "#64748b",
     },
-    divider: mode === 'dark' ? '#334155' : '#e2e8f0',
+    divider: mode === "dark" ? "#334155" : "#e2e8f0",
   },
   typography: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
     h1: {
       fontWeight: 700,
-      fontSize: '2.5rem',
+      fontSize: "2.5rem",
       lineHeight: 1.2,
     },
     h2: {
       fontWeight: 700,
-      fontSize: '2rem',
+      fontSize: "2rem",
       lineHeight: 1.3,
     },
     h3: {
       fontWeight: 600,
-      fontSize: '1.5rem',
+      fontSize: "1.5rem",
       lineHeight: 1.4,
     },
     h4: {
       fontWeight: 600,
-      fontSize: '1.25rem',
+      fontSize: "1.25rem",
       lineHeight: 1.4,
     },
     body1: {
-      fontSize: '1rem',
+      fontSize: "1rem",
       lineHeight: 1.6,
     },
     body2: {
-      fontSize: '0.875rem',
+      fontSize: "0.875rem",
       lineHeight: 1.5,
     },
   },
@@ -62,38 +63,38 @@ const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: 'var(--bg-primary)',
-          color: 'var(--text-primary)',
+          backgroundColor: "var(--bg-primary)",
+          color: "var(--text-primary)",
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: 'var(--bg-elevated)',
-          color: 'var(--text-primary)',
-          boxShadow: 'var(--shadow-md)',
-          borderBottom: '1px solid var(--border-primary)',
+          backgroundColor: "var(--bg-elevated)",
+          color: "var(--text-primary)",
+          boxShadow: "var(--shadow-md)",
+          borderBottom: "1px solid var(--border-primary)",
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: 'var(--bg-surface)',
-          color: 'var(--text-primary)',
-          boxShadow: 'var(--shadow-md)',
-          border: '1px solid var(--border-primary)',
+          backgroundColor: "var(--bg-surface)",
+          color: "var(--text-primary)",
+          boxShadow: "var(--shadow-md)",
+          border: "1px solid var(--border-primary)",
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: 'var(--bg-surface)',
-          color: 'var(--text-primary)',
-          boxShadow: 'var(--shadow-md)',
-          border: '1px solid var(--border-primary)',
+          backgroundColor: "var(--bg-surface)",
+          color: "var(--text-primary)",
+          boxShadow: "var(--shadow-md)",
+          border: "1px solid var(--border-primary)",
           borderRadius: 16,
         },
       },
@@ -108,7 +109,7 @@ const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
           fontStyle: "normal",
           letterSpacing: "normal",
           color: "var(--text-primary)",
-          backgroundColor: "var(--bg-surface)",
+          backgroundColor: "transparent",
           cursor: "text",
           display: "inline-flex",
           position: "relative",
@@ -123,6 +124,17 @@ const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
     },
     MuiOutlinedInput: {
       styleOverrides: {
+        root: {
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "var(--border-secondary)",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "var(--border-focus)",
+          },
+        },
+        notchedOutline: {
+          borderColor: "var(--border-primary)",
+        },
         input: {
           padding: "16px",
           height: "16px",
@@ -139,9 +151,11 @@ const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
       styleOverrides: {
         outlined: {
           fontSize: "14px",
+          color: "var(--text-secondary)",
           transform: "translate(14px, 17px) scale(1)",
           "&.MuiInputLabel-shrink": {
-            margin: 0,
+            marginTop: mode === "dark" ? "-9px" : "0",
+            color: "var(--text-primary)",
             transform: "translate(15px, -6px) scale(0.75)",
           },
         },
@@ -165,7 +179,7 @@ const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
       styleOverrides: {
         marginNormal: {
           height: "fit-content",
-          backgroundColor: "#fcfcfc",
+          backgroundColor: "transparent",
         },
       },
     },
@@ -256,7 +270,7 @@ const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
           "&.Mui-selected": {
             color: "var(--white)",
             backgroundColor: "var(--primary-main)",
-            boxShadow: "0 2px 8px rgba(0,141,205,0.13)",
+            boxShadow: "0 2px 8px rgba(3, 105, 161, 0.2)",
             "&:hover": {
               backgroundColor: "var(--primary-dark)",
               color: "var(--white)",
@@ -269,10 +283,11 @@ const getTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
   },
 })
 
-export const createAppTheme = (mode: 'light' | 'dark') => createTheme(getTheme(mode))
+export const createAppTheme = (mode: "light" | "dark") =>
+  createTheme(getTheme(mode))
 
 // Export default light theme for backward compatibility
-export const theme = createAppTheme('light')
+export const theme = createAppTheme("light")
 
 css`
   /* Inputs */
@@ -311,14 +326,13 @@ css`
 
   .MuiInputLabel-outlined {
     font-size: 14px;
+    color: var(--text-secondary);
     transform: translate(14px, 17px) scale(1);
   }
 
   .MuiInputLabel-outlined.MuiInputLabel-shrink {
-    margin: 0;
-  }
-
-  .MuiInputLabel-outlined.MuiInputLabel-shrink {
+    margin-top: mode === "dark" ? "-9px" : "0",
+    color: var(--text-primary);
     transform: translate(15px, -6px) scale(0.75);
   }
 
@@ -344,7 +358,7 @@ css`
 
   .MuiFormControl-marginNormal {
     height: fit-content;
-    background-color: #fcfcfc;
+    background-color: transparent;
   }
 
   .MuiSelect-outlined.MuiSelect-outlined {

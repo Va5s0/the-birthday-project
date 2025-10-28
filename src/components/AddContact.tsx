@@ -237,6 +237,10 @@ const styles = {
       border-radius: 12px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     }
+
+    .MuiDialogTitle-root + .MuiDialogContent-root {
+      padding-top: 4px;
+    }
   `,
   title: css`
     display: flex;
