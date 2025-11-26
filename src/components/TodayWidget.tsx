@@ -9,11 +9,16 @@ import { motion } from "framer-motion"
 
 function isToday(dateString?: string) {
   if (!dateString) return false
+
+  // Create date objects and normalize to local midnight
   const date = new Date(dateString)
   const today = new Date()
-  return (
-    date.getDate() === today.getDate() && date.getMonth() === today.getMonth()
-  )
+
+  // Reset both to midnight local time for accurate comparison
+  date.setHours(0, 0, 0, 0)
+  today.setHours(0, 0, 0, 0)
+
+  return date.getTime() === today.getTime()
 }
 
 const TodayWidget = () => {
