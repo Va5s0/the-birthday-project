@@ -1,9 +1,14 @@
-import React, { useMemo, useCallback } from "react"
-import { doc, deleteDoc, updateDoc } from "firebase/firestore"
-import { db } from "../../firebase/fbConfig"
+import React, { useCallback } from "react"
 import { Card as MUICard, IconButton } from "@mui/material"
 import { css, cx } from "@emotion/css"
-import { Contact, Common } from "../../models/contact"
+import { Contact, Connection } from "../../models/contact"
+import { useAuth } from "../../context/AuthContext"
+import {
+  useUpdateContact,
+  useUpdateConnection,
+  useDeleteContact,
+  useDeleteConnection,
+} from "../../hooks/useContacts"
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
@@ -16,27 +21,30 @@ import ConfirmationModal, {
 import { EditModal } from "../../components/EditModal"
 import AddContact from "../../components/AddContact"
 import Connections from "../../components/Connections"
-import { getAuth } from "firebase/auth"
 import AvatarUpload from "../AvatarUpload"
 
 type Props = {
   contact: Contact
   cardKey?: string
+  onUpdate?: () => void
 }
 
 // Ensures partial contact has all required Contact fields
 const enhancedContact = (contact: Partial<Contact>): Contact => {
   return {
     id: contact.id || "",
+    userId: contact.userId || "",
     firstName: contact.firstName || "",
     lastName: contact.lastName,
     connections: contact.connections || [],
-    ...contact
+    createdAt: contact.createdAt || new Date().toISOString(),
+    updatedAt: contact.updatedAt || new Date().toISOString(),
+    ...contact,
   } as Contact
 }
 
 const Card = (props: Props) => {
-  const { contact, cardKey } = props
+  const { contact, cardKey, onUpdate } = props
   const [errors, setErrors] = React.useState<Record<string, any>>()
   const [updatedContact, setUpdatedContact] =
     React.useState<Partial<Contact>>(contact)
@@ -46,103 +54,95 @@ const Card = (props: Props) => {
   const [openEditConnection, setOpenEditConnection] =
     React.useState<boolean>(false)
   const [editingConnection, setEditingConnection] =
-    React.useState<Common | null>(null)
+    React.useState<Connection | null>(null)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
-  const auth = useMemo(() => getAuth(), [])
-  const { currentUser } = auth
+  const { user } = useAuth()
   const [avatarUrl, setAvatarUrl] = React.useState<string | undefined>(
-    contact.avatarUrl
+    contact.avatarUrl || undefined
   )
 
-  const onContactChange = (contact?: Partial<Contact>) => {
-    const updatedContact = contact || { id: "", firstName: "" }
-    setUpdatedContact(updatedContact)
-  }
+  const updateContactMutation = useUpdateContact()
+  const updateConnectionMutation = useUpdateConnection()
+  const deleteContactMutation = useDeleteContact()
+  const deleteConnectionMutation = useDeleteConnection()
 
-  const handleEditSave = useCallback(async (editedContact: Contact) => {
-    try {
-      const contactRef = doc(
-        db,
-        `users/${currentUser?.uid}/contacts/${contact.id}`
-      )
-      // Convert Contact to Firestore document format
-      const { id, ...contactData } = editedContact
-      await updateDoc(contactRef, contactData)
-      setUpdatedContact(editedContact)
-    } catch (error) {
-      setErrors(error as Record<string, any>)
-    }
-  }, [currentUser?.uid, contact.id])
-
-  const handleConnectionEditSave = useCallback(async (editedConnection: Contact) => {
-    try {
-      const updatedConnections =
-        contact.connections?.map((conn) =>
-          conn.id === editedConnection.id ? {
-            ...editedConnection,
-            // Ensure only Common fields are included
-            photoURL: undefined,
-            phoneNumber: undefined
-          } as Common : conn
-        ) || []
-
-      const updatedContact = {
-        ...contact,
-        connections: updatedConnections,
+  const handleEditSave = useCallback(
+    async (editedContact: Contact) => {
+      try {
+        const updated = await updateContactMutation.mutateAsync({
+          id: contact.id,
+          data: editedContact,
+        })
+        setUpdatedContact(updated)
+        if (onUpdate) onUpdate()
+      } catch (error: any) {
+        setErrors({ general: error.message || "Failed to update contact" })
       }
+    },
+    [contact.id, onUpdate, updateContactMutation]
+  )
 
-      const contactRef = doc(
-        db,
-        `users/${currentUser?.uid}/contacts/${contact.id}`
-      )
-      // Remove id field for Firestore update
-      const { id, ...contactData } = updatedContact
-      await updateDoc(contactRef, contactData)
-      setUpdatedContact(updatedContact)
-    } catch (error) {
-      setErrors(error as Record<string, any>)
-    }
-  }, [contact, currentUser?.uid])
+  const handleConnectionEditSave = useCallback(
+    async (editedConnection: Contact) => {
+      try {
+        await updateConnectionMutation.mutateAsync({
+          contactId: contact.id,
+          connectionId: editedConnection.id,
+          data: editedConnection,
+        })
 
-  const deleteFromFirestore = useCallback(async (path: string, updatedData?: Partial<Contact>) => {
-    try {
-      const docRef = doc(db, path)
-      if (updatedData) {
-        // Remove id field for Firestore update
-        const { id, ...dataToUpdate } = updatedData
-        await updateDoc(docRef, dataToUpdate)
-      } else {
-        await deleteDoc(docRef)
+        // React Query will auto-update the cache
+        if (onUpdate) onUpdate()
+      } catch (error: any) {
+        setErrors({ general: error.message || "Failed to update connection" })
       }
+    },
+    [contact.id, onUpdate, updateConnectionMutation]
+  )
+
+  const deleteContact = useCallback(async () => {
+    try {
+      await deleteContactMutation.mutateAsync(contact.id)
       setModalInfo(undefined)
-    } catch (error) {
-      setErrors(error as Record<string, any>)
+      if (onUpdate) onUpdate()
+    } catch (error: any) {
+      setErrors({ general: error.message || "Failed to delete contact" })
     }
-  }, [])
+  }, [contact.id, onUpdate, deleteContactMutation])
 
-  const deleteFbDoc = useCallback(async () => {
-    const path = `users/${currentUser?.uid}/contacts/${contact?.id}`
-    await deleteFromFirestore(path)
-  }, [currentUser?.uid, contact?.id, deleteFromFirestore])
+  const deleteConnection = useCallback(
+    async (connectionId?: string) => {
+      if (!connectionId) return
 
-  const deleteConnection = useCallback(async (id?: string) => {
-    const updatedContact = {
-      ...contact,
-      connections: contact?.connections?.filter((c) => c?.id !== id),
-    }
-    const path = `users/${currentUser?.uid}/contacts/${contact?.id}`
-    await deleteFromFirestore(path, updatedContact)
-  }, [contact, currentUser?.uid, deleteFromFirestore])
+      try {
+        await deleteConnectionMutation.mutateAsync({
+          contactId: contact.id,
+          connectionId,
+        })
+
+        // React Query will auto-update the cache
+        setModalInfo(undefined)
+        if (onUpdate) onUpdate()
+      } catch (error: any) {
+        setErrors({ general: error.message || "Failed to delete connection" })
+      }
+    },
+    [contact.id, onUpdate, deleteConnectionMutation]
+  )
 
   const onOpenConnections = () => setOpenConnections(!openConnections)
 
   const onOpenAdd = () => setOpenAdd(true)
-  const onCloseAdd = () => setOpenAdd(false)
+  const onCloseAdd = () => {
+    setOpenAdd(false)
+    // Refresh contact after adding connection
+    if (onUpdate) onUpdate()
+  }
 
   const onOpenEdit = () => setOpenEdit(true)
   const onCloseEdit = () => setOpenEdit(false)
 
-  const onOpenEditConnection = (connection: Common) => {
+  const onOpenEditConnection = (connection: Connection) => {
     setEditingConnection(connection)
     setOpenEditConnection(true)
   }
@@ -151,46 +151,55 @@ const Card = (props: Props) => {
     setEditingConnection(null)
   }
 
-  const onDelete = useCallback(() =>
-    setModalInfo({
-      title: "Delete Contact",
-      type: "destructive",
-      description: "Are you sure you want to delete this contact",
-      confirmLabel: "Delete",
-      onSubmit: deleteFbDoc,
-    }), [deleteFbDoc])
+  const onDelete = useCallback(
+    () =>
+      setModalInfo({
+        title: "Delete Contact",
+        type: "destructive",
+        description: "Are you sure you want to delete this contact",
+        confirmLabel: "Delete",
+        onSubmit: deleteContact,
+      }),
+    [deleteContact]
+  )
 
-  const onDeleteConnection = useCallback(async (id?: string) => {
-    setModalInfo({
-      title: "Delete Connection",
-      type: "destructive",
-      description: "Are you sure you want to delete this connection",
-      confirmLabel: "Delete",
-      onSubmit: () => deleteConnection(id),
-    })
-  }, [deleteConnection])
+  const onDeleteConnection = useCallback(
+    async (id?: string) => {
+      setModalInfo({
+        title: "Delete Connection",
+        type: "destructive",
+        description: "Are you sure you want to delete this connection",
+        confirmLabel: "Delete",
+        onSubmit: () => deleteConnection(id),
+      })
+    },
+    [deleteConnection]
+  )
 
   const isModalOpen = Boolean(modalInfo)
 
-  const handleAvatarChange = useCallback(async (url: string) => {
-    setAvatarUrl(url)
-    setUpdatedContact(prev => ({ ...prev, avatarUrl: url }))
+  const handleAvatarChange = useCallback(
+    async (url: string) => {
+      setAvatarUrl(url)
+      setUpdatedContact((prev) => ({ ...prev, avatarUrl: url }))
 
-    // Auto-save avatar change
-    try {
-      const contactRef = doc(
-        db,
-        `users/${currentUser?.uid}/contacts/${contact.id}`
-      )
-      await updateDoc(contactRef, { avatarUrl: url })
-    } catch (error) {
-      setErrors(error as Record<string, any>)
-    }
-  }, [currentUser?.uid, contact.id])
+      // Auto-save avatar change
+      try {
+        await updateContactMutation.mutateAsync({
+          id: contact.id,
+          data: { avatarUrl: url },
+        })
+        if (onUpdate) onUpdate()
+      } catch (error: any) {
+        setErrors({ general: error.message || "Failed to update avatar" })
+      }
+    },
+    [contact.id, onUpdate, updateContactMutation]
+  )
 
   React.useEffect(() => {
     setUpdatedContact(contact)
-    setAvatarUrl(contact.avatarUrl)
+    setAvatarUrl(contact.avatarUrl || undefined)
   }, [contact])
 
   return (
@@ -205,23 +214,20 @@ const Card = (props: Props) => {
         <MUICard
           variant="outlined"
           className={cx(styles.cardContainer, {
-            [styles.paddingBottom]: !contact?.connections?.length,
             [styles.active]: openConnections,
           })}
           elevation={0}
         >
           <div className={styles.content}>
             <div className={styles.firstRowContainer}>
-              <div
-                className={styles.avatarContainer}
-              >
+              <div className={styles.avatarContainer}>
                 <AvatarUpload
                   contactId={contact.id}
-                  userId={currentUser?.uid || ""}
+                  userId={user?.id || ""}
                   currentAvatarUrl={avatarUrl}
                   onAvatarChange={handleAvatarChange}
                   firstName={contact.firstName}
-                  lastName={contact.lastName}
+                  lastName={contact.lastName || undefined}
                 />
                 <div className={styles.ghostContainer}>
                   <div className={styles.name}>
@@ -251,7 +257,10 @@ const Card = (props: Props) => {
               />
             </div>
             <div className={styles.cardInfoContainer}>
-              <CardInfo contact={enhancedContact(updatedContact)} editable={false} />
+              <CardInfo
+                contact={enhancedContact(updatedContact)}
+                editable={false}
+              />
             </div>
             <div className={styles.connectionsRow}>
               {!!contact?.connections?.length && (
@@ -275,7 +284,6 @@ const Card = (props: Props) => {
               onDelete={onDeleteConnection}
               onEditConnection={onOpenEditConnection}
               errors={errors}
-              onContactChange={onContactChange}
             />
           </div>
         </MUICard>
@@ -284,6 +292,7 @@ const Card = (props: Props) => {
           onClose={onCloseAdd}
           type="connection"
           contact={contact}
+          onSuccess={onCloseAdd}
         />
         <EditModal
           open={openEdit}
@@ -295,7 +304,7 @@ const Card = (props: Props) => {
           <EditModal
             open={openEditConnection}
             onClose={onCloseEditConnection}
-            contact={enhancedContact(editingConnection)}
+            contact={enhancedContact(editingConnection as Partial<Contact>)}
             onSave={handleConnectionEditSave}
             isConnection={true}
           />
@@ -325,6 +334,7 @@ const styles = {
   `,
   cardContainer: css`
     padding: 24px;
+    padding-bottom: 20px;
     border-radius: 16px;
     border: 1px solid var(--border-primary);
     position: relative;
@@ -504,9 +514,6 @@ const styles = {
       transform: scale(1.1) rotate(-5deg);
       filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3));
     }
-  `,
-  paddingBottom: css`
-    padding-bottom: 20px;
   `,
   cardInfoContainer: css`
     padding: 16px 0 0;

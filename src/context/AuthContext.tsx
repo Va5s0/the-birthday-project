@@ -1,266 +1,233 @@
-import React, { ReactNode } from "react"
-import {
-  getAuth,
-  User,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  sendPasswordResetEmail,
-  confirmPasswordReset,
-  UserCredential,
-  onAuthStateChanged,
-  updateProfile,
-  deleteUser,
-} from "firebase/auth"
-import { errorCodes } from "./errorCodes"
-import { firebase } from "../firebase/fbConfig"
-import {
-  StorageReference,
-  uploadBytes,
-  getBlob,
-  deleteObject,
-} from "firebase/storage"
-
-const actionCodeSettings = (email: string) => ({
-  url: `http://localhost:3001/reset?email=${email}`,
-  handleCodeInApp: true,
-})
-
-type AuthContextType = {
-  user: User | null
-  loading: boolean
-  register: ({ email, password }: Sign) => Promise<UserCredential>
-  login: ({ email, password }: Sign) => Promise<User>
-  logout: () => Promise<void>
-  sendPswdResetEmail: (email: string) => Promise<boolean>
-  confirmPswdReset: (code: string, password: string) => Promise<boolean>
-  editProfile: ({
-    firstName,
-    lastName,
-    photoURL,
-  }: {
-    firstName?: string
-    lastName?: string
-    photoURL?: string | null
-  }) => Promise<void>
-  userDelete: (user: User) => Promise<any>
-  error?: Error
-  resetError: (error?: string) => void
-  upload: (
-    storageRef: StorageReference,
-    file: Blob | Uint8Array | ArrayBuffer
-  ) => Promise<void>
-  fetchFile: (id: string, ref: StorageReference) => Promise<any>
-  deleteFile: (ref: StorageReference) => Promise<void>
-  snackbar?: boolean
-  file?: Blob | Uint8Array | ArrayBuffer
-}
+import React, { ReactNode, useEffect, useState, useCallback } from 'react';
+import { api, User, tokenManager } from '../services/api';
 
 export type Sign = {
-  email: string
-  password: string
-  callback: VoidFunction
-}
+  email: string;
+  password: string;
+  callback?: VoidFunction;
+};
 
 export type Error = {
-  code: string | number
-  message: string
-}
+  code: string | number;
+  message: string;
+};
 
-const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
+type AuthContextType = {
+  user: User | null;
+  loading: boolean;
+  register: ({ email, password, callback }: Sign) => Promise<User>;
+  login: ({ email, password, callback }: Sign) => Promise<User>;
+  logout: () => Promise<void>;
+  sendPswdResetEmail: (email: string) => Promise<boolean>;
+  confirmPswdReset: (token: string, password: string) => Promise<boolean>;
+  editProfile: (data: Partial<User>) => Promise<void>;
+  userDelete: () => Promise<void>;
+  error?: Error;
+  resetError: () => void;
+  uploadAvatar: (file: File) => Promise<void>;
+  deleteAvatar: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+};
+
+const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export const ProvideAuth = ({ children }: { children: ReactNode }) => {
-  const auth = useProvideAuth() || {}
-  return (
-    <AuthContext.Provider value={{ ...auth, ...firebase }}>
-      {children}
-    </AuthContext.Provider>
-  )
-}
+  const auth = useProvideAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+};
 
-export const useAuth = () => React.useContext(AuthContext)
-
-function useProvideAuth() {
-  const auth = getAuth()
-  const [user, setUser] = React.useState<any>(auth.currentUser)
-  const [timestamp, setTimestamp] = React.useState<number>()
-  const [loading, setLoading] = React.useState<boolean>(true)
-  const [error, setError] = React.useState<Error>()
-  const [snackbar, setSnackbar] = React.useState<boolean>()
-  const [file, setFile] = React.useState<Blob | Uint8Array | ArrayBuffer>()
-
-  const onComplete = (user: User | null) => {
-    setUser(user)
-    setLoading(false)
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within ProvideAuth');
   }
+  return context;
+};
 
-  const register = ({ email, password }: Sign) =>
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((user) => user)
-      .catch((e) => {
-        const errorCode = e?.code as string
-        setError({
-          code: errorCode,
-          message: errorCodes[errorCode as keyof typeof errorCodes],
-        })
-        return e
-      })
+function useProvideAuth(): AuthContextType {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | undefined>();
 
-  const login = ({ email, password }: Sign) =>
-    signInWithEmailAndPassword(auth, email, password)
-      .then((response) => {
-        const { user } = response
-        return user
-      })
-      .catch((e) => {
-        const errorCode = e?.code as string
-        setError({
-          code: errorCode,
-          message: errorCodes[errorCode as keyof typeof errorCodes],
-        })
-        return e
-      })
+  // Check if user is authenticated on mount
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        // Try to get a valid token (will use refresh token if access token is missing/expired)
+        const token = await tokenManager.getValidToken();
 
-  const logout = () => signOut(auth)
+        if (token) {
+          // We have a valid token, fetch user profile
+          const profile = await api.getProfile();
+          setUser(profile);
+        }
+      } catch (err) {
+        console.error('Failed to restore session:', err);
+        tokenManager.clearTokens();
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const sendPswdResetEmail = (email: string) =>
-    sendPasswordResetEmail(auth, email, actionCodeSettings(email))
-      .then(() => {
-        return true
-      })
-      .catch((e) => {
-        const errorCode = e?.code as string
-        setError({
-          code: errorCode,
-          message: errorCodes[errorCode as keyof typeof errorCodes],
-        })
-        return e
-      })
+    initAuth();
+  }, []);
 
-  const confirmPswdReset = (code: string, password: string) =>
-    confirmPasswordReset(auth, code, password)
-      .then(() => {
-        return true
-      })
-      .catch((e) => {
-        const errorCode = e?.code as string
-        setError({
-          code: errorCode,
-          message: errorCodes[errorCode as keyof typeof errorCodes],
-        })
-        return e
-      })
-
-  const editProfile = async ({
-    firstName,
-    lastName,
-    photoURL,
-  }: {
-    firstName?: string
-    lastName?: string
-    photoURL?: string | null
-  }) => {
-    const profile = {
-      displayName:
-        !!firstName || !!lastName ? `${firstName} ${lastName}` : undefined,
-      photoURL,
+  const refreshUser = useCallback(async () => {
+    if (!tokenManager.getAccessToken()) {
+      setUser(null);
+      return;
     }
-    await updateProfile(user, profile).catch((e) => {
-      const errorCode = e?.code as string
+
+    try {
+      const profile = await api.getProfile();
+      setUser(profile);
+    } catch (err) {
+      console.error('Failed to refresh user profile:', err);
+      setUser(null);
+      tokenManager.clearTokens();
+    }
+  }, []);
+
+  const register = async ({ email, password, callback }: Sign): Promise<User> => {
+    try {
+      setError(undefined);
+      const response = await api.register(email, password);
+      setUser(response.user);
+      if (callback) callback();
+      return response.user;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Registration failed';
       setError({
-        code: errorCode,
-        message: errorCodes[errorCode as keyof typeof errorCodes],
-      })
-      return e
-    })
-    setTimestamp(Date.now())
-  }
+        code: 'registration-error',
+        message: errorMessage,
+      });
+      throw err;
+    }
+  };
 
-  // const editEmail = async (email: string) => {
-  //   await updateEmail(user, email).catch((e) => {
-  //     const errorCode = e?.code as string
-  //     setError({
-  //       code: errorCode,
-  //       message: errorCodes[errorCode as keyof typeof errorCodes],
-  //     })
-  //     return e
-  //   })
-  //   setTimestamp(Date.now())
-  // }
-
-  const userDelete = (user: User) =>
-    deleteUser(user).catch((e) => {
-      const errorCode = e?.code as string
+  const login = async ({ email, password, callback }: Sign): Promise<User> => {
+    try {
+      setError(undefined);
+      const response = await api.login(email, password);
+      setUser(response.user);
+      if (callback) callback();
+      return response.user;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Login failed';
       setError({
-        code: errorCode,
-        message: errorCodes[errorCode as keyof typeof errorCodes],
-      })
-      return e
-    })
+        code: 'login-error',
+        message: errorMessage,
+      });
+      throw err;
+    }
+  };
 
-  const resetError = () => setError(undefined)
+  const logout = async (): Promise<void> => {
+    try {
+      await api.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      setUser(null);
+      tokenManager.clearTokens();
+    }
+  };
 
-  const upload = async (
-    storageRef: StorageReference,
-    file: Blob | Uint8Array | ArrayBuffer
-  ) => {
-    await uploadBytes(storageRef, file)
-      .then(() => {
-        console.log("Uploaded a blob or file!")
-      })
-      .catch((e) => {
-        const errorCode = e?.code as string
-        setError({
-          code: errorCode,
-          message: errorCodes[errorCode as keyof typeof errorCodes],
-        })
-        return e
-      })
-    setTimestamp(Date.now())
-    setFile(file)
-  }
-
-  const fetchFile = async (id: string, ref: StorageReference) => {
-    await getBlob(ref)
-      .then((blob) => {
-        const image = document.getElementById(id) as HTMLImageElement
-        const objectUrl = URL.createObjectURL(blob)
-        image.src = objectUrl
-      })
-      .catch((e) => {
-        const errorCode = e?.code as string
-        setSnackbar(false)
-        setError({
-          code: errorCode,
-          message: errorCodes[errorCode as keyof typeof errorCodes],
-        })
-        return e
-      })
-    setTimestamp(Date.now())
-  }
-
-  const deleteFile = async (ref: StorageReference) => {
-    await deleteObject(ref).catch((e) => {
-      const errorCode = e?.code as string
+  const sendPswdResetEmail = async (email: string): Promise<boolean> => {
+    try {
+      setError(undefined);
+      await api.forgotPassword(email);
+      return true;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to send password reset email';
       setError({
-        code: errorCode,
-        message: errorCodes[errorCode as keyof typeof errorCodes],
-      })
-      return e
-    })
-    setFile(undefined)
-  }
+        code: 'password-reset-error',
+        message: errorMessage,
+      });
+      return false;
+    }
+  };
 
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, onComplete)
-    return () => unsubscribe()
-  }, [auth, auth.currentUser])
+  const confirmPswdReset = async (
+    token: string,
+    password: string
+  ): Promise<boolean> => {
+    try {
+      setError(undefined);
+      await api.resetPassword(token, password);
+      return true;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to reset password';
+      setError({
+        code: 'password-reset-confirm-error',
+        message: errorMessage,
+      });
+      return false;
+    }
+  };
 
-  React.useEffect(
-    () => setUser(auth.currentUser),
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-    [timestamp]
-  )
+  const editProfile = async (data: Partial<User>): Promise<void> => {
+    try {
+      setError(undefined);
+      const updatedUser = await api.updateProfile(data);
+      setUser(updatedUser);
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to update profile';
+      setError({
+        code: 'profile-update-error',
+        message: errorMessage,
+      });
+      throw err;
+    }
+  };
+
+  const uploadAvatar = async (file: File): Promise<void> => {
+    try {
+      setError(undefined);
+      const updatedUser = await api.uploadUserAvatar(file);
+      setUser(updatedUser);
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to upload avatar';
+      setError({
+        code: 'avatar-upload-error',
+        message: errorMessage,
+      });
+      throw err;
+    }
+  };
+
+  const deleteAvatar = async (): Promise<void> => {
+    try {
+      setError(undefined);
+      const updatedUser = await api.deleteUserAvatar();
+      setUser(updatedUser);
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to delete avatar';
+      setError({
+        code: 'avatar-delete-error',
+        message: errorMessage,
+      });
+      throw err;
+    }
+  };
+
+  const userDelete = async (): Promise<void> => {
+    try {
+      setError(undefined);
+      await api.deleteAccount();
+      setUser(null);
+      tokenManager.clearTokens();
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to delete account';
+      setError({
+        code: 'account-delete-error',
+        message: errorMessage,
+      });
+      throw err;
+    }
+  };
+
+  const resetError = () => setError(undefined);
 
   return {
     user,
@@ -274,10 +241,8 @@ function useProvideAuth() {
     editProfile,
     userDelete,
     resetError,
-    upload,
-    fetchFile,
-    snackbar,
-    file,
-    deleteFile,
-  }
+    uploadAvatar,
+    deleteAvatar,
+    refreshUser,
+  };
 }

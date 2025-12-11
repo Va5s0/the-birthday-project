@@ -1,97 +1,74 @@
-import React from "react"
-import { Contact } from "../models/contact"
-import { getAuth } from "firebase/auth"
-import { collection, query, onSnapshot } from "firebase/firestore"
-import { db } from "../firebase/fbConfig"
+import { useMemo } from "react"
 import { dateFormatter } from "../utils/index"
 import { css } from "@emotion/css"
 import { motion } from "framer-motion"
+import { useContacts } from "../hooks/useContacts"
 
 function isToday(dateString?: string) {
   if (!dateString) return false
 
-  // Create date objects and normalize to local midnight
+  // Create date objects
   const date = new Date(dateString)
   const today = new Date()
 
-  // Reset both to midnight local time for accurate comparison
-  date.setHours(0, 0, 0, 0)
-  today.setHours(0, 0, 0, 0)
-
-  return date.getTime() === today.getTime()
+  // Compare only month and day (not year) for recurring celebrations
+  return (
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  )
 }
 
 const TodayWidget = () => {
-  const [contacts, setContacts] = React.useState<Contact[]>([])
-  const [loading, setLoading] = React.useState(true)
-  const auth = getAuth()
-  const { currentUser } = auth
-
-  React.useEffect(() => {
-    if (!currentUser) {
-      setLoading(false)
-      return
-    }
-    const contactsRef = query(
-      collection(db, `users/${currentUser.uid}/contacts`)
-    )
-    const unsubscribe = onSnapshot(contactsRef, (snapshot) => {
-      const _contacts = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Contact[]
-      setContacts(_contacts)
-      setLoading(false)
-    })
-    return () => unsubscribe()
-  }, [currentUser])
+  const { data: contacts = [], isLoading: loading } = useContacts()
 
   // Find contacts or connections with birthday or nameday today
-  const todayContacts = contacts.flatMap((contact) => {
-    const matches: {
-      type: string
-      name: string
-      date: string
-      parent?: string
-    }[] = []
-    if (isToday(contact.birthday)) {
-      matches.push({
-        type: "Birthday",
-        name: contact.firstName,
-        date: contact.birthday!,
-        parent: undefined,
-      })
-    }
-    if (isToday(contact.nameday?.date)) {
-      matches.push({
-        type: "Nameday",
-        name: contact.firstName,
-        date: contact.nameday!.date,
-        parent: undefined,
-      })
-    }
-    if (Array.isArray(contact.connections)) {
-      contact.connections.forEach((conn) => {
-        if (isToday(conn.birthday)) {
-          matches.push({
-            type: "Birthday",
-            name: conn.firstName || "",
-            date: conn.birthday!,
-            parent: contact.firstName,
-          })
-        }
-        if (isToday(conn.nameday?.date)) {
-          matches.push({
-            type: "Nameday",
-            name: conn.firstName || "",
-            date: conn.nameday!.date,
-            parent: contact.firstName,
-          })
-        }
-      })
-    }
-    return matches
-  })
+  const todayContacts = useMemo(() => {
+    return contacts.flatMap((contact) => {
+      const matches: {
+        type: string
+        name: string
+        date: string
+        parent?: string
+      }[] = []
+      if (isToday(contact.birthday ?? undefined)) {
+        matches.push({
+          type: "Birthday",
+          name: contact.firstName,
+          date: contact.birthday!,
+          parent: undefined,
+        })
+      }
+      if (isToday(contact.namedayDate ?? undefined)) {
+        matches.push({
+          type: "Nameday",
+          name: contact.firstName,
+          date: contact.namedayDate!,
+          parent: undefined,
+        })
+      }
+      if (Array.isArray(contact.connections)) {
+        contact.connections.forEach((conn) => {
+          if (isToday(conn.birthday ?? undefined)) {
+            matches.push({
+              type: "Birthday",
+              name: conn.firstName || "",
+              date: conn.birthday!,
+              parent: contact.firstName,
+            })
+          }
+          if (isToday(conn.namedayDate ?? undefined)) {
+            matches.push({
+              type: "Nameday",
+              name: conn.firstName || "",
+              date: conn.namedayDate!,
+              parent: contact.firstName,
+            })
+          }
+        })
+      }
+      return matches
+    })
+  }, [contacts])
 
   if (loading) {
     return (
@@ -110,12 +87,7 @@ const TodayWidget = () => {
   }
 
   return (
-    <motion.div
-      className={styles.widget}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+    <div className={styles.widget}>
       <div className={styles.header}>
         <div className={styles.titleContainer}>
           <h3 className={styles.title}>Today's Celebrations</h3>
@@ -148,20 +120,9 @@ const TodayWidget = () => {
           </div>
         </motion.div>
       ) : (
-        <motion.div
-          className={styles.celebrationsList}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className={styles.celebrationsList}>
           {todayContacts.map((item, idx) => (
-            <motion.div
-              key={idx}
-              className={styles.celebrationItem}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 + idx * 0.1 }}
-            >
+            <div key={idx} className={styles.celebrationItem}>
               <div className={styles.celebrationIcon}>
                 {item.type === "Birthday" ? "🎂" : "🎊"}
               </div>
@@ -179,11 +140,11 @@ const TodayWidget = () => {
                 </div>
               </div>
               <div className={styles.celebrationBadge}>{item.type}</div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+    </div>
   )
 }
 
@@ -196,9 +157,8 @@ const styles = {
     padding: 20px;
     margin: 16px 32px 12px 32px;
     max-width: 480px;
-    max-height: 255px;
     position: relative;
-    overflow: auto;
+    overflow: hidden;
     transition: all 0.3s ease;
 
     &::before {
@@ -207,19 +167,42 @@ const styles = {
       top: 0;
       left: 0;
       right: 0;
-      height: 3px;
+      height: 1px;
       background: linear-gradient(
         90deg,
-        var(--primary-main) 0%,
-        var(--primary-light) 50%,
-        var(--secondary-main) 100%
+        transparent 0%,
+        var(--primary-main) 20%,
+        var(--secondary-main) 80%,
+        transparent 100%
       );
+      opacity: 0.7;
+      transition: all 0.3s ease;
     }
 
     &:hover {
+      &::before {
+        height: 3px;
+        opacity: 1;
+      }
       box-shadow: var(--shadow-lg);
       transform: translateY(-1px);
       border-color: var(--border-secondary);
+    }
+
+    @media (max-width: 1440px) {
+      margin: 12px 24px 12px 24px;
+    }
+
+    @media (max-width: 768px) {
+      margin: 12px 16px 12px 16px;
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 480px) {
+      margin: 12px 12px 12px 12px;
+      padding: 14px;
+      border-radius: 10px;
     }
   `,
 
@@ -261,6 +244,12 @@ const styles = {
     align-items: flex-start;
     margin-bottom: 16px;
     gap: 12px;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
   `,
 
   titleContainer: css`
@@ -275,6 +264,14 @@ const styles = {
     color: var(--text-primary);
     margin: 0;
     letter-spacing: -0.025em;
+
+    @media (max-width: 768px) {
+      font-size: 1.125rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1rem;
+    }
   `,
 
   titleIcon: css`
@@ -291,6 +288,7 @@ const styles = {
   `,
 
   dateContainer: css`
+    display: flex;
     padding: 6px 12px;
     background: var(--bg-tertiary);
     border-radius: 8px;
@@ -302,6 +300,11 @@ const styles = {
     font-weight: 500;
     color: var(--text-secondary);
     white-space: nowrap;
+
+    @media (max-width: 480px) {
+      font-size: 0.7rem;
+      white-space: normal;
+    }
   `,
 
   empty: css`
@@ -339,6 +342,37 @@ const styles = {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+
+    /* Custom scrollbar styling */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--primary-main);
+      border-radius: 3px;
+      opacity: 0.5;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-dark);
+    }
+
+    @media (max-width: 768px) {
+      max-height: 350px;
+    }
+
+    @media (max-width: 480px) {
+      max-height: 300px;
+    }
   `,
 
   celebrationItem: css`
@@ -349,12 +383,24 @@ const styles = {
     background: var(--bg-primary);
     border-radius: 12px;
     border: 1px solid var(--border-primary);
-    transition: all 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease,
+      transform 0.3s ease;
 
     &:hover {
       background: var(--bg-tertiary);
       border-color: var(--border-secondary);
       transform: translateX(2px);
+    }
+
+    @media (max-width: 768px) {
+      padding: 10px;
+      gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 8px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
   `,
 
@@ -383,6 +429,10 @@ const styles = {
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
+
+    @media (max-width: 480px) {
+      font-size: 0.9375rem;
+    }
   `,
 
   celebrationDetails: css`
@@ -416,6 +466,12 @@ const styles = {
     text-transform: uppercase;
     letter-spacing: 0.3px;
     box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+
+    @media (max-width: 480px) {
+      font-size: 0.625rem;
+      padding: 3px 6px;
+    }
   `,
 }
 

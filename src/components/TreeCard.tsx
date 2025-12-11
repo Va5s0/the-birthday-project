@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Contact, Common } from "../models/contact"
+import { useState, useCallback } from "react"
+import { Contact, Connection } from "../models/contact"
 import { css } from "@emotion/css"
 import { contactFields } from "../utils/contactFields"
 import CakeIcon from "@mui/icons-material/Cake"
@@ -7,17 +7,32 @@ import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
 import MoreActions from "./MoreActions"
 import AddContact from "./AddContact"
 import ConfirmationModal from "./ConfirmationModal"
+import { EditModal } from "./EditModal"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 import AddIcon from "@mui/icons-material/Add"
-import { doc, updateDoc } from "firebase/firestore"
-import { db } from "../firebase/fbConfig"
-import { useAuth } from "../context/AuthContext"
+import {
+  useUpdateContact,
+  useDeleteContact,
+  useDeleteConnection,
+  useUpdateConnection,
+} from "../hooks/useContacts"
+
+// Ensures partial contact has all required Contact fields
+const enhancedContact = (contact: Partial<Contact>): Contact => {
+  return {
+    id: contact.id || "",
+    userId: contact.userId || "",
+    firstName: contact.firstName || "",
+    lastName: contact.lastName,
+    connections: contact.connections || [],
+    createdAt: contact.createdAt || new Date().toISOString(),
+    updatedAt: contact.updatedAt || new Date().toISOString(),
+    ...contact,
+  } as Contact
+}
 
 const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
-  const authContext = useAuth()
-  const currentUser = authContext?.user
-
   // Track which contacts/connections are expanded
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [addOpen, setAddOpen] = useState<{ open: boolean; contact?: Contact }>({
@@ -29,23 +44,29 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
     connectionIdx?: number
   }>({ open: false })
 
-  // Remove editOpen and related logic, and implement edit as an inline form for contacts/connections
-  // Add state for editing contact/connection inline
-  const [editing, setEditing] = useState<{
-    contactId?: string
-    connIdx?: number
+  // Modal state for editing
+  const [openEdit, setOpenEdit] = useState<boolean>(false)
+  const [openEditConnection, setOpenEditConnection] = useState<boolean>(false)
+  const [editingContact, setEditingContact] = useState<Contact | null>(null)
+  const [editingConnection, setEditingConnection] = useState<{
+    connection: Connection
+    parentContact: Contact
   } | null>(null)
-  const [editState, setEditState] = useState<Partial<Contact> | null>(null)
+
+  const updateContactMutation = useUpdateContact()
+  const deleteContactMutation = useDeleteContact()
+  const deleteConnectionMutation = useDeleteConnection()
+  const updateConnectionMutation = useUpdateConnection()
 
   const toggleExpand = (id: string) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }))
   }
 
   // Helper to render all info for a contact/connection
-  const renderInfo = (item: Common) => (
+  const renderInfo = (item: Contact | Connection) => (
     <div className={styles.infoBox}>
       {contactFields.map((field) => {
-        const value = item[field.value as keyof Common]
+        const value = item[field.value as keyof (Contact | Connection)]
         if (!value || typeof value === "object") return null
         return (
           <div className={styles.infoRow} key={field.value}>
@@ -60,10 +81,10 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
           <span>{item.birthday}</span>
         </div>
       )}
-      {item.nameday?.date && (
+      {item.namedayDate && (
         <div className={styles.infoRow}>
           <PermContactCalendarIcon className={styles.infoIcon} />
-          <span>{item.nameday.date}</span>
+          <span>{item.namedayDate}</span>
         </div>
       )}
       {item.email && (
@@ -81,54 +102,89 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
   const closeAdd = () => setAddOpen({ open: false })
   const closeDelete = () => setDeleteInfo({ open: false })
 
-  // Start editing a contact or connection
+  const handleDeleteConfirm = async () => {
+    if (!deleteInfo.contact) return
+
+    try {
+      if (deleteInfo.connectionIdx === undefined) {
+        // Delete contact
+        await deleteContactMutation.mutateAsync(deleteInfo.contact.id)
+      } else {
+        // Delete connection
+        const connection =
+          deleteInfo.contact.connections?.[deleteInfo.connectionIdx]
+        if (!connection) return
+
+        await deleteConnectionMutation.mutateAsync({
+          contactId: deleteInfo.contact.id,
+          connectionId: connection.id,
+        })
+      }
+      closeDelete()
+    } catch (error) {
+      console.error("Error deleting:", error)
+    }
+  }
+
+  // Open edit modal for contact or connection
   const handleEdit = (contact: Contact, connectionIdx?: number) => {
     if (connectionIdx === undefined) {
-      setEditing({ contactId: contact.id })
-      setEditState({ ...contact })
+      setEditingContact(contact)
+      setOpenEdit(true)
     } else {
-      setEditing({ contactId: contact.id, connIdx: connectionIdx })
-      setEditState({ ...contact.connections?.[connectionIdx] })
-    }
-  }
-
-  // Save edit (for contact or connection)
-  const handleEditSave = async () => {
-    if (!editing || !editState) return
-    if (editing.connIdx === undefined) {
-      // Edit contact
-      const contactRef = doc(
-        db,
-        `users/${currentUser?.uid}/contacts/${editing.contactId}`
-      )
-      await updateDoc(contactRef, { ...editState })
-    } else {
-      // Edit connection
-      const contact = contacts.find((c) => c.id === editing.contactId)
-      if (!contact) return
-      const updatedConnections = [...(contact.connections || [])]
-      updatedConnections[editing.connIdx] = {
-        ...updatedConnections[editing.connIdx],
-        ...editState,
+      const connection = contact.connections?.[connectionIdx]
+      if (connection) {
+        setEditingConnection({ connection, parentContact: contact })
+        setOpenEditConnection(true)
       }
-      const contactRef = doc(
-        db,
-        `users/${currentUser?.uid}/contacts/${editing.contactId}`
-      )
-      await updateDoc(contactRef, {
-        ...contact,
-        connections: updatedConnections,
-      })
     }
-    setEditing(null)
-    setEditState(null)
   }
 
-  // Cancel edit
-  const handleEditCancel = () => {
-    setEditing(null)
-    setEditState(null)
+  // Close edit modals
+  const onCloseEdit = () => {
+    setOpenEdit(false)
+    setEditingContact(null)
   }
+
+  const onCloseEditConnection = () => {
+    setOpenEditConnection(false)
+    setEditingConnection(null)
+  }
+
+  // Save contact edit
+  const handleContactEditSave = useCallback(
+    async (editedContact: Contact) => {
+      try {
+        await updateContactMutation.mutateAsync({
+          id: editedContact.id,
+          data: editedContact,
+        })
+        // React Query will auto-update the cache
+      } catch (error) {
+        console.error("Error updating contact:", error)
+      }
+    },
+    [updateContactMutation]
+  )
+
+  // Save connection edit
+  const handleConnectionEditSave = useCallback(
+    async (editedConnection: Contact) => {
+      if (!editingConnection) return
+
+      try {
+        await updateConnectionMutation.mutateAsync({
+          contactId: editingConnection.parentContact.id,
+          connectionId: editedConnection.id,
+          data: editedConnection,
+        })
+        // React Query will auto-update the cache
+      } catch (error) {
+        console.error("Error updating connection:", error)
+      }
+    },
+    [editingConnection, updateConnectionMutation]
+  )
 
   // Render MoreActions for contacts and connections
   const renderActions = (contact: Contact, connectionIdx?: number) => {
@@ -153,8 +209,9 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
     ].filter(Boolean) as any // filter out nulls
     return <MoreActions options={options} />
   }
+  console.log({ ddd: contacts?.length })
 
-  return (
+  return !!contacts.length ? (
     <div className={styles.treeList}>
       <ul className={styles.treeUl}>
         {contacts.map((contact) => (
@@ -177,34 +234,7 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
               </span>
               {renderActions(contact)}
             </div>
-            {expanded[contact.id] &&
-              (editing?.contactId === contact.id &&
-              editing.connIdx === undefined ? (
-                <div className={styles.editForm}>
-                  {contactFields.map((field) => (
-                    <input
-                      key={field.value}
-                      value={
-                        (editState?.[field.value as keyof Contact] as string) ||
-                        ""
-                      }
-                      onChange={(e) =>
-                        setEditState((s) => ({
-                          ...s,
-                          [field.value]: e.target.value,
-                        }))
-                      }
-                      placeholder={field.label}
-                    />
-                  ))}
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <button onClick={handleEditSave}>Save</button>
-                    <button onClick={handleEditCancel}>Cancel</button>
-                  </div>
-                </div>
-              ) : (
-                renderInfo(contact)
-              ))}
+            {expanded[contact.id] && renderInfo(contact)}
             {contact.connections && contact.connections.length > 0 && (
               <ul className={styles.treeUl}>
                 {contact.connections.map((conn, idx) => (
@@ -229,35 +259,7 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
                       </span>
                       {renderActions(contact, idx)}
                     </div>
-                    {expanded[`${contact.id}-conn-${idx}`] &&
-                      (editing?.contactId === contact.id &&
-                      editing.connIdx === idx ? (
-                        <div className={styles.editForm}>
-                          {contactFields.map((field) => (
-                            <input
-                              key={field.value}
-                              value={
-                                (editState?.[
-                                  field.value as keyof Contact
-                                ] as string) || ""
-                              }
-                              onChange={(e) =>
-                                setEditState((s) => ({
-                                  ...s,
-                                  [field.value]: e.target.value,
-                                }))
-                              }
-                              placeholder={field.label}
-                            />
-                          ))}
-                          <div style={{ display: "flex", gap: "8px" }}>
-                            <button onClick={handleEditSave}>Save</button>
-                            <button onClick={handleEditCancel}>Cancel</button>
-                          </div>
-                        </div>
-                      ) : (
-                        renderInfo(conn)
-                      ))}
+                    {expanded[`${contact.id}-conn-${idx}`] && renderInfo(conn)}
                   </li>
                 ))}
               </ul>
@@ -272,6 +274,30 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
         type={addOpen.contact ? "connection" : "contact"}
         contact={addOpen.contact}
       />
+
+      {/* EditModal for editing contacts */}
+      {editingContact && (
+        <EditModal
+          open={openEdit}
+          onClose={onCloseEdit}
+          contact={editingContact}
+          onSave={handleContactEditSave}
+        />
+      )}
+
+      {/* EditModal for editing connections */}
+      {editingConnection && (
+        <EditModal
+          open={openEditConnection}
+          onClose={onCloseEditConnection}
+          contact={enhancedContact(
+            editingConnection.connection as Partial<Contact>
+          )}
+          onSave={handleConnectionEditSave}
+          isConnection={true}
+        />
+      )}
+
       {/* ConfirmationModal for delete */}
       <ConfirmationModal
         open={deleteInfo.open}
@@ -288,28 +314,80 @@ const TreeCard = ({ contacts }: { contacts: Contact[] }) => {
         }
         confirmLabel="Delete"
         type="destructive"
-        onSubmit={closeDelete /* TODO: implement actual delete logic */}
+        onSubmit={handleDeleteConfirm}
       />
     </div>
-  )
+  ) : null
 }
 
 const styles = {
   treeList: css`
     padding: 32px;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 24px auto;
     background: var(--bg-surface);
     border-radius: 24px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-primary);
     color: var(--text-primary);
+    position: relative;
+    overflow: hidden;
     transition: all 0.3s ease;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--primary-main) 20%,
+        var(--secondary-main) 80%,
+        transparent 100%
+      );
+      opacity: 0.7;
+      transition: all 0.3s ease;
+    }
+
+    &:hover {
+      &::before {
+        height: 3px;
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 1440px) {
+      padding: 24px;
+      margin: 24px;
+    }
+
+    @media (max-width: 768px) {
+      padding: 16px;
+      margin: 16px;
+      border-radius: 16px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 12px;
+      margin: 12px;
+      border-radius: 12px;
+    }
   `,
   treeUl: css`
     list-style: none;
     padding-left: 24px;
     margin: 0;
+
+    @media (max-width: 768px) {
+      padding-left: 16px;
+    }
+
+    @media (max-width: 480px) {
+      padding-left: 12px;
+    }
   `,
   treeItem: css`
     margin-bottom: 16px;
@@ -329,6 +407,20 @@ const styles = {
     &:hover {
       border-left-color: var(--primary-main);
     }
+
+    @media (max-width: 768px) {
+      padding-left: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      padding-left: 8px;
+      margin-bottom: 10px;
+      &::before {
+        width: 12px;
+        left: -6px;
+      }
+    }
   `,
   headerRow: css`
     display: flex;
@@ -344,6 +436,17 @@ const styles = {
       background: var(--bg-tertiary);
       border-color: var(--border-secondary);
       transform: translateX(4px);
+    }
+
+    @media (max-width: 768px) {
+      padding: 6px 10px;
+      gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 6px 8px;
+      gap: 8px;
+      border-radius: 8px;
     }
   `,
   avatarCircle: css`
@@ -437,6 +540,18 @@ const styles = {
       background: var(--bg-tertiary);
       border-color: var(--border-secondary);
     }
+
+    @media (max-width: 768px) {
+      margin-left: 16px;
+      padding: 12px 16px;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 480px) {
+      margin-left: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
   `,
   infoRow: css`
     display: flex;
@@ -453,61 +568,6 @@ const styles = {
     font-size: 1.125rem;
     color: var(--primary-main);
     flex-shrink: 0;
-  `,
-  editForm: css`
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 12px 0 12px 24px;
-    padding: 16px 20px;
-    background: var(--bg-primary);
-    border-radius: 16px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-primary);
-
-    input {
-      padding: 8px 12px;
-      border: 1px solid var(--border-primary);
-      border-radius: 8px;
-      background: var(--bg-surface);
-      color: var(--text-primary);
-      font-size: 0.875rem;
-      transition: all 0.3s ease;
-
-      &:focus {
-        outline: none;
-        border-color: var(--primary-main);
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
-      }
-    }
-
-    button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:first-of-type {
-        background: var(--primary-main);
-        color: var(--text-inverse);
-        &:hover {
-          background: var(--primary-dark);
-          transform: translateY(-1px);
-        }
-      }
-
-      &:last-of-type {
-        background: var(--bg-tertiary);
-        color: var(--text-secondary);
-        &:hover {
-          background: var(--border-secondary);
-          color: var(--text-primary);
-        }
-      }
-    }
   `,
 }
 

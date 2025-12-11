@@ -1,7 +1,7 @@
 import React from "react"
 import { IconButton, Collapse } from "@mui/material"
 import { css } from "@emotion/css"
-import { Common, Contact } from "../models/contact"
+import { Connection, Contact } from "../models/contact"
 import GhostTextInput from "./inputs/GhostTextInput"
 import { get } from "lodash/fp"
 import CloseIcon from "@mui/icons-material/Close"
@@ -15,7 +15,7 @@ type Props = {
   open: boolean
   editable: boolean
   onDelete: (id?: string) => Promise<void>
-  onEditConnection?: (connection: Common) => void
+  onEditConnection?: (connection: Connection) => void
   errors?: Record<string, string>
 }
 
@@ -38,128 +38,123 @@ const Connections = (props: Props) => {
     onDelete(id)
   }
 
-  const handleEditConnection = (connection: Common) => (evt: React.MouseEvent) => {
-    evt.stopPropagation()
-    onEditConnection?.(connection)
-  }
+  const handleEditConnection =
+    (connection: Connection) => (evt: React.MouseEvent) => {
+      evt.stopPropagation()
+      onEditConnection?.(connection)
+    }
 
   return (
-    <div className={styles.connectionsContainer}>
-      <Collapse in={open} timeout={0}>
-        <div className={styles.connectionsContent}>
-          {contact?.connections?.map((c, cidx) => {
-            const fullName = `${c.firstName} ${c?.lastName || ""}`.trim()
-            const avatarLetter = (c.firstName?.charAt(0) || "C").toUpperCase()
-            
-            return (
-              <div key={c.id || `connection-${cidx}`} className={styles.connectionCard}>
-                <div className={styles.connectionHeader}>
-                  <div className={styles.connectionInfo}>
-                    <div className={styles.connectionAvatar}>
-                      {avatarLetter}
-                    </div>
-                    <div className={styles.connectionDetails}>
-                      {editable ? (
-                        <div className={styles.editableNames}>
-                          {nameFields.map((nf) => (
-                            <GhostTextInput
-                              key={`${c.id || cidx}-${nf.value}`}
-                              name={`connections.${cidx}.${nf.value}`}
-                              placeholder={nf.label}
-                              value={
-                                (c[nf.value as keyof Common] as string) || ""
-                              }
-                              onChange={() => {}}
-                              onClick={handleClick}
-                              className={styles.ghostConnectionInput}
-                              error={
-                                !!errors &&
-                                !!get(`connections.${cidx}.${nf.value}`, errors)
-                              }
-                              errorMessage={
-                                errors
-                                  ? get(`connections.${cidx}.${nf.value}`, errors) || ""
-                                  : ""
-                              }
-                            />
-                          ))}
+    <Collapse in={open} timeout={0}>
+      <div className={styles.connectionsContent}>
+        {contact?.connections?.map((c, cidx) => {
+          const fullName = `${c.firstName} ${c?.lastName || ""}`.trim()
+          const avatarLetter = (c.firstName?.charAt(0) || "C").toUpperCase()
+
+          return (
+            <div
+              key={c.id || `connection-${cidx}`}
+              className={styles.connectionCard}
+            >
+              <div className={styles.connectionHeader}>
+                <div className={styles.connectionInfo}>
+                  <div className={styles.connectionAvatar}>{avatarLetter}</div>
+                  <div className={styles.connectionDetails}>
+                    {editable ? (
+                      <div className={styles.editableNames}>
+                        {nameFields.map((nf) => (
+                          <GhostTextInput
+                            key={`${c.id || cidx}-${nf.value}`}
+                            name={`connections.${cidx}.${nf.value}`}
+                            placeholder={nf.label}
+                            value={
+                              (c[nf.value as keyof Connection] as string) || ""
+                            }
+                            onChange={() => {}}
+                            onClick={handleClick}
+                            className={styles.ghostConnectionInput}
+                            error={
+                              !!errors &&
+                              !!get(`connections.${cidx}.${nf.value}`, errors)
+                            }
+                            errorMessage={
+                              errors
+                                ? get(
+                                    `connections.${cidx}.${nf.value}`,
+                                    errors
+                                  ) || ""
+                                : ""
+                            }
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className={styles.connectionContent}>
+                        <div className={styles.connectionName}>{fullName}</div>
+                        <div className={styles.connectionMeta}>
+                          {c.email && (
+                            <span className={styles.metaItem}>{c.email}</span>
+                          )}
+                          {c.phone && (
+                            <span className={styles.metaItem}>{c.phone}</span>
+                          )}
                         </div>
-                      ) : (
-                        <div className={styles.connectionContent}>
-                          <div className={styles.connectionName}>
-                            {fullName}
-                          </div>
-                          <div className={styles.connectionMeta}>
-                            {c.email && (
-                              <span className={styles.metaItem}>
-                                {c.email}
+                        <div className={styles.connectionDates}>
+                          {c.birthday && (
+                            <div className={styles.dateItem}>
+                              <CakeIcon className={styles.dateIcon} />
+                              <span className={styles.dateText}>
+                                {dateFormatter(c.birthday)}
                               </span>
-                            )}
-                            {c.phone && (
-                              <span className={styles.metaItem}>
-                                {c.phone}
+                            </div>
+                          )}
+                          {c.namedayDate && (
+                            <div className={styles.dateItem}>
+                              <PermContactCalendarIcon
+                                className={styles.dateIcon}
+                              />
+                              <span className={styles.dateText}>
+                                {dateFormatter(c.namedayDate)}
                               </span>
-                            )}
-                          </div>
-                          <div className={styles.connectionDates}>
-                            {c.birthday && (
-                              <div className={styles.dateItem}>
-                                <CakeIcon className={styles.dateIcon} />
-                                <span className={styles.dateText}>
-                                  {dateFormatter(c.birthday)}
-                                </span>
-                              </div>
-                            )}
-                            {c.nameday?.date && (
-                              <div className={styles.dateItem}>
-                                <PermContactCalendarIcon className={styles.dateIcon} />
-                                <span className={styles.dateText}>
-                                  {dateFormatter(c.nameday.date)}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className={styles.connectionActions}>
-                    {onEditConnection && (
-                      <IconButton
-                        onClick={handleEditConnection(c)}
-                        className={styles.editButton}
-                        size="small"
-                      >
-                        <EditIcon className={styles.editIcon} />
-                      </IconButton>
+                      </div>
                     )}
-                    <IconButton
-                      onClick={(e) => handleDelete(e, c?.id)}
-                      className={styles.deleteButton}
-                      size="small"
-                    >
-                      <CloseIcon className={styles.deleteIcon} />
-                    </IconButton>
                   </div>
                 </div>
+                <div className={styles.connectionActions}>
+                  {onEditConnection && (
+                    <IconButton
+                      onClick={handleEditConnection(c)}
+                      className={styles.editButton}
+                      size="small"
+                    >
+                      <EditIcon className={styles.editIcon} />
+                    </IconButton>
+                  )}
+                  <IconButton
+                    onClick={(e) => handleDelete(e, c?.id)}
+                    className={styles.deleteButton}
+                    size="small"
+                  >
+                    <CloseIcon className={styles.deleteIcon} />
+                  </IconButton>
+                </div>
               </div>
-            )
-          }) || null}
-        </div>
-      </Collapse>
-    </div>
+            </div>
+          )
+        }) || null}
+      </div>
+    </Collapse>
   )
 }
 
 export default Connections
 
 const styles = {
-  connectionsContainer: css`
-    width: 100%;
-    margin-top: 16px;
-  `,
   connectionsContent: css`
-    /* Content wrapper for collapsed connections */
+    margin-top: 16px;
   `,
   connectionCard: css`
     background: rgba(0, 0, 0, 0.02);
@@ -287,7 +282,7 @@ const styles = {
     color: var(--text-secondary);
     font-size: 0.75rem;
     line-height: 1.4;
-    
+
     @media (max-width: 480px) {
       font-size: 0.7rem;
     }

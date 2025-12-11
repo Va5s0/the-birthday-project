@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useCallback, useMemo, memo } from "react"
 import { css } from "@emotion/css"
-import { getStorage, ref, getDownloadURL } from "firebase/storage"
 import { Button, Fab, Grid, Paper, Typography } from "@mui/material"
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp"
 import CakeIcon from "@mui/icons-material/Cake"
@@ -16,24 +15,24 @@ import ConfirmationModal, {
   ModalInfo,
 } from "../../components/ConfirmationModal"
 import { DateInput } from "../inputs/DateInput"
-import { doc, getDoc, updateDoc } from "firebase/firestore"
-import { db } from "../../firebase/fbConfig"
 import { getInitials, getAvatarColor } from "../../utils/avatar"
 import Nameday from "../Nameday"
+import { api, User } from "../../services/api"
+
+type ProfileState = Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>> & {
+  email?: string
+}
 
 const EditProfile = memo(() => {
   const navigate = useNavigate()
   const {
     user,
-    editProfile = () => {},
-    deleteFile = () => {},
-    error,
-    file,
-    upload = () => {},
-  } = useAuth() ?? {}
-  const storage = useMemo(() => getStorage(), [])
+    editProfile,
+    uploadAvatar,
+    deleteAvatar,
+  } = useAuth()
 
-  const [state, setState] = React.useState<Partial<Contact>>({})
+  const [state, setState] = React.useState<ProfileState>({})
   const [isUploading, setIsUploading] = React.useState(false)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
 
@@ -42,10 +41,6 @@ const EditProfile = memo(() => {
   ) => {
     const { name, value } = evt.target
     setState((s) => ({ ...s, [name]: value }))
-  }
-
-  const handleAvatarChange = async (url: string | null | undefined) => {
-    setState(prev => ({ ...prev, photoURL: url }))
   }
 
   const handleDateChange = (date: Date | null, name: string) => {
@@ -61,28 +56,32 @@ const EditProfile = memo(() => {
   const handleSubmit = useCallback(async () => {
     if (!state || !user) return
     try {
-      await editProfile(state) // Updates Auth profile (displayName, photoURL)
-      // Save extra fields to Firestore
-      await updateDoc(doc(db, "users", user.uid), {
-        ...state,
+      await editProfile({
+        firstName: state.firstName,
+        lastName: state.lastName,
+        phoneNumber: state.phoneNumber,
+        birthday: state.birthday,
+        namedayId: state.namedayId,
+        namedayDate: state.namedayDate,
       })
+      navigate("/")
     } catch (error) {
       console.error('Error updating profile:', error)
       // TODO: Add proper error handling UI
     }
-  }, [state, user, editProfile])
+  }, [state, user, editProfile, navigate])
 
   const handleImageUpload = useCallback(async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       // TODO: Replace with proper error handling UI
-      alert("File size exceeds 2MB")
+      alert("File size exceeds 5MB")
       return
     }
-    if (!["image/jpeg", "image/png"].includes(file.type)) {
+    if (!["image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
       // TODO: Replace with proper error handling UI
       alert("Invalid file type. Only JPEG and PNG are allowed.")
       return
@@ -90,36 +89,25 @@ const EditProfile = memo(() => {
 
     try {
       setIsUploading(true)
-      const storageRef = ref(storage, `users/${user?.uid}/user/avatar.jpg`)
-
-      await upload(storageRef, file)
-      const downloadURL = await getDownloadURL(storageRef)
-      handleAvatarChange(downloadURL)
-      // Update Auth profile
-      if (user) {
-        await editProfile({
-          firstName: state?.firstName,
-          lastName: state?.lastName,
-          photoURL: downloadURL,
-        })
-        // Optionally update Firestore
-        await updateDoc(doc(db, "users", user.uid), { photoURL: downloadURL })
-      }
+      await uploadAvatar(file)
+      // Avatar URL is updated automatically through user refresh in AuthContext
     } catch (error) {
       console.error("Error uploading image:", error)
+      alert("Failed to upload avatar. Please try again.")
     } finally {
       setIsUploading(false)
     }
-  }, [user, upload, editProfile, handleAvatarChange, storage])
-
-  const userStorageRef = useMemo(() => 
-    ref(storage, `users/${user?.uid}/user/avatar.jpg`), [storage, user?.uid]
-  )
+  }, [uploadAvatar])
 
   const handleDeleteFile = useCallback(async () => {
-    await deleteFile(userStorageRef)
-    setModalInfo(undefined)
-  }, [deleteFile, userStorageRef])
+    try {
+      await deleteAvatar()
+      setModalInfo(undefined)
+    } catch (error) {
+      console.error("Error deleting avatar:", error)
+      alert("Failed to delete avatar. Please try again.")
+    }
+  }, [deleteAvatar])
 
   const onDelete = useCallback(() =>
     setModalInfo({
@@ -133,28 +121,21 @@ const EditProfile = memo(() => {
   const isModalOpen = Boolean(modalInfo)
 
   React.useEffect(() => {
-    const fetchUser = async () => {
-      if (!user?.uid) return
-      const userRef = doc(db, `users/${user.uid}`)
-      const userSnap = await getDoc(userRef)
-      if (userSnap.exists()) {
-        const data = userSnap.data()
-        setState(() => ({
-          firstName: user?.displayName?.split(" ")[0] || "",
-          lastName: user?.displayName?.split(" ")[1] || "",
-          photoURL: user?.photoURL,
-          phoneNumber: data?.phoneNumber || "",
-          email: user?.email || "",
-          birthday: data.birthday || "",
-          nameday: data.nameday || undefined,
-        }))
-      }
+    if (user) {
+      setState({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        avatarUrl: user.avatarUrl || undefined,
+        phoneNumber: user.phoneNumber || "",
+        email: user.email || "",
+        birthday: user.birthday || "",
+        namedayId: user.namedayId || undefined,
+        namedayDate: user.namedayDate || undefined,
+      })
     }
-    fetchUser()
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file, user])
+  }, [user])
 
-  const hasNoAvatar = error?.code === "storage/object-not-found" || error?.code === 403
+  const hasNoAvatar = !user?.avatarUrl
 
   const id = "profileImg"
 
@@ -213,7 +194,7 @@ const EditProfile = memo(() => {
                     </Fab>
                     <img
                       id={id}
-                      src={state.photoURL ?? ""}
+                      src={api.getAvatarUrl(state.avatarUrl) ?? ""}
                       alt="profile"
                       width={167}
                       height={167}
@@ -295,12 +276,16 @@ const EditProfile = memo(() => {
 
           <Grid item xs={12} sm={6}>
             <Nameday
-              contact={state}
+              contact={state as Partial<Contact>}
               hasError={() => false}
               errorMsg={() => ""}
               onContactChange={(updatedContact?: Partial<Contact>) =>
                 setState(prev =>
-                  updatedContact ? { ...prev, ...updatedContact } : prev
+                  updatedContact ? {
+                    ...prev,
+                    namedayId: updatedContact.namedayId ?? prev.namedayId,
+                    namedayDate: updatedContact.namedayDate ?? prev.namedayDate
+                  } : prev
                 )
               }
               margin="dense"

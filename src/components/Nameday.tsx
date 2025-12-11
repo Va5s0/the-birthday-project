@@ -1,7 +1,4 @@
 import React from "react"
-import { ref, get } from "firebase/database"
-import { rldb } from "../firebase/fbConfig"
-import { getAuth } from "firebase/auth"
 import { Contact } from "../models/contact"
 import {
   FormControl,
@@ -15,8 +12,9 @@ import DropdownIcon from "@mui/icons-material/KeyboardArrowDown"
 import { dateFormatter, easter, getFullYearDate } from "../utils/index"
 import { css, cx } from "@emotion/css"
 import { DateInput } from "./inputs/DateInput"
-import { set } from "lodash/fp"
 import { differenceInDays, addDays } from "date-fns"
+import { api } from "../services/api"
+import { debounce } from "lodash"
 
 type Props = {
   index?: string
@@ -57,16 +55,18 @@ const Nameday = (props: Props) => {
     size = "small",
     className,
   } = props
-  const auth = getAuth()
-  const { currentUser } = auth
   const [namedayList, setNamedayList] = React.useState<
     Array<{ day?: string; month?: string; toEaster?: number }>
   >([])
 
-  const handleDateChange = (date: Date | null, name: string) => {
+  const handleDateChange = (date: Date | null) => {
     let updated = contact
     if (date instanceof Date && !isNaN(date.getTime())) {
-      updated = set(name, { nameday_id: "", date: date.toISOString() }, contact)
+      updated = {
+        ...contact,
+        namedayId: "",
+        namedayDate: date.toISOString(),
+      }
     } else {
       updated = contact
     }
@@ -74,10 +74,12 @@ const Nameday = (props: Props) => {
   }
 
   const handleSelectChange = (evt: SelectChangeEvent<string>, idx?: string) => {
-    const { name, value } = evt.target
-    const updated = !!name
-      ? set(name, { nameday_id: idx, date: value }, contact)
-      : contact
+    const { value } = evt.target
+    const updated = {
+      ...contact,
+      namedayId: idx || "",
+      namedayDate: value,
+    }
     onContactChange(updated)
   }
 
@@ -97,46 +99,44 @@ const Nameday = (props: Props) => {
 
   const value = !index ? contact : (contact?.connections || [])[Number(index)]
 
+  // Create debounced search function
+  const debouncedSearchNamedays = React.useMemo(
+    () =>
+      debounce((firstName: string) => {
+        api
+          .searchNamedays(firstName)
+          .then((results) => {
+            // Flatten the results
+            const allNamedays: Array<{
+              day?: string
+              month?: string
+              toEaster?: number
+            }> = []
+            Object.values(results).forEach((namedays) => {
+              if (Array.isArray(namedays)) {
+                allNamedays.push(...namedays)
+              }
+            })
+            setNamedayList(allNamedays)
+          })
+          .catch((error) => {
+            console.error("API namedays query error:", error)
+            setNamedayList([])
+          })
+      }, 500),
+    []
+  )
+
   React.useEffect(() => {
-    if (!value["firstName"]) {
+    const firstName = (value as any)?.["firstName"]
+    if (!firstName) {
       setNamedayList([])
       return
     }
 
-    // Query the entire names node
-    const namesRef = ref(rldb, "/names")
-    get(namesRef)
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const allData = snapshot.val()
-
-          // Filter for names that start with our search term
-          const searchTerm = (value as any)["firstName"]?.toLowerCase()
-          const results = Object.entries(allData)
-            .filter(([key]) => {
-              const name = key.toLowerCase()
-              return name.startsWith(searchTerm)
-            })
-            .flatMap(([_, value]) => {
-              // Ensure we're working with an array
-              const namedays = Array.isArray(value) ? value : [value]
-              return namedays.map((nd) => ({
-                day: nd.day,
-                month: nd.month,
-                toEaster: nd.toEaster,
-              }))
-            })
-
-          setNamedayList(results)
-        } else {
-          setNamedayList([])
-        }
-      })
-      .catch((error) => {
-        console.error("Firebase query error:", error)
-        setNamedayList([])
-      })
-  }, [currentUser, value["firstName"]])
+    // Call debounced search
+    debouncedSearchNamedays(firstName)
+  }, [value, debouncedSearchNamedays])
 
   return !!namedayList?.length ? (
     <FormControl
@@ -150,7 +150,7 @@ const Nameday = (props: Props) => {
         name={!index ? "nameday" : `connections.${index}.nameday`}
         label={"Nameday"}
         placeholder={"Nameday"}
-        value={value?.nameday?.date || ""}
+        value={value?.namedayDate || ""}
         onChange={onSelectChange}
         startAdornment={
           <PermContactCalendarIcon
@@ -164,7 +164,7 @@ const Nameday = (props: Props) => {
             })}
           />
         )}
-        error={!!hasError && hasError(value?.nameday?.date, index)}
+        error={!!hasError && hasError(value?.namedayDate ?? undefined, index)}
         className={styles.select}
       >
         {namedays?.map((nd, idx) => (
@@ -179,14 +179,16 @@ const Nameday = (props: Props) => {
       name={!index ? "nameday" : `connections.${index}.nameday`}
       label={"Nameday"}
       placeholder={"Nameday"}
-      value={value?.nameday?.date || ""}
+      value={value?.namedayDate || ""}
       margin={margin}
       size={size}
       onChange={handleDateChange}
       icon={<PermContactCalendarIcon className={styles.commonIcon} />}
-      error={hasError && hasError(value?.nameday?.date, index)}
+      error={hasError && hasError(value?.namedayDate ?? undefined, index)}
       errorMessage={
-        !!errorMsg ? errorMsg(value?.nameday?.date, index) : undefined
+        !!errorMsg
+          ? errorMsg(value?.namedayDate ?? undefined, index)
+          : undefined
       }
       className={className}
       fullWidth

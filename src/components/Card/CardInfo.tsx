@@ -1,4 +1,4 @@
-import { Contact, Common } from "../../models/contact"
+import { Contact } from "../../models/contact"
 import CakeIcon from "@mui/icons-material/Cake"
 import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar"
 import { dateFormatter } from "../../utils/index"
@@ -32,7 +32,7 @@ export const CardInfo = (props: Props) => {
         <div className={styles.commonRow}>
           {activeFields.map((cf, idx) => {
             const Cmp = cf.icon
-            const fieldValue = String(value[cf?.value as keyof Common] || "")
+            const fieldValue = String((value as any)[cf?.value] || "")
             return (
               <div key={idx} className={styles.commonContainer}>
                 <Cmp className={styles.commonIcon} />
@@ -54,7 +54,7 @@ export const CardInfo = (props: Props) => {
         <div className={styles.commonContainer}>
           <PermContactCalendarIcon className={styles.commonIcon} />
           <div className={styles.dateContent}>
-            {value?.nameday?.date ? dateFormatter(value.nameday.date) : ""}
+            {value?.namedayDate ? dateFormatter(value.namedayDate) : ""}
           </div>
         </div>
       </div>
@@ -68,12 +68,13 @@ const styles = {
     grid-template-columns: 155px 125px;
     grid-column-gap: 16px;
     align-items: start;
+    justify-content: space-around;
     z-index: 10;
     min-width: 0;
     overflow: hidden;
 
     @media (max-width: 480px) {
-      grid-template-columns: 130px 100px;
+      grid-template-columns: 145px 100px;
     }
   `,
   commonRow: css`

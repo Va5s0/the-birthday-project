@@ -19,34 +19,37 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import MoreActions from "./MoreActions"
 import { useAuth } from "src/context/AuthContext"
-import { doc, getDoc } from "firebase/firestore"
-import { db } from "src/firebase/fbConfig"
 import ConfirmationModal, { ModalInfo } from "./ConfirmationModal"
-import { storage } from "src/firebase/fbConfig"
-import { ref } from "firebase/storage"
 import { SnackBar } from "./SnackBar"
 import { ThemeToggle } from "./ThemeToggle"
 import { getInitials, getAvatarColor } from "../utils/avatar"
+import { api } from "../services/api"
+import { useContactPicker } from "../hooks/useContactPicker"
+import ContactPhoneIcon from "@mui/icons-material/ContactPhone"
 
 export const NavigationBar = () => {
-  const {
-    logout,
-    user,
-    userDelete,
-    error,
-    resetError,
-    snackbar = true,
-    fetchFile = () => {},
-    file,
-  } = useAuth() ?? {}
+  const { logout, user, userDelete, error, resetError } = useAuth()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
-  const [, setUserData] = React.useState<any>(null)
+  const { importFromPhone, isImporting, isSupported } = useContactPicker()
+  const [importMessage, setImportMessage] = useState<{
+    text: string
+    severity: "success" | "error"
+  } | null>(null)
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log("=== Contact Picker Debug ===")
+    console.log("isSupported:", isSupported)
+    console.log("navigator.contacts exists:", "contacts" in navigator)
+    console.log("navigator.contacts value:", (navigator as any).contacts)
+    console.log("window.isSecureContext:", window.isSecureContext)
+    console.log("window.location:", window.location.href)
+    console.log("============================")
+  }, [isSupported])
 
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
-
-  const userStorageRef = ref(storage, `users/${user?.uid}/user/avatar.jpg`)
 
   const onEditProfile = () => {
     navigate("/profile")
@@ -58,12 +61,8 @@ export const NavigationBar = () => {
   }
 
   const deleteUserAccount = async () => {
-    const canIDelete =
-      userDelete &&
-      user &&
-      (await userDelete(user).then((value) => value?.name !== "FirebaseError"))
-
-    !!canIDelete &&
+    try {
+      await userDelete()
       navigate("/login", {
         state: {
           openSnackbar: true,
@@ -71,7 +70,11 @@ export const NavigationBar = () => {
           severity: "success",
         },
       })
-    setModalInfo(undefined)
+    } catch (error) {
+      console.error("Error deleting account:", error)
+    } finally {
+      setModalInfo(undefined)
+    }
   }
 
   const onDelete = () =>
@@ -85,34 +88,43 @@ export const NavigationBar = () => {
     })
 
   const handleSnackbarClose = () => {
-    resetError && resetError(undefined)
+    resetError()
   }
 
-  React.useEffect(() => {
-    !!user?.uid && fetchFile(id, userStorageRef)
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file, user])
+  const handleImportFromPhone = async () => {
+    const result = await importFromPhone()
 
-  React.useEffect(() => {
-    const fetchUserData = async () => {
-      if (!user?.uid) return
-      try {
-        const userRef = doc(db, "users", user.uid)
-        const userSnap = await getDoc(userRef)
-        if (userSnap.exists()) {
-          setUserData(userSnap.data())
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error)
-      }
+    if (result.cancelled) {
+      // User cancelled, do nothing
+      return
     }
-    fetchUserData()
-  }, [user?.uid])
 
-  const hasNoAvatar =
-    error?.code === "storage/object-not-found" || error?.code === 403
+    if (result.success && result.count > 0) {
+      setImportMessage({
+        text: `Successfully imported ${result.count} contact${
+          result.count > 1 ? "s" : ""
+        }`,
+        severity: "success",
+      })
+    } else if (!result.success) {
+      setImportMessage({
+        text: result.error || "Failed to import contacts",
+        severity: "error",
+      })
+    }
+  }
+
+  const handleImportMessageClose = () => {
+    setImportMessage(null)
+  }
+
+  const hasNoAvatar = !user?.avatarUrl
   const isModalOpen = Boolean(modalInfo)
-  const id = "avatarImg"
+
+  const displayName =
+    user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user?.email || "User"
 
   return (
     <>
@@ -139,32 +151,30 @@ export const NavigationBar = () => {
 
             <div className={styles.profileSection}>
               <Typography variant="body2" className={styles.userName}>
-                {user?.displayName || user?.email}
+                {displayName}
               </Typography>
 
               <Avatar
-                src={!hasNoAvatar ? user?.photoURL ?? "" : undefined}
+                src={
+                  !hasNoAvatar
+                    ? api.getAvatarUrl(user?.avatarUrl) ?? ""
+                    : undefined
+                }
                 alt="profile"
                 className={styles.avatar}
                 sx={{
-                  width: 40,
-                  height: 40,
                   ...(hasNoAvatar &&
-                    (() => {
-                      const nameParts = user?.displayName?.split(" ") || []
-                      const firstName = nameParts[0]
-                      const lastName = nameParts[1]
-                      return getAvatarColor(firstName, lastName)
-                    })()),
+                    getAvatarColor(
+                      user?.firstName ?? undefined,
+                      user?.lastName ?? undefined
+                    )),
                 }}
               >
                 {hasNoAvatar &&
-                  (() => {
-                    const nameParts = user?.displayName?.split(" ") || []
-                    const firstName = nameParts[0]
-                    const lastName = nameParts[1]
-                    return getInitials(firstName, lastName)
-                  })()}
+                  getInitials(
+                    user?.firstName ?? undefined,
+                    user?.lastName ?? undefined
+                  )}
               </Avatar>
 
               <MoreActions
@@ -195,6 +205,24 @@ export const NavigationBar = () => {
       </AppBar>
       {pathname !== "/profile" ? (
         <div className={styles.addButtonWrapper}>
+          {/* Temporarily always show for debugging */}
+          {true && (
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className={styles.importButtonContainer}
+            >
+              <Fab
+                onClick={handleImportFromPhone}
+                className={styles.importButton}
+                aria-label="import from phone"
+                disabled={isImporting || !isSupported}
+                size="medium"
+              >
+                <ContactPhoneIcon />
+              </Fab>
+            </motion.div>
+          )}
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <Fab
               onClick={() => setOpen(true)}
@@ -217,10 +245,16 @@ export const NavigationBar = () => {
         {...modalInfo}
       />
       <SnackBar
-        open={snackbar && !!error}
+        open={!!error}
         onClose={handleSnackbarClose}
-        message={error?.message!}
+        message={error?.message || ""}
         severity={"error"}
+      />
+      <SnackBar
+        open={!!importMessage}
+        onClose={handleImportMessageClose}
+        message={importMessage?.text || ""}
+        severity={importMessage?.severity || "success"}
       />
     </>
   )
@@ -234,7 +268,9 @@ const styles = {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     transition: background-color 0.15s ease, box-shadow 0.15s ease;
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 1100;
     overflow: hidden;
 
     &::before {
@@ -286,6 +322,16 @@ const styles = {
     width: 100%;
     position: relative;
     z-index: 2;
+
+    @media (max-width: 768px) {
+      padding: 0 16px;
+      min-height: 64px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0 12px;
+      min-height: 60px;
+    }
   `,
   titleContainer: css`
     display: flex;
@@ -298,8 +344,18 @@ const styles = {
     transition: all 0.3s ease;
     text-transform: none;
     &:hover {
-      background-color: rgba(255, 255, 255, 0.15);
+      background-color: transparent;
       transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+      padding: 8px 12px;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 6px 8px;
+      border-radius: 10px;
     }
   `,
   titleText: css`
@@ -313,11 +369,29 @@ const styles = {
     color: white;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+
+    @media (max-width: 768px) {
+      font-size: 1.25rem;
+      letter-spacing: -0.3px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.1rem;
+      letter-spacing: -0.2px;
+    }
   `,
   rightSection: css`
     display: flex;
     align-items: center;
     gap: 16px;
+
+    @media (max-width: 768px) {
+      gap: 12px;
+    }
+
+    @media (max-width: 480px) {
+      gap: 8px;
+    }
   `,
   profileSection: css`
     display: flex;
@@ -336,6 +410,18 @@ const styles = {
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
+
+    @media (max-width: 768px) {
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 16px;
+    }
+
+    @media (max-width: 480px) {
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 14px;
+    }
   `,
   userName: css`
     color: rgba(255, 255, 255, 0.9);
@@ -346,18 +432,43 @@ const styles = {
     text-overflow: ellipsis;
     max-width: 150px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    @media (max-width: 768px) {
+      font-size: 0.8125rem;
+      max-width: 120px;
+    }
+
+    @media (max-width: 480px) {
+      display: none;
+    }
   `,
   avatar: css`
+    width: 40px;
+    height: 40px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     background: rgba(255, 255, 255, 0.2);
     color: white;
     font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding-bottom: 4px;
     &:hover {
       border-color: rgba(255, 255, 255, 0.5);
       transform: scale(1.05);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      width: 36px !important;
+      height: 36px !important;
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 480px) {
+      width: 32px !important;
+      height: 32px !important;
+      font-size: 0.8125rem;
+      border-width: 1.5px;
     }
   `,
   addButtonWrapper: css`
@@ -365,10 +476,55 @@ const styles = {
     right: 32px;
     bottom: 32px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 12px;
     pointer-events: none;
     z-index: 1300;
+
+    @media (max-width: 768px) {
+      right: 24px;
+      bottom: 24px;
+      gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      right: 16px;
+      bottom: 16px;
+      gap: 8px;
+    }
+  `,
+  importButtonContainer: css`
+    pointer-events: auto;
+  `,
+  importButton: css`
+    pointer-events: auto;
+    background: linear-gradient(
+      135deg,
+      var(--secondary-main) 0%,
+      var(--secondary-light) 100%
+    );
+    color: var(--text-inverse);
+    box-shadow: var(--shadow-md);
+    transform-origin: center;
+    border: none;
+    &:hover:not(:disabled) {
+      background: linear-gradient(
+        135deg,
+        var(--secondary-dark) 0%,
+        var(--secondary-main) 100%
+      );
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    &:active:not(:disabled) {
+      transform: translateY(0) scale(0.95);
+    }
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   `,
   addButton: css`
     pointer-events: auto;
@@ -394,6 +550,16 @@ const styles = {
     }
     &:active {
       transform: translateY(0) scale(0.95);
+    }
+
+    @media (max-width: 768px) {
+      width: 56px;
+      height: 56px;
+    }
+
+    @media (max-width: 480px) {
+      width: 52px;
+      height: 52px;
     }
   `,
   icon: css`
