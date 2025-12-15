@@ -18,7 +18,7 @@ export function Forgot() {
   const { error, resetError, sendPswdResetEmail } = useAuth() ?? {}
 
   const handleResetError = React.useCallback(
-    () => resetError && resetError(undefined),
+    () => resetError && resetError(),
     [resetError]
   )
 

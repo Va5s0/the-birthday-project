@@ -5,11 +5,10 @@ import TodayWidget from "../../components/TodayWidget"
 import { ScrollToTop } from "../../components/ScrollToTop"
 
 import "../../App.css"
-import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore"
-import { db } from "src/firebase/fbConfig"
 import { getNamedayDateForYear } from "src/utils"
-import { getAuth } from "firebase/auth"
 import { SnackBar } from "src/components/SnackBar"
+import { useAuth } from "../../context/AuthContext"
+import { api, Contact, User } from "../../services/api"
 
 type Props = {
   children: ReactNode
@@ -18,134 +17,92 @@ type Props = {
 const Layout = (props: Props) => {
   const { children } = props
   const location = useLocation()
+  const { user } = useAuth()
   const [namedaySnackbar, setNamedaySnackbar] = React.useState(false)
 
-  async function updateNamedaysForCurrentYear(userId: string) {
-    const userRef = doc(db, "users", userId)
-    const userSnap = await getDoc(userRef)
-    if (!userSnap.exists()) return
-
-    const userData = userSnap.data()
-    let needsUpdate = false
-    const updatedNameday = { ...userData.nameday }
-
-    if (userData.nameday?.date) {
+  async function updateNamedaysForCurrentYear() {
+    try {
       const currentYear = new Date().getFullYear()
-      const savedDate = new Date(userData.nameday.date)
-      if (savedDate.getFullYear() !== currentYear) {
-        // Use saved day/month or nameday_id to get new date
-        const day = userData.nameday.day || savedDate.getDate().toString()
-        const month =
-          userData.nameday.month || (savedDate.getMonth() + 1).toString()
-        updatedNameday.date = getNamedayDateForYear({ day, month }, currentYear)
-        needsUpdate = true
-      }
-    }
+      let anyUpdates = false
 
-    // If you have connections with namedays, repeat for each connection
-    if (Array.isArray(userData.connections)) {
-      updatedNameday.connections = userData.connections.map((conn: any) => {
-        if (conn.nameday?.date) {
-          const currentYear = new Date().getFullYear()
-          const savedDate = new Date(conn.nameday.date)
-          if (savedDate.getFullYear() !== currentYear) {
-            const day = conn.nameday.day || savedDate.getDate().toString()
-            const month =
-              conn.nameday.month || (savedDate.getMonth() + 1).toString()
-            return {
-              ...conn,
-              nameday: {
-                ...conn.nameday,
-                date: getNamedayDateForYear({ day, month }, currentYear),
-              },
-            }
-          }
-        }
-        return conn
-      })
-      needsUpdate = true
-    }
+      // Fetch and update user profile
+      const userProfile = await api.getProfile()
+      let userNeedsUpdate = false
+      const updatedUserData: Partial<User> = {}
 
-    const contactsRef = collection(db, "users", userId, "contacts")
-    const contactsSnap = await getDocs(contactsRef)
-    const batchUpdates: { ref: any; data: any }[] = []
-
-    contactsSnap.forEach((docSnap) => {
-      const contactData = docSnap.data()
-      let contactNeedsUpdate = false
-      const updatedContact: any = { ...contactData }
-
-      // Update contact's nameday
-      if (contactData.nameday?.date) {
-        const currentYear = new Date().getFullYear()
-        const savedDate = new Date(contactData.nameday.date)
+      if (userProfile.namedayDate) {
+        const savedDate = new Date(userProfile.namedayDate)
         if (savedDate.getFullYear() !== currentYear) {
-          const day = contactData.nameday.day || savedDate.getDate().toString()
-          const month =
-            contactData.nameday.month || (savedDate.getMonth() + 1).toString()
-          updatedContact.nameday = {
-            ...contactData.nameday,
-            date: getNamedayDateForYear({ day, month }, currentYear),
-          }
-          contactNeedsUpdate = true
+          // Calculate new date for current year
+          const day = savedDate.getDate().toString()
+          const month = (savedDate.getMonth() + 1).toString()
+          updatedUserData.namedayDate = getNamedayDateForYear({ day, month }, currentYear)
+          userNeedsUpdate = true
         }
       }
 
-      // Update contact's connections' namedays
-      if (Array.isArray(contactData.connections)) {
-        updatedContact.connections = contactData.connections.map(
-          (conn: any) => {
-            if (conn.nameday?.date) {
-              const currentYear = new Date().getFullYear()
-              const savedDate = new Date(conn.nameday.date)
+      if (userNeedsUpdate) {
+        await api.updateProfile(updatedUserData)
+        anyUpdates = true
+      }
+
+      // Fetch and update contacts
+      const contacts = await api.getContacts()
+
+      for (const contact of contacts) {
+        let contactNeedsUpdate = false
+        const updatedContactData: Partial<Contact> = {}
+
+        // Update contact's nameday
+        if (contact.namedayDate) {
+          const savedDate = new Date(contact.namedayDate)
+          if (savedDate.getFullYear() !== currentYear) {
+            const day = savedDate.getDate().toString()
+            const month = (savedDate.getMonth() + 1).toString()
+            updatedContactData.namedayDate = getNamedayDateForYear({ day, month }, currentYear)
+            contactNeedsUpdate = true
+          }
+        }
+
+        // Update contact's connections' namedays
+        if (contact.connections && contact.connections.length > 0) {
+          const updatedConnections = contact.connections.map((conn) => {
+            if (conn.namedayDate) {
+              const savedDate = new Date(conn.namedayDate)
               if (savedDate.getFullYear() !== currentYear) {
-                const day = conn.nameday.day || savedDate.getDate().toString()
-                const month =
-                  conn.nameday.month || (savedDate.getMonth() + 1).toString()
+                const day = savedDate.getDate().toString()
+                const month = (savedDate.getMonth() + 1).toString()
                 contactNeedsUpdate = true
                 return {
                   ...conn,
-                  nameday: {
-                    ...conn.nameday,
-                    date: getNamedayDateForYear({ day, month }, currentYear),
-                  },
+                  namedayDate: getNamedayDateForYear({ day, month }, currentYear),
                 }
               }
             }
             return conn
-          }
-        )
+          })
+          updatedContactData.connections = updatedConnections
+        }
+
+        if (contactNeedsUpdate) {
+          await api.updateContact(contact.id, updatedContactData)
+          anyUpdates = true
+        }
       }
 
-      if (contactNeedsUpdate) {
-        batchUpdates.push({
-          ref: docSnap.ref,
-          data: updatedContact,
-        })
+      if (anyUpdates) {
+        setNamedaySnackbar(true)
       }
-    })
-
-    // Apply updates
-    if (needsUpdate) {
-      await updateDoc(userRef, { nameday: updatedNameday })
-    }
-    for (const update of batchUpdates) {
-      await updateDoc(update.ref, update.data)
-    }
-    if (needsUpdate || batchUpdates.length > 0) {
-      setNamedaySnackbar(true) // Show snackbar when update happens
+    } catch (error) {
+      console.error("Failed to update namedays:", error)
     }
   }
 
   React.useEffect(() => {
-    const auth = getAuth()
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        updateNamedaysForCurrentYear(user.uid)
-      }
-    })
-    return () => unsubscribe()
-  }, [])
+    if (user) {
+      updateNamedaysForCurrentYear()
+    }
+  }, [user])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>

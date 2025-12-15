@@ -1,173 +1,372 @@
 # Birthday Project
 
-_Never forget another birthday again!_ 🎉
+_Never forget another birthday again!_
 
-A delightfully modern React web application that saves you from the eternal embarrassment of forgetting your friends' birthdays and namedays. Built with love, Firebase, and a healthy dose of "I-really-should-remember-this-stuff" guilt.
+A self-hosted, open-source application for managing birthdays, name days, and staying connected with the people who matter most. Your data, your server, your privacy.
 
 ---
 
-## The Problem We All Face
+## Why Birthday Project?
 
-You know that sinking feeling when you realize you forgot your friend's birthday... _again_? 😅
+You know that sinking feeling when you realize you forgot your friend's birthday... again?
 
 Or worse - you forgot their kid's birthday AND their nameday?
 
-We've all been there. That's why Birthday Project exists!
+**Birthday Project** is your personal celebration tracker that runs entirely on your computer. No cloud services, no data mining, just you and your important dates.
 
-## How It Works (It's Really Simple!)
+## Features
 
-**Step 1:** Add your friend's info (name, birthday, maybe a cute photo)
-![alt text](./screenshots/AddContact.png "Add a new friend card")
+- **Contact Management**: Store contacts with birthdays and name days
+- **Family Connections**: Track relationships and family members
+- **Greek Name Days**: Built-in automatic nameday search for Greek names
+- **Today Widget**: Dashboard showing today's celebrations
+- **Multiple Views**: Card view and tree view for contacts
+- **Avatar Support**: Upload profile pictures
+- **Self-Hosted**: Complete privacy - all data stays on your computer
+- **Docker Ready**: One-command setup
+- **Modern UI**: Clean, responsive interface with theme support
 
-**Step 2:** Add their family connections (spouse, kids, pets - we don't judge!)
-![alt text](./screenshots/AddConnection.png "Add a new friend's connection card")
+## Screenshots
 
-**Step 3:** Let the magic happen! For Greek names, our smart nameday search finds celebration dates automatically
-![alt text](./screenshots/AutomaticNamedaySearch.png "Automatic friend nameday search")
+**Add Contacts:**
+![Add Contact](./screenshots/AddContact.png)
 
-**Voilà!** Your friend's card now looks professional and you look like you have your life together:
-![alt text](./screenshots/ContactConnectionsCards.png "Friend & connections card")
+**Add Connections:**
+![Add Connection](./screenshots/AddConnection.png)
 
-**The Big Picture:** All your friends, beautifully organized:
-![alt text](./screenshots/ContactCards.png "General Layout")
+**Automatic Nameday Search:**
+![Nameday Search](./screenshots/AutomaticNamedaySearch.png)
 
-**Never Miss Another Day:** The Today widget keeps track of what's happening right now:
-![alt text](./screenshots/TodayWidget.png "Today Widget")
+**Contact Cards:**
+![Contact Cards](./screenshots/ContactConnectionsCards.png)
 
-## What Makes It Special
-
-- **Fort Knox Security:** Your data is locked down tighter than your birthday cake recipe
-- **Pretty Profiles:** Upload avatars, edit info, look good doing it
-- **Contact Wizardry:** Add, edit, delete contacts with their own birthdays and namedays
-- **Greek Nameday Magic:** Automatic nameday search because we know you can't remember them all
-- **Family Connections:** Link people together (because families are complicated)
-- **Today Widget:** See who's celebrating today and upcoming events at a glance
-- **Mobile-Friendly:** Works great on your phone when you're panic-checking dates at 11 PM
-- **No Awkward Moments:** Confirmation modals prevent you from accidentally deleting Uncle George
-- **Beautiful Design:** Material-UI styling that doesn't look like it's from 2003
+**Today's Celebrations:**
+![Today Widget](./screenshots/TodayWidget.png)
 
 ---
 
-## 🛠️ Built With
+## Quick Start
 
-- **React**
-- **Firebase** (Firestore, Storage, Auth, Realtime Database)
-- **Material-UI**
-- **TypeScript**
+### Prerequisites
 
----
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) installed
+- Git (to clone the repository)
 
-## Getting Started
+### Installation (3 Steps!)
 
-### 1. Grab the code
+**1. Clone the repository**
 
 ```bash
 git clone https://github.com/Va5s0/the-birthday-project.git
 cd the-birthday-project
 ```
 
-### 2. Install everything
+**2. Run the setup script**
 
 ```bash
-npm install
+./setup.sh
 ```
 
-### 3. Set up Firebase
+This creates `.env` configuration files.
 
-- Create a Firebase project at [firebase.google.com](https://firebase.google.com/).
-- Enable **Authentication** (Email/Password).
-- Create a **Firestore** database.
-- Enable **Storage**.
-- Create a **Realtime Database**.
-- Create a `.env` file in the root directory and add your Firebase config:
+**3. Start the application**
 
 ```bash
-# .env
-VITE_API_KEY="your-api-key"
-VITE_AUTH_DOMAIN="your-project.firebaseapp.com"
-VITE_PROJECT_ID="your-project-id"
-VITE_STORAGE_BUCKET="your-project.appspot.com"
-VITE_MESSAGING_SENDER_ID="your-sender-id"
-VITE_APP_ID="your-app-id"
-VITE_DATABASE_URL="https://your-project.firebaseio.com"
+docker-compose up -d
 ```
 
-### 4. Set Firebase Security Rules
-
-#### **Firestore Rules**
-
-```plaintext
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
-```
-
-#### **Storage Rules**
-
-```plaintext
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    // User profile picture
-    match /users/{userId}/avatar.jpg {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    // Contact avatars
-    match /users/{userId}/contacts/{contactId}/avatar.jpg {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
-```
-
-> **Remember to deploy your rules via the Firebase Console or CLI.**
+**That's it!** Open [http://localhost:3000](http://localhost:3000) and create your account.
 
 ---
 
-## Running the App (with Vite)
+## What Makes It Special
 
-```bash
-npm start
+- **Complete Privacy**: Your data never leaves your computer
+- **No Subscriptions**: Free forever, run it on your own hardware
+- **Open Source**: Modify it however you want
+- **Easy Backup**: Simple file-based SQLite database
+- **Docker Magic**: No complex installation or dependencies
+- **Greek Nameday Support**: Automatic nameday lookup for Greek Orthodox names
+- **Family Trees**: Connect related contacts
+- **Mobile-Friendly**: Works on your phone
+- **No Awkward Moments**: Confirmation dialogs prevent accidental deletions
+
+---
+
+## Architecture
+
+```
+Frontend (React + Nginx)
+         ↓
+Backend API (Express + TypeScript)
+         ↓
+    ┌────┴────┬──────────┐
+    ↓         ↓          ↓
+SQLite    Files      Nodemailer
+          /uploads   (Optional Email)
 ```
 
-or directly:
+## Tech Stack
 
-```bash
-vite
+### Frontend
+- React 18.2
+- TypeScript 5.3
+- Vite 6.3
+- Material-UI 5.15
+- TanStack Query (React Query)
+- Emotion CSS
+
+### Backend
+- Node.js 20
+- Express.js 4.x
+- Prisma ORM
+- SQLite 3.x
+- JWT Authentication
+- Nodemailer (password reset)
+
+### DevOps
+- Docker & Docker Compose
+- Nginx
+
+---
+
+## Usage
+
+### Managing Contacts
+
+1. Click "Add Contact"
+2. Fill in details (name, birthday, nameday, etc.)
+3. Upload an avatar (optional)
+4. Save
+
+### Adding Connections
+
+Connections are people related to your contacts (family members, friends):
+
+1. Open a contact card
+2. Click "Add Connection"
+3. Enter connection details
+4. Save
+
+### View Modes
+
+- **Card View**: Visual cards with contact info
+- **Tree View**: Hierarchical view showing relationships
+
+### Today Widget
+
+Never miss a celebration! The dashboard shows birthdays and namedays happening today.
+
+---
+
+## Configuration
+
+### Environment Variables
+
+**Frontend** (`.env`):
+```env
+VITE_API_URL=http://localhost:5001/api
 ```
 
-This will start Vite’s development server. Open the URL shown in your terminal (usually [http://localhost:3000](http://localhost:3000)).
+**Backend** (`server/.env`):
+```env
+# IMPORTANT: Change these secrets!
+JWT_ACCESS_SECRET=your-random-secret-here
+JWT_REFRESH_SECRET=different-random-secret-here
 
-### Build for production
+# Optional: Email for password reset
+SMTP_HOST=smtp.gmail.com
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+```
 
+Generate secure secrets:
 ```bash
+openssl rand -base64 32
+```
+
+See `.env.example` files for complete options.
+
+---
+
+## Development
+
+### Running Without Docker
+
+**Backend:**
+```bash
+cd server
+npm install
+npm run dev
+```
+
+**Frontend:**
+```bash
+yarn install
+yarn start
+```
+
+### Building
+
+**Backend:**
+```bash
+cd server
 npm run build
 ```
 
-This runs TypeScript type checking and builds the app with Vite.
-
-### Preview the production build
-
+**Frontend:**
 ```bash
-npm run serve
+yarn build
 ```
 
-or
+---
+
+## Docker Management
 
 ```bash
-vite preview
+# View logs
+docker-compose logs -f
+
+# Stop containers
+docker-compose down
+
+# Restart
+docker-compose restart
+
+# Rebuild after changes
+docker-compose up --build
+
+# Fresh start (deletes all data!)
+docker-compose down -v
+rm -rf server/data server/uploads
 ```
+
+---
+
+## Backup & Restore
+
+### Backup
+
+```bash
+mkdir -p backups
+cp -r server/data backups/data_$(date +%Y%m%d)
+cp -r server/uploads backups/uploads_$(date +%Y%m%d)
+```
+
+### Restore
+
+```bash
+docker-compose down
+cp -r backups/data_YYYYMMDD server/data
+cp -r backups/uploads_YYYYMMDD server/uploads
+docker-compose up -d
+```
+
+**Pro tip**: Set up a cron job for automatic daily backups!
+
+---
+
+## Troubleshooting
+
+### Port Already in Use
+
+Edit `docker-compose.yml` to use different ports:
+
+```yaml
+services:
+  api:
+    ports:
+      - "5002:5001"  # Changed from 5001
+  frontend:
+    ports:
+      - "3001:80"    # Changed from 3000
+```
+
+Update `VITE_API_URL` in `.env` accordingly.
+
+### Database Locked
+
+```bash
+docker-compose down
+docker-compose up
+```
+
+### Clear All Data
+
+```bash
+docker-compose down -v
+rm -rf server/data server/uploads
+docker-compose up
+```
+
+### Permission Issues
+
+```bash
+chmod -R 755 server/data server/uploads
+```
+
+---
+
+## Security
+
+### Development vs Production
+
+**Important:** This Docker setup uses HTTP and is designed for **local development**.
+
+For **production deployment**, you MUST:
+- Deploy behind a **reverse proxy** (nginx, Caddy, Traefik) with HTTPS/SSL certificates
+- Use **Let's Encrypt** for free SSL certificates or your own certificates
+- Set cookies to `secure: true` and `sameSite: 'strict'` in production
+- Update `FRONTEND_URL` to use `https://` instead of `http://`
+
+### Security Checklist
+
+- **Change default JWT secrets** in `server/.env` using `openssl rand -base64 32`
+- Use **strong passwords** for user accounts
+- Keep installation **updated** with latest releases
+- Enable **HTTPS** via reverse proxy if exposing to internet
+- **Regular backups** recommended (see Backup section)
+- Consider **firewall rules** if self-hosting on a server
+- Review and restrict **CORS origins** in production
+- Keep `.env` files **private** (already in `.gitignore`)
+
+---
+
+## Migration from Firebase
+
+Migrating from an older Firebase version? See [MIGRATION_PLAN.md](MIGRATION_PLAN.md) for the complete migration guide.
 
 ---
 
 ## Contributing
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Code of conduct
+- Development setup
+- Pull request process
+- Coding standards
+
+---
+
+## Roadmap
+
+- [ ] End-to-end tests (Playwright)
+- [ ] Email notifications for upcoming birthdays
+- [ ] Import/export contacts (CSV, vCard)
+- [ ] Calendar integration (iCal export)
+- [ ] Mobile app (React Native)
+- [ ] Multi-language support
+- [ ] Recurring reminders
+- [ ] Gift ideas tracker
+- [ ] Birthday statistics
+
+---
+
+## Support
+
+- **Documentation**: [DOCKER_SETUP.md](DOCKER_SETUP.md)
+- **Issues**: [GitHub Issues](https://github.com/Va5s0/the-birthday-project/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Va5s0/the-birthday-project/discussions)
 
 ---
 
@@ -175,17 +374,22 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 This project is licensed under a **custom non-commercial license**:
 
-- **Personal and internal business use only.**
-- **Commercial use is prohibited** without prior written permission from the copyright holder.
-- **Attribution required** in all copies or substantial portions of the software.
-- The software is provided **"as is" without warranty** of any kind.
+- **Personal and internal business use only**
+- **Commercial use prohibited** without prior written permission
+- **Attribution required** in all copies or substantial portions
+- The software is provided **"as is" without warranty**
 
-See the [LICENSE](./LICENSE) file for full details.
+See the [LICENSE](LICENSE) file for full details.
 
 ---
 
 ## Acknowledgements
 
-- [Firebase](https://firebase.google.com/)
-- [Material-UI](https://mui.com/)
-- [Emotion](https://emotion.sh/)
+- Built with love for keeping track of special moments
+- Inspired by the need for privacy-first, self-hosted solutions
+- Thanks to all contributors and users
+- Special thanks to the open-source community
+
+---
+
+**Made with ❤️ for remembering the people who matter**

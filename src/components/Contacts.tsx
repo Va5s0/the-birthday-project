@@ -1,85 +1,31 @@
-import React, { useMemo } from "react"
-import {
-  collection,
-  query,
-  onSnapshot,
-} from "firebase/firestore"
-import { ref, getDownloadURL } from "firebase/storage"
-import { Contact } from "../models/contact"
-import { db, storage } from "../firebase/fbConfig"
-import Card from "./Card/index"
-import TreeCard from "./TreeCard"
-import { css } from "@emotion/css"
-import { getAuth } from "firebase/auth"
-import ToggleButton from "@mui/material/ToggleButton"
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
+import React, { useState } from 'react';
+import Card from './Card/index';
+import TreeCard from './TreeCard';
+import { css } from '@emotion/css';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { useContacts } from '../hooks/useContacts';
 
 const Contacts = () => {
-  const [contacts, setContacts] = React.useState<Contact[]>([])
-  const [treeView, setTreeView] = React.useState(false)
-  
-  const auth = getAuth()
-  const { currentUser } = auth
+  const [treeView, setTreeView] = useState(false);
+  const { data: contacts = [], isLoading: loading } = useContacts();
 
-  const contactsRef = useMemo(() => 
-    query(collection(db, `users/${currentUser?.uid}/contacts`)),
-    [currentUser?.uid]
-  )
+  const handleToggleChange = (
+    _: React.MouseEvent<HTMLElement>,
+    value: string | null
+  ) => {
+    if (value !== null) setTreeView(value === 'tree');
+  };
 
-  const fetchAvatarUrl = async (contactId: string) => {
-    if (!currentUser) return undefined
-    try {
-      const storageRef = ref(
-        storage,
-        `users/${currentUser?.uid}/contacts/${contactId}/avatar.jpg`
-      )
-      const url = await getDownloadURL(storageRef)
-      return url
-    } catch (error) {
-      return undefined
-    }
-  }
-
-  React.useEffect(() => {
-    if (currentUser == null) {
-      setContacts([])
-      return
-    }
-    const unsubscribe = onSnapshot(
-      contactsRef,
-      async (snapshot) => {
-        const _contacts = await Promise.all(
-          snapshot.docs.map(async (doc) => {
-            const data = doc.data()
-            let avatarUrl = data.avatarUrl // Check if avatarUrl already exists in the data
-            if (!!avatarUrl) {
-              avatarUrl = await fetchAvatarUrl(doc.id) // Fetch only if avatarUrl exists
-            }
-            return {
-              id: doc.id,
-              ...data,
-              avatarUrl: avatarUrl || data.avatarUrl || "", // Keep existing avatarUrl if fetch fails
-            } as Contact
-          })
-        )
-        setContacts(_contacts)
-      },
-      (err) => {
-        console.error('Error fetching contacts:', err)
-      }
-    )
-    return () => unsubscribe()
-  }, [currentUser, contactsRef])
-
-  const handleToggleChange = (_: React.MouseEvent<HTMLElement>, value: string | null) => {
-    if (value !== null) setTreeView(value === "tree")
+  if (loading) {
+    return <div className={styles.container}>Loading contacts...</div>;
   }
 
   return (
     <>
       <div className={styles.toggleContainer}>
         <ToggleButtonGroup
-          value={treeView ? "tree" : "cards"}
+          value={treeView ? 'tree' : 'cards'}
           exclusive
           onChange={handleToggleChange}
           aria-label="contacts view toggle"
@@ -106,16 +52,20 @@ const Contacts = () => {
         <TreeCard contacts={contacts} />
       ) : (
         <div className={styles.container}>
-          {contacts?.map((contact, idx) => (
-            <Card key={contact.id || `contact-${idx}`} cardKey={idx.toString()} contact={contact} />
+          {contacts.map((contact, idx) => (
+            <Card
+              key={contact.id || `contact-${idx}`}
+              cardKey={idx.toString()}
+              contact={contact}
+            />
           ))}
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
-export default Contacts
+export default Contacts;
 
 const styles = {
   container: css`
@@ -190,4 +140,4 @@ const styles = {
       }
     }
   `,
-}
+};
