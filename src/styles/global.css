@@ -1,13 +1,13 @@
 /* Modern CSS Variables for Light/Dark Mode */
 :root {
   /* Light theme colors */
-  --primary-main: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #8b5cf6;
-  
-  --secondary-main: #ec4899;
-  --secondary-dark: #db2777;
-  --secondary-light: #f472b6;
+  --primary-main: #0369a1;
+  --primary-dark: #075985;
+  --primary-light: #0ea5e9;
+
+  --secondary-main: #64748b;
+  --secondary-dark: #475569;
+  --secondary-light: #94a3b8;
   
   /* Light theme backgrounds - using solid colors for smooth transitions */
   --bg-primary: #f8fafc;
@@ -25,7 +25,7 @@
   /* Light theme borders */
   --border-primary: #e2e8f0;
   --border-secondary: #cbd5e1;
-  --border-focus: #6366f1;
+  --border-focus: #0369a1;
   
   /* Light theme shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -45,13 +45,13 @@
 
 [data-theme="dark"] {
   /* Dark theme colors */
-  --primary-main: #8b5cf6;
-  --primary-dark: #7c3aed;
-  --primary-light: #a78bfa;
-  
-  --secondary-main: #f472b6;
-  --secondary-dark: #ec4899;
-  --secondary-light: #f9a8d4;
+  --primary-main: #0ea5e9;
+  --primary-dark: #0369a1;
+  --primary-light: #38bdf8;
+
+  --secondary-main: #94a3b8;
+  --secondary-dark: #64748b;
+  --secondary-light: #cbd5e1;
   
   /* Dark theme backgrounds */
   --bg-primary: #0f172a;
@@ -69,7 +69,7 @@
   /* Dark theme borders */
   --border-primary: #334155;
   --border-secondary: #475569;
-  --border-focus: #8b5cf6;
+  --border-focus: #0ea5e9;
   
   /* Dark theme shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -130,10 +130,10 @@ body::before {
 
 [data-theme="light"] body::before {
   opacity: 1;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, rgba(139, 92, 246, 0.02) 0%, transparent 50%);
+  background:
+    radial-gradient(circle at 20% 50%, rgba(3, 105, 161, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(100, 116, 139, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(14, 165, 233, 0.015) 0%, transparent 50%);
 }
 
 /* Hide background patterns during theme transition */
@@ -175,9 +175,9 @@ body::before {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, 
-    rgba(99, 102, 241, 0.6) 0%, 
-    rgba(139, 92, 246, 0.6) 100%);
+  background: linear-gradient(180deg,
+    rgba(3, 105, 161, 0.5) 0%,
+    rgba(14, 165, 233, 0.5) 100%);
   border-radius: 10px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -186,18 +186,18 @@ body::before {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, 
-    rgba(99, 102, 241, 0.8) 0%, 
-    rgba(139, 92, 246, 0.8) 100%);
+  background: linear-gradient(180deg,
+    rgba(3, 105, 161, 0.7) 0%,
+    rgba(14, 165, 233, 0.7) 100%);
   border: 1px solid transparent;
   background-clip: content-box;
   transform: scale(1.1);
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(180deg, 
-    rgba(99, 102, 241, 1) 0%, 
-    rgba(139, 92, 246, 1) 100%);
+  background: linear-gradient(180deg,
+    rgba(3, 105, 161, 0.9) 0%,
+    rgba(14, 165, 233, 0.9) 100%);
 }
 
 ::-webkit-scrollbar-corner {
@@ -207,24 +207,24 @@ body::before {
 /* Firefox scrollbar support */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(99, 102, 241, 0.6) transparent;
+  scrollbar-color: rgba(3, 105, 161, 0.5) transparent;
 }
 
 /* Dark theme scrollbar adjustments */
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, 
-    rgba(139, 92, 246, 0.7) 0%, 
-    rgba(168, 139, 250, 0.7) 100%);
+  background: linear-gradient(180deg,
+    rgba(14, 165, 233, 0.6) 0%,
+    rgba(56, 189, 248, 0.6) 100%);
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, 
-    rgba(139, 92, 246, 0.9) 0%, 
-    rgba(168, 139, 250, 0.9) 100%);
+  background: linear-gradient(180deg,
+    rgba(14, 165, 233, 0.8) 0%,
+    rgba(56, 189, 248, 0.8) 100%);
 }
 
 [data-theme="dark"] * {
-  scrollbar-color: rgba(139, 92, 246, 0.7) transparent;
+  scrollbar-color: rgba(14, 165, 233, 0.6) transparent;
 }
 
 /* Focus styles */

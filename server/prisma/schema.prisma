@@ -1,0 +1,103 @@
+// Prisma schema for Birthday App
+// SQLite database with multi-language support (Greek + English)
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String
+  firstName       String?
+  lastName        String?
+  phoneNumber     String?
+  birthday        String?   // ISO date string (YYYY-MM-DD)
+  avatarUrl       String?   // Relative path: /uploads/users/{id}/avatar.jpg
+  namedayId       String?
+  namedayDate     String?   // ISO date string for nameday
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  contacts        Contact[]
+  passwordResets  PasswordReset[]
+  refreshTokens   RefreshToken[]
+}
+
+model Contact {
+  id          String   @id @default(uuid())
+  userId      String
+  firstName   String
+  lastName    String?
+  email       String?
+  phone       String?
+  mobile      String?
+  birthday    String?  // ISO date string (YYYY-MM-DD)
+  avatarUrl   String?  // Relative path: /uploads/users/{userId}/contacts/{id}/avatar.jpg
+  namedayId   String?
+  namedayDate String?  // ISO date string for nameday
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  connections Connection[]
+
+  @@index([userId])
+  @@index([firstName])
+  @@index([birthday])
+}
+
+model Connection {
+  id          String  @id @default(uuid())
+  contactId   String
+  firstName   String?
+  lastName    String?
+  phone       String?
+  mobile      String?
+  email       String?
+  birthday    String?  // ISO date string (YYYY-MM-DD)
+  avatarUrl   String?
+  namedayId   String?
+  namedayDate String?
+
+  // Relations
+  contact     Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}

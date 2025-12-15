@@ -43,7 +43,7 @@ export function Landing(props: Props) {
   const action = actions[path]
 
   const handleResetError = React.useCallback(() => {
-    resetError && resetError(undefined)
+    resetError && resetError()
   }, [resetError])
 
   const onChange = React.useCallback(
@@ -64,14 +64,14 @@ export function Landing(props: Props) {
     const canILogin = !!login && action.value === "login"
     if (canIRegister) {
       register(values).then((value) => {
-        if (!!value?.user?.uid) {
+        if (!!value?.id) {
           navigate("/")
         }
       })
       setPending(false)
     } else if (canILogin) {
       login(values).then((value) => {
-        if (!!value?.uid) {
+        if (!!value?.id) {
           navigate("/")
         }
       })

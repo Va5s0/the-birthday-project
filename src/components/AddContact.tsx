@@ -1,6 +1,4 @@
-import React, { ChangeEvent } from "react"
-import { doc, setDoc, updateDoc, collection } from "firebase/firestore"
-import { getAuth } from "firebase/auth"
+import React, { ChangeEvent } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -8,90 +6,97 @@ import {
   DialogActions,
   Grid,
   IconButton,
-} from "@mui/material"
-import CakeIcon from "@mui/icons-material/Cake"
-import { css } from "@emotion/css"
-import { Button } from "@mui/material"
-import { TextInput } from "./inputs/TextInput"
-import { Contact } from "../models/contact"
-import { DateInput } from "./inputs/DateInput"
-import { db } from "../firebase/fbConfig"
-import { v1 as getUuid } from "uuid"
-import CloseIcon from "@mui/icons-material/Close"
-import PersonIcon from "@mui/icons-material/Person"
-import { contactFields } from "../utils/contactFields"
-import Nameday from "./Nameday"
+} from '@mui/material';
+import CakeIcon from '@mui/icons-material/Cake';
+import { css } from '@emotion/css';
+import { Button } from '@mui/material';
+import { TextInput } from './inputs/TextInput';
+import { Contact } from '../models/contact';
+import { DateInput } from './inputs/DateInput';
+import { useAuth } from '../context/AuthContext';
+import { useCreateContact, useAddConnection } from '../hooks/useContacts';
+import CloseIcon from '@mui/icons-material/Close';
+import PersonIcon from '@mui/icons-material/Person';
+import { contactFields } from '../utils/contactFields';
+import Nameday from './Nameday';
 
 type Props = {
-  open: boolean
-  onClose: VoidFunction
-  type: "contact" | "connection"
-  contact?: Contact
-}
+  open: boolean;
+  onClose: VoidFunction;
+  type: 'contact' | 'connection';
+  contact?: Contact;
+  onSuccess?: () => void;
+};
+
+const initialState: Partial<Contact> = {
+  firstName: '',
+  lastName: '',
+};
 
 const AddContact = (props: Props) => {
-  const { open, onClose, type, contact } = props
-  const [state, setState] = React.useState<Partial<Contact>>({
-    id: "",
-    firstName: "",
-    lastName: "",
-  })
-  const [errors, setErrors] = React.useState<Record<string, string>>()
-  const auth = getAuth()
-  const { currentUser } = auth
+  const { open, onClose, type, contact, onSuccess } = props;
+  const [state, setState] = React.useState<Partial<Contact>>(initialState);
+  const [errors, setErrors] = React.useState<Record<string, string>>();
+  const { user } = useAuth();
+
+  const createContactMutation = useCreateContact();
+  const addConnectionMutation = useAddConnection();
 
   const handleChange = (
     evt: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    const { name, value } = evt.target
-    setState((s) => ({ ...s, [name]: value?.trim() }))
-  }
+    const { name, value } = evt.target;
+    setState((s) => ({ ...s, [name]: value?.trim() }));
+  };
 
   const handleDateChange = (date: Date | null, name: string) => {
     if (date instanceof Date && !isNaN(date.getTime())) {
-      setState((s) => ({ ...s, [name]: date.toISOString() }))
+      setState((s) => ({ ...s, [name]: date.toISOString() }));
     } else {
-      setState((s) => ({ ...s, [name]: null }))
+      setState((s) => ({ ...s, [name]: null }));
     }
-  }
+  };
+
+  const handleClose = () => {
+    setState(initialState);
+    setErrors(undefined);
+    onClose();
+  };
+
+  const loading = createContactMutation.isPending || addConnectionMutation.isPending;
 
   const handleSubmit = async () => {
+    if (!user) {
+      setErrors({ general: 'User not authenticated' });
+      return;
+    }
+
+    setErrors(undefined);
+
     try {
       if (contact) {
         // Adding a connection to existing contact
-        const updatedContact = {
-          ...contact,
-          connections: [
-            ...(contact?.connections || []),
-            { ...state, id: getUuid() },
-          ],
-        }
-        await updateDoc(
-          doc(db, `users/${currentUser?.uid}/contacts/${contact?.id}`),
-          updatedContact
-        )
+        await addConnectionMutation.mutateAsync({
+          contactId: contact.id,
+          data: state,
+        });
       } else {
         // Creating a new contact
-        const docRef = doc(collection(db, `users/${currentUser?.uid}/contacts`))
-        await setDoc(docRef, {
-          ...state,
-          id: docRef.id,
-          connections: [],
-        })
+        await createContactMutation.mutateAsync(state);
       }
-      handleClose()
+      if (onSuccess) onSuccess();
+      handleClose();
     } catch (err: any) {
-      setErrors(err)
+      setErrors({ general: err.message || 'Failed to save' });
     }
-  }
-
-  const handleClose = () => {
-    setState({ id: "", firstName: "", lastName: "" })
-    onClose()
-  }
+  };
 
   const modalTitle =
-    type === "connection" ? "Add New Connection" : "Add New Contact"
+    type === 'connection' ? 'Add New Connection' : 'Add New Contact';
+
+  const handleNamedayChange = (updatedContact?: Partial<Contact>) => {
+    setState(updatedContact ?? {});
+  };
 
   return (
     <Dialog
@@ -113,13 +118,16 @@ const AddContact = (props: Props) => {
       </DialogTitle>
 
       <DialogContent className={styles.content}>
+        {errors?.general && (
+          <div className={styles.error}>{errors.general}</div>
+        )}
         <Grid container spacing={3}>
           {/* Name Fields */}
           <Grid item xs={12} sm={6}>
             <TextInput
               name="firstName"
               label="First Name"
-              value={state.firstName || ""}
+              value={state.firstName || ''}
               onChange={handleChange}
               error={!!errors?.firstName}
               errorMessage={errors?.firstName}
@@ -135,7 +143,7 @@ const AddContact = (props: Props) => {
             <TextInput
               name="lastName"
               label="Last Name"
-              value={state.lastName || ""}
+              value={state.lastName || ''}
               onChange={handleChange}
               error={!!errors?.lastName}
               errorMessage={errors?.lastName}
@@ -147,28 +155,31 @@ const AddContact = (props: Props) => {
           </Grid>
 
           {/* Contact Fields for main contact only */}
-          {type === "contact" &&
+          {type === 'contact' &&
             contactFields.map((field) => {
-              const Icon = field.icon
+              const Icon = field.icon;
               return (
                 <Grid item xs={12} sm={6} key={field.value}>
                   <TextInput
                     name={field.value}
                     label={field.label}
                     value={
-                      (state[field.value as keyof Contact] as string) || ""
+                      (state[field.value as keyof Contact] as string) || ''
                     }
                     onChange={handleChange}
                     error={!!errors?.[field.value]}
                     errorMessage={errors?.[field.value]}
                     icon={<Icon className={styles.fieldIcon} />}
                     fullWidth
-                    type={field.value === "email" ? "email" : "text"}
+                    type={field.value === 'email' ? 'email' : 'text'}
                     size="small"
                     margin="dense"
+                    isPhone={
+                      field.value === 'mobile' || field.value === 'phone'
+                    }
                   />
                 </Grid>
-              )
+              );
             })}
 
           {/* Date Fields */}
@@ -176,7 +187,7 @@ const AddContact = (props: Props) => {
             <DateInput
               name="birthday"
               label="Birthday"
-              value={state.birthday || ""}
+              value={state.birthday || ''}
               onChange={handleDateChange}
               error={!!errors?.birthday}
               errorMessage={errors?.birthday}
@@ -191,11 +202,9 @@ const AddContact = (props: Props) => {
           <Grid item xs={12} sm={6}>
             <Nameday
               contact={state}
-              hasError={() => !!errors?.["nameday.date"]}
-              errorMsg={() => errors?.["nameday.date"] || ""}
-              onContactChange={(updatedContact?: Partial<Contact>) =>
-                setState(updatedContact ?? {})
-              }
+              hasError={() => !!errors?.['nameday.date']}
+              errorMsg={() => errors?.['nameday.date'] || ''}
+              onContactChange={handleNamedayChange}
               margin="dense"
               size="small"
             />
@@ -204,7 +213,7 @@ const AddContact = (props: Props) => {
       </DialogContent>
 
       <DialogActions className={styles.actions}>
-        <Button onClick={handleClose} color="inherit">
+        <Button onClick={handleClose} color="inherit" disabled={loading}>
           Cancel
         </Button>
         <Button
@@ -212,22 +221,30 @@ const AddContact = (props: Props) => {
           variant="contained"
           color="primary"
           className={styles.saveButton}
-          disabled={!state.firstName}
+          disabled={!state.firstName || loading}
         >
-          {type === "connection" ? "Add Connection" : "Add Contact"}
+          {loading
+            ? 'Saving...'
+            : type === 'connection'
+            ? 'Add Connection'
+            : 'Add Contact'}
         </Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
-export default AddContact
+export default AddContact;
 
 const styles = {
   dialog: css`
     .MuiDialog-paper {
       border-radius: 12px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .MuiDialogTitle-root + .MuiDialogContent-root {
+      padding-top: 4px;
     }
   `,
   title: css`
@@ -249,6 +266,14 @@ const styles = {
   content: css`
     padding: 0 24px 24px;
   `,
+  error: css`
+    color: #d32f2f;
+    background: #ffebee;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+  `,
   fieldIcon: css`
     color: var(--primary-main);
     width: 20px;
@@ -262,4 +287,4 @@ const styles = {
     padding: 10px 24px;
     font-weight: 600;
   `,
-}
+};

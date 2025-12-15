@@ -1,9 +1,14 @@
-import React from "react"
-import { doc, deleteDoc, updateDoc } from "firebase/firestore"
-import { db } from "../../firebase/fbConfig"
+import React, { useCallback } from "react"
 import { Card as MUICard, IconButton } from "@mui/material"
 import { css, cx } from "@emotion/css"
-import { Contact, Common } from "../../models/contact"
+import { Contact, Connection } from "../../models/contact"
+import { useAuth } from "../../context/AuthContext"
+import {
+  useUpdateContact,
+  useUpdateConnection,
+  useDeleteContact,
+  useDeleteConnection,
+} from "../../hooks/useContacts"
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
@@ -16,102 +21,128 @@ import ConfirmationModal, {
 import { EditModal } from "../../components/EditModal"
 import AddContact from "../../components/AddContact"
 import Connections from "../../components/Connections"
-import { getAuth } from "firebase/auth"
 import AvatarUpload from "../AvatarUpload"
 
 type Props = {
   contact: Contact
   cardKey?: string
+  onUpdate?: () => void
+}
+
+// Ensures partial contact has all required Contact fields
+const enhancedContact = (contact: Partial<Contact>): Contact => {
+  return {
+    id: contact.id || "",
+    userId: contact.userId || "",
+    firstName: contact.firstName || "",
+    lastName: contact.lastName,
+    connections: contact.connections || [],
+    createdAt: contact.createdAt || new Date().toISOString(),
+    updatedAt: contact.updatedAt || new Date().toISOString(),
+    ...contact,
+  } as Contact
 }
 
 const Card = (props: Props) => {
-  const { contact, cardKey } = props
+  const { contact, cardKey, onUpdate } = props
   const [errors, setErrors] = React.useState<Record<string, any>>()
   const [updatedContact, setUpdatedContact] =
     React.useState<Partial<Contact>>(contact)
   const [openConnections, setOpenConnections] = React.useState<boolean>(false)
   const [openAdd, setOpenAdd] = React.useState<boolean>(false)
   const [openEdit, setOpenEdit] = React.useState<boolean>(false)
-  const [openEditConnection, setOpenEditConnection] = React.useState<boolean>(false)
-  const [editingConnection, setEditingConnection] = React.useState<Common | null>(null)
+  const [openEditConnection, setOpenEditConnection] =
+    React.useState<boolean>(false)
+  const [editingConnection, setEditingConnection] =
+    React.useState<Connection | null>(null)
   const [modalInfo, setModalInfo] = React.useState<ModalInfo>()
-  const auth = getAuth()
-  const { currentUser } = auth
+  const { user } = useAuth()
   const [avatarUrl, setAvatarUrl] = React.useState<string | undefined>(
-    contact.avatarUrl
+    contact.avatarUrl || undefined
   )
 
-  const onContactChange = (contact?: Partial<Contact>) => {
-    const updatedContact = contact || { id: "", firstName: "" }
-    setUpdatedContact(updatedContact)
-  }
+  const updateContactMutation = useUpdateContact()
+  const updateConnectionMutation = useUpdateConnection()
+  const deleteContactMutation = useDeleteContact()
+  const deleteConnectionMutation = useDeleteConnection()
 
-  const handleEditSave = async (editedContact: Contact) => {
-    try {
-      const contactRef = doc(
-        db,
-        `users/${currentUser?.uid}/contacts/${contact.id}`
-      )
-      await updateDoc(contactRef, editedContact as any)
-      setUpdatedContact(editedContact)
-    } catch (error) {
-      setErrors(error as Record<string, any>)
-    }
-  }
-  
-  const handleConnectionEditSave = async (editedConnection: Contact) => {
-    try {
-      const updatedConnections = contact.connections?.map(conn => 
-        conn.id === editedConnection.id ? editedConnection as Common : conn
-      ) || []
-      
-      const updatedContact = {
-        ...contact,
-        connections: updatedConnections
+  const handleEditSave = useCallback(
+    async (editedContact: Contact) => {
+      try {
+        const updated = await updateContactMutation.mutateAsync({
+          id: contact.id,
+          data: editedContact,
+        })
+        setUpdatedContact(updated)
+        if (onUpdate) onUpdate()
+      } catch (error: any) {
+        setErrors({ general: error.message || "Failed to update contact" })
       }
-      
-      const contactRef = doc(
-        db,
-        `users/${currentUser?.uid}/contacts/${contact.id}`
-      )
-      await updateDoc(contactRef, updatedContact)
-      setUpdatedContact(updatedContact)
-    } catch (error) {
-      setErrors(error as Record<string, any>)
-    }
-  }
+    },
+    [contact.id, onUpdate, updateContactMutation]
+  )
 
-  const deleteFbDoc = async () => {
-    const contactRef = doc(
-      db,
-      `users/${currentUser?.uid}/contacts/${contact?.id}`
-    )
-    await deleteDoc(contactRef)
-    setModalInfo(undefined)
-  }
+  const handleConnectionEditSave = useCallback(
+    async (editedConnection: Contact) => {
+      try {
+        await updateConnectionMutation.mutateAsync({
+          contactId: contact.id,
+          connectionId: editedConnection.id,
+          data: editedConnection,
+        })
 
-  const deleteConnection = async (id?: string) => {
-    const updatedContact = {
-      ...contact,
-      connections: contact?.connections?.filter((c) => c?.id !== id),
+        // React Query will auto-update the cache
+        if (onUpdate) onUpdate()
+      } catch (error: any) {
+        setErrors({ general: error.message || "Failed to update connection" })
+      }
+    },
+    [contact.id, onUpdate, updateConnectionMutation]
+  )
+
+  const deleteContact = useCallback(async () => {
+    try {
+      await deleteContactMutation.mutateAsync(contact.id)
+      setModalInfo(undefined)
+      if (onUpdate) onUpdate()
+    } catch (error: any) {
+      setErrors({ general: error.message || "Failed to delete contact" })
     }
-    const contactRef = doc(
-      db,
-      `users/${currentUser?.uid}/contacts/${contact?.id}`
-    )
-    await updateDoc(contactRef, updatedContact)
-    setModalInfo(undefined)
-  }
+  }, [contact.id, onUpdate, deleteContactMutation])
+
+  const deleteConnection = useCallback(
+    async (connectionId?: string) => {
+      if (!connectionId) return
+
+      try {
+        await deleteConnectionMutation.mutateAsync({
+          contactId: contact.id,
+          connectionId,
+        })
+
+        // React Query will auto-update the cache
+        setModalInfo(undefined)
+        if (onUpdate) onUpdate()
+      } catch (error: any) {
+        setErrors({ general: error.message || "Failed to delete connection" })
+      }
+    },
+    [contact.id, onUpdate, deleteConnectionMutation]
+  )
 
   const onOpenConnections = () => setOpenConnections(!openConnections)
 
   const onOpenAdd = () => setOpenAdd(true)
-  const onCloseAdd = () => setOpenAdd(false)
-  
+  const onCloseAdd = () => {
+    setOpenAdd(false)
+    // Refresh contact after adding connection
+    if (onUpdate) onUpdate()
+  }
+
   const onOpenEdit = () => setOpenEdit(true)
   const onCloseEdit = () => setOpenEdit(false)
-  
-  const onOpenEditConnection = (connection: Common) => {
+
+  const onOpenEditConnection = (connection: Connection) => {
     setEditingConnection(connection)
     setOpenEditConnection(true)
   }
@@ -120,44 +151,56 @@ const Card = (props: Props) => {
     setEditingConnection(null)
   }
 
-  const onDelete = async () =>
-    setModalInfo({
-      title: "Delete Contact",
-      type: "destructive",
-      description: "Are you sure you want to delete this contact",
-      confirmLabel: "Delete",
-      onSubmit: deleteFbDoc,
-    })
+  const onDelete = useCallback(
+    () =>
+      setModalInfo({
+        title: "Delete Contact",
+        type: "destructive",
+        description: "Are you sure you want to delete this contact",
+        confirmLabel: "Delete",
+        onSubmit: deleteContact,
+      }),
+    [deleteContact]
+  )
 
-  const onDeleteConnection = async (id?: string) =>
-    setModalInfo({
-      title: "Delete Connection",
-      type: "destructive",
-      description: "Are you sure you want to delete this connection",
-      confirmLabel: "Delete",
-      onSubmit: () => deleteConnection(id),
-    })
+  const onDeleteConnection = useCallback(
+    async (id?: string) => {
+      setModalInfo({
+        title: "Delete Connection",
+        type: "destructive",
+        description: "Are you sure you want to delete this connection",
+        confirmLabel: "Delete",
+        onSubmit: () => deleteConnection(id),
+      })
+    },
+    [deleteConnection]
+  )
 
   const isModalOpen = Boolean(modalInfo)
 
-  const handleAvatarChange = async (url: string) => {
-    setAvatarUrl(url)
-    const updated = { ...updatedContact, avatarUrl: url }
-    setUpdatedContact(updated)
-    
-    // Auto-save avatar change
-    try {
-      const contactRef = doc(
-        db,
-        `users/${currentUser?.uid}/contacts/${contact.id}`
-      )
-      await updateDoc(contactRef, { avatarUrl: url })
-    } catch (error) {
-      setErrors(error as Record<string, any>)
-    }
-  }
+  const handleAvatarChange = useCallback(
+    async (url: string) => {
+      setAvatarUrl(url)
+      setUpdatedContact((prev) => ({ ...prev, avatarUrl: url }))
 
-  React.useEffect(() => setUpdatedContact(contact), [contact])
+      // Auto-save avatar change
+      try {
+        await updateContactMutation.mutateAsync({
+          id: contact.id,
+          data: { avatarUrl: url },
+        })
+        if (onUpdate) onUpdate()
+      } catch (error: any) {
+        setErrors({ general: error.message || "Failed to update avatar" })
+      }
+    },
+    [contact.id, onUpdate, updateContactMutation]
+  )
+
+  React.useEffect(() => {
+    setUpdatedContact(contact)
+    setAvatarUrl(contact.avatarUrl || undefined)
+  }, [contact])
 
   return (
     <div
@@ -171,26 +214,20 @@ const Card = (props: Props) => {
         <MUICard
           variant="outlined"
           className={cx(styles.cardContainer, {
-            [styles.paddingBottom]: !contact?.connections?.length,
             [styles.active]: openConnections,
           })}
           elevation={0}
         >
           <div className={styles.content}>
             <div className={styles.firstRowContainer}>
-              <div
-                className={cx(
-                  styles.avatarContainer,
-                  styles.avatarContainerGap
-                )}
-              >
+              <div className={styles.avatarContainer}>
                 <AvatarUpload
                   contactId={contact.id}
-                  userId={currentUser?.uid || ""}
+                  userId={user?.id || ""}
                   currentAvatarUrl={avatarUrl}
                   onAvatarChange={handleAvatarChange}
                   firstName={contact.firstName}
-                  lastName={contact.lastName}
+                  lastName={contact.lastName || undefined}
                 />
                 <div className={styles.ghostContainer}>
                   <div className={styles.name}>
@@ -221,7 +258,7 @@ const Card = (props: Props) => {
             </div>
             <div className={styles.cardInfoContainer}>
               <CardInfo
-                contact={updatedContact as Contact}
+                contact={enhancedContact(updatedContact)}
                 editable={false}
               />
             </div>
@@ -233,20 +270,20 @@ const Card = (props: Props) => {
                   />
                 </IconButton>
               )}
-              <IconButton onClick={onOpenAdd} className={styles.addConnectionButton}>
-                <AddIcon
-                  className={cx(styles.primaryIcon, styles.smallIcon)}
-                />
+              <IconButton
+                onClick={onOpenAdd}
+                className={styles.addConnectionButton}
+              >
+                <AddIcon className={cx(styles.primaryIcon, styles.smallIcon)} />
               </IconButton>
             </div>
             <Connections
-              contact={updatedContact as Contact}
+              contact={enhancedContact(updatedContact)}
               open={openConnections}
               editable={false}
               onDelete={onDeleteConnection}
               onEditConnection={onOpenEditConnection}
               errors={errors}
-              onContactChange={onContactChange}
             />
           </div>
         </MUICard>
@@ -254,7 +291,8 @@ const Card = (props: Props) => {
           open={openAdd}
           onClose={onCloseAdd}
           type="connection"
-          contact={contact as Contact}
+          contact={contact}
+          onSuccess={onCloseAdd}
         />
         <EditModal
           open={openEdit}
@@ -266,7 +304,7 @@ const Card = (props: Props) => {
           <EditModal
             open={openEditConnection}
             onClose={onCloseEditConnection}
-            contact={editingConnection as Contact}
+            contact={enhancedContact(editingConnection as Partial<Contact>)}
             onSave={handleConnectionEditSave}
             isConnection={true}
           />
@@ -294,13 +332,9 @@ const styles = {
   connectionsContainer: css`
     position: relative;
   `,
-  buttonsContainer: css`
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  `,
   cardContainer: css`
     padding: 24px;
+    padding-bottom: 20px;
     border-radius: 16px;
     border: 1px solid var(--border-primary);
     position: relative;
@@ -403,34 +437,6 @@ const styles = {
     gap: 12px;
     flex: 1;
   `,
-  avatarContainerGap: css`
-    gap: 12px;
-  `,
-  avatar: css`
-    width: 48px;
-    height: 48px;
-    color: var(--primary-main);
-    background-color: rgba(99, 102, 241, 0.1);
-    border-radius: 50%;
-    padding: 6px;
-    transition: all 0.3s ease;
-    &:hover {
-      transform: scale(1.05);
-      background-color: rgba(99, 102, 241, 0.15);
-    }
-
-    @media (max-width: 768px) {
-      width: 42px;
-      height: 42px;
-      padding: 5px;
-    }
-
-    @media (max-width: 480px) {
-      width: 38px;
-      height: 38px;
-      padding: 4px;
-    }
-  `,
   ghostContainer: css`
     display: flex;
     flex-direction: column;
@@ -463,10 +469,6 @@ const styles = {
     @media (max-width: 480px) {
       font-size: 0.95rem;
     }
-  `,
-  more: css`
-    width: 20px;
-    height: 20px;
   `,
   connectionsRow: css`
     display: flex;
@@ -513,22 +515,6 @@ const styles = {
       filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3));
     }
   `,
-  cancelIcon: css`
-    width: 32px;
-    height: 32px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    &:hover {
-      transform: scale(1.1) rotate(5deg);
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    }
-  `,
-  disabledIcon: css`
-    color: var(--text-tertiary);
-    cursor: not-allowed;
-  `,
-  paddingBottom: css`
-    padding-bottom: 20px;
-  `,
   cardInfoContainer: css`
     padding: 16px 0 0;
     margin-top: 16px;
@@ -566,7 +552,7 @@ const styles = {
     color: var(--primary-main);
     margin-left: 8px;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background: rgba(99, 102, 241, 0.15);
       border-color: rgba(99, 102, 241, 0.3);

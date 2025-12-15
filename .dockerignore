@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Build outputs
+dist
+build
+.vite
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# Testing
+coverage
+.nyc_output
+
+# Documentation
+README.md
+CONTRIBUTING.md
+MIGRATION_PLAN.md
+*.md
+
+# Server files (not needed for frontend build)
+server
+
+# Misc
+.cache
+tmp
+temp
+*.log

@@ -30,7 +30,8 @@ type Props = {
 
 export const EditModal = (props: Props) => {
   const { open, onClose, contact, onSave, title, isConnection = false } = props
-  const modalTitle = title || (isConnection ? "Edit Connection" : "Edit Contact")
+  const modalTitle =
+    title || (isConnection ? "Edit Connection" : "Edit Contact")
   const [editedContact, setEditedContact] = useState<Contact>(contact)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -45,35 +46,35 @@ export const EditModal = (props: Props) => {
     evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
     const { name, value } = evt.target
-    setEditedContact(prev => set(name, value, prev))
-    
+    setEditedContact((prev) => set(name, value, prev))
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }))
+      setErrors((prev) => ({ ...prev, [name]: "" }))
     }
   }
 
   const handleDateChange = (date: Date | null, name: string) => {
     if (date instanceof Date && !isNaN(date.getTime())) {
-      setEditedContact(prev => set(name, date.toISOString(), prev))
+      setEditedContact((prev) => set(name, date.toISOString(), prev))
     } else {
-      setEditedContact(prev => set(name, null, prev))
+      setEditedContact((prev) => set(name, null, prev))
     }
-    
+
     // Clear error when user changes date
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }))
+      setErrors((prev) => ({ ...prev, [name]: "" }))
     }
   }
 
   const handleSave = () => {
     // Basic validation
     const newErrors: Record<string, string> = {}
-    
+
     if (!editedContact.firstName?.trim()) {
       newErrors.firstName = "First name is required"
     }
-    
+
     if (editedContact.email && !editedContact.email.includes("@")) {
       newErrors.email = "Please enter a valid email"
     }
@@ -93,9 +94,15 @@ export const EditModal = (props: Props) => {
     onClose()
   }
 
+  const handleNamedayChange = (updatedContact?: Partial<Contact>) => {
+    if (updatedContact) {
+      setEditedContact((prev) => ({ ...prev, ...updatedContact }))
+    }
+  }
+
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={handleCancel}
       maxWidth="sm"
       fullWidth
@@ -111,7 +118,7 @@ export const EditModal = (props: Props) => {
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      
+
       <DialogContent className={styles.content}>
         <Grid container spacing={3}>
           {/* Name Fields */}
@@ -130,7 +137,7 @@ export const EditModal = (props: Props) => {
               margin="dense"
             />
           </Grid>
-          
+
           <Grid item xs={12} sm={6}>
             <TextInput
               name="lastName"
@@ -147,27 +154,30 @@ export const EditModal = (props: Props) => {
           </Grid>
 
           {/* Contact Fields */}
-          {!isConnection && contactFields.map((field) => {
-            const Icon = field.icon
-            return (
-              <Grid item xs={12} sm={6} key={field.value}>
-                <TextInput
-                  name={field.value}
-                  label={field.label}
-                  value={editedContact[field.value as keyof Contact] as string || ""}
-                  onChange={handleChange}
-                  error={!!errors[field.value]}
-                  errorMessage={errors[field.value]}
-                  icon={<Icon className={styles.fieldIcon} />}
-                  fullWidth
-                  type={field.value === "email" ? "email" : "text"}
-                  size="small"
-                  margin="dense"
-                />
-              </Grid>
-            )
-          })}
-          
+          {!isConnection &&
+            contactFields.map((field) => {
+              const Icon = field.icon
+              return (
+                <Grid item xs={12} sm={6} key={field.value}>
+                  <TextInput
+                    name={field.value}
+                    label={field.label}
+                    value={
+                      (editedContact[field.value as keyof Contact] as string) ||
+                      ""
+                    }
+                    onChange={handleChange}
+                    error={!!errors[field.value]}
+                    errorMessage={errors[field.value]}
+                    icon={<Icon className={styles.fieldIcon} />}
+                    fullWidth
+                    type={field.value === "email" ? "email" : "text"}
+                    size="small"
+                    margin="dense"
+                  />
+                </Grid>
+              )
+            })}
 
           {/* Date Fields */}
           <Grid item xs={12} sm={6}>
@@ -189,9 +199,7 @@ export const EditModal = (props: Props) => {
               contact={editedContact}
               hasError={() => !!errors["nameday.date"]}
               errorMsg={() => errors["nameday.date"] || ""}
-              onContactChange={(updatedContact?: Partial<Contact>) =>
-                setEditedContact(updatedContact ? { ...editedContact, ...updatedContact } : editedContact)
-              }
+              onContactChange={handleNamedayChange}
               margin="dense"
               size="small"
               className={styles.fullWidth}
@@ -204,9 +212,9 @@ export const EditModal = (props: Props) => {
         <Button onClick={handleCancel} color="inherit">
           Cancel
         </Button>
-        <Button 
-          onClick={handleSave} 
-          variant="contained" 
+        <Button
+          onClick={handleSave}
+          variant="contained"
           color="primary"
           className={styles.saveButton}
         >
@@ -223,6 +231,10 @@ const styles = {
       border-radius: 12px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     }
+
+    .MuiDialogTitle-root + .MuiDialogContent-root {
+      padding-top: 4px;
+    }
   `,
   title: css`
     display: flex;
@@ -235,7 +247,7 @@ const styles = {
   `,
   closeButton: css`
     color: var(--text-secondary);
-    
+
     &:hover {
       background: rgba(0, 0, 0, 0.04);
     }

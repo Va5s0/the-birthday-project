@@ -21,23 +21,22 @@ input[type="number"] {
 
   --black: #000000;
   --white: #ffffff;
-  --primary-main: #008dcd;
-  --primary-light: #57caff;
-  --light-grey-3: #f4f7f6;
-  --primary-dark: #004e72;
-  --secondary-main: #bc96bb;
-  --secondary-dark: #937492;
+  --primary-main: #0369a1;
+  --primary-light: #0ea5e9;
+  --primary-dark: #075985;
+  --secondary-main: #64748b;
+  --secondary-dark: #475569;
 
-  --red: #d93845;
-  --light-red: #e96e78;
+  --red: #dc2626;
+  --light-red: #ef4444;
 
-  --light-grey: #eee;
-  --light-grey-2: #c0bebe;
-  --light-grey-3: #f1f3ec;
-  --light-grey-4: #d4dada;
-  --dark-grey: #808080;
-  --dark-grey-2: #333;
-  --dark-grey-3: #202221;
+  --light-grey: #f1f5f9;
+  --light-grey-2: #cbd5e1;
+  --light-grey-3: #f8fafc;
+  --light-grey-4: #e2e8f0;
+  --dark-grey: #64748b;
+  --dark-grey-2: #334155;
+  --dark-grey-3: #1e293b;
 
-  --warning: #ffcc00;
+  --warning: #f59e0b;
 }

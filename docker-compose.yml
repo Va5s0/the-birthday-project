@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: birthday-api
+    ports:
+      - "5001:5001"
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - DATABASE_URL=file:/app/data/database.db
+      - FRONTEND_URL=http://localhost:3000
+    env_file:
+      - ./server/.env
+    volumes:
+      # Persist SQLite database
+      - ./server/data:/app/data
+      # Persist uploaded files
+      - ./server/uploads:/app/uploads
+    networks:
+      - birthday-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend React App with Nginx
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:5001/api
+    container_name: birthday-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - birthday-network
+    restart: unless-stopped
+
+networks:
+  birthday-network:
+    driver: bridge
+
+volumes:
+  # Named volumes for easy backup
+  database:
+  uploads:

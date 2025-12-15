@@ -1,65 +1,77 @@
-import React, { useState } from "react"
-import { CloudUpload } from "@mui/icons-material"
-import { IconButton, CircularProgress } from "@mui/material"
-import { css } from "@emotion/css"
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
-import { storage } from "../firebase/fbConfig"
-import { getInitials, getAvatarColor } from "../utils/avatar"
+import React, { useState } from 'react';
+import { CloudUpload } from '@mui/icons-material';
+import { IconButton, CircularProgress } from '@mui/material';
+import { css } from '@emotion/css';
+import { api } from '../services/api';
+import { getInitials, getAvatarColor } from '../utils/avatar';
 
 interface AvatarUploadProps {
-  contactId: string
-  userId: string
-  currentAvatarUrl?: string
-  onAvatarChange: (url: string) => void
-  firstName?: string
-  lastName?: string
+  contactId: string;
+  userId: string;
+  currentAvatarUrl?: string;
+  onAvatarChange: (url: string) => void;
+  firstName?: string;
+  lastName?: string;
 }
 
 const AvatarUpload: React.FC<AvatarUploadProps> = ({
   contactId,
-  userId,
   currentAvatarUrl,
   onAvatarChange,
   firstName,
   lastName,
 }) => {
-  const [isUploading, setIsUploading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false);
 
   // Generate initials and colors
-  const initials = getInitials(firstName, lastName)
-  const { background, color } = getAvatarColor(firstName, lastName)
+  const initials = getInitials(firstName, lastName);
+  const { background, color } = getAvatarColor(firstName, lastName);
+
+  // Get the full avatar URL from relative path
+  const avatarUrl = currentAvatarUrl
+    ? api.getAvatarUrl(currentAvatarUrl)
+    : undefined;
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
 
     try {
-      setIsUploading(true)
-      const storageRef = ref(
-        storage,
-        `users/${userId}/contacts/${contactId}/avatar.jpg`
-      )
+      setIsUploading(true);
+      const updatedContact = await api.uploadContactAvatar(contactId, file);
 
-      await uploadBytes(storageRef, file)
-      const downloadURL = await getDownloadURL(storageRef)
-      onAvatarChange(downloadURL)
+      // Pass the relative URL to parent
+      if (updatedContact.avatarUrl) {
+        onAvatarChange(updatedContact.avatarUrl);
+      }
+
+      // Clear the input
+      event.target.value = '';
     } catch (error) {
-      console.error("Error uploading image:", error)
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
 
   return (
     <div className={styles.container}>
-      {currentAvatarUrl ? (
-        <img
-          src={currentAvatarUrl}
-          alt="Avatar"
-          className={styles.avatarImage}
-        />
+      {avatarUrl ? (
+        <img src={avatarUrl} alt="Avatar" className={styles.avatarImage} />
       ) : (
         <div
           className={styles.initialsAvatar}
@@ -91,8 +103,8 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
         </IconButton>
       </label>
     </div>
-  )
-}
+  );
+};
 
 const styles = {
   container: css`
@@ -107,19 +119,6 @@ const styles = {
     border-radius: 50%;
     object-fit: cover;
   `,
-  avatarIcon: css`
-    width: 48px;
-    height: 48px;
-    color: var(--primary-main);
-    background-color: rgba(147, 51, 234, 0.1);
-    border-radius: 50%;
-    padding: 8px;
-    transition: all 0.3s ease;
-    &:hover {
-      transform: scale(1.05);
-      background-color: rgba(147, 51, 234, 0.15);
-    }
-  `,
   initialsAvatar: css`
     width: 48px;
     height: 48px;
@@ -129,17 +128,17 @@ const styles = {
     justify-content: center;
     font-weight: 600;
     font-size: 16px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, sans-serif;
     transition: all 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 
     &:hover {
       transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 
-                  inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     }
   `,
   fileInput: css`
@@ -173,6 +172,6 @@ const styles = {
     border-radius: 50%;
     padding: 4px;
   `,
-}
+};
 
-export default AvatarUpload
+export default AvatarUpload;

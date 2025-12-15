@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { ReactNode, MouseEvent, memo } from "react"
 import MUIDialog from "@mui/material/Dialog"
 import { css, cx } from "@emotion/css"
 import { Button, IconButton } from "@mui/material"
@@ -9,35 +9,32 @@ export type ModalInfo =
       type?: "primary" | "destructive"
       title?: string
       description?: ReactNode
-      onSubmit?: (e?: any) => void
+      onSubmit?: (event: MouseEvent<HTMLButtonElement>) => void
       confirmLabel?: string
     }
   | undefined
 
 type Props = ModalInfo & {
   open: boolean
-  onCancel: (e?: any) => void
+  onCancel: (event?: MouseEvent<HTMLElement> | {}, reason?: string) => void
 }
 
-export default function ConfirmationModal(props: Props) {
+const ConfirmationModal = memo(function ConfirmationModal(props: Props) {
   const { open, onCancel, title, description, confirmLabel, type, onSubmit } =
     props
-  const id = "alert-dialog-title"
-
-  const x = css`
-    margin: auto;
-    min-width: 450px;
-  `
+  const titleId = "alert-dialog-title"
+  const descriptionId = "alert-dialog-description"
   return (
     <MUIDialog
-      className={x}
+      className={styles.dialog}
       open={open}
       onClose={onCancel}
-      id={id}
       maxWidth="sm"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
     >
       <div data-dialog-header className={styles.header}>
-        <div id={id} className={styles.title}>
+        <div id={titleId} className={styles.title}>
           {title}
         </div>
         <div data-dialog-close-button className={styles.close}>
@@ -48,7 +45,7 @@ export default function ConfirmationModal(props: Props) {
       </div>
 
       <div data-dialog-content className={styles.content}>
-        <p className={styles.contentText}>{description}</p>
+        <p id={descriptionId} className={styles.contentText}>{description}</p>
       </div>
 
       <div data-dialog-footer className={styles.footer}>
@@ -66,20 +63,34 @@ export default function ConfirmationModal(props: Props) {
             variant="contained"
             onClick={onSubmit}
             disableElevation
-            data-test-id={`delete-button-${type}`}
+            disabled={!onSubmit}
+            data-test-id={`confirm-button-${type}`}
             className={cx(styles.contained, {
               [styles.destructive]: type === "destructive",
             })}
           >
-            {confirmLabel}
+            {confirmLabel || "Confirm"}
           </Button>
         </div>
       </div>
     </MUIDialog>
   )
-}
+})
+
+export default ConfirmationModal
 
 const styles = {
+  dialog: css`
+    .MuiDialog-paper {
+      margin: auto;
+      min-width: 450px;
+      
+      @media (max-width: 500px) {
+        min-width: 300px;
+        margin: 16px;
+      }
+    }
+  `,
   header: css`
     padding: 24px 24px 8px 24px;
     display: flex;
@@ -132,8 +143,12 @@ const styles = {
   `,
   destructive: css`
     background-color: var(--red);
-    :hover {
+    &:hover {
       background-color: var(--light-red);
+    }
+    &:disabled {
+      background-color: rgba(239, 68, 68, 0.3);
+      color: rgba(255, 255, 255, 0.5);
     }
   `,
 }

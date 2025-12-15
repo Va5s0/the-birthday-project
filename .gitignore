@@ -1,32 +1,93 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
-
-# dependencies
+# Dependencies
 /node_modules
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env
+/server/node_modules
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-cors.json
+package-lock.json
 
+# Testing
+/coverage
+.nyc_output
+
+# Production builds
+/build
+/dist
+/server/dist
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+server/.env
+server/.env.local
+
+# Database and uploads (sensitive data)
+server/data/
+server/uploads/
+*.db
+*.db-journal
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Misc
 .eslintcache
+cors.json
+.cache/
+tmp/
+temp/
 
-# secrets
+# Personal notes
+FEATURE_IDEAS.md
+
+# Secrets
 src/secrets.js
+secrets/
 
-#vscode
-.vscode
+# Docker
+docker-compose.override.yml
 
-#assets
-src/assets
+# Backups
+backups/
+*.backup
+*.bak
 
-# prevent nested git repositories
+# Vite
+.vite/
+vite.config.js.timestamp-*
+
+# Prisma
+server/node_modules/.prisma
+server/prisma/migrations/**/migration.sql.backup
+
+# Prevent nested repositories
 the-birthday-project.git/
+
+# Test results
+test-results/
+playwright-report/
+playwright/.cache/

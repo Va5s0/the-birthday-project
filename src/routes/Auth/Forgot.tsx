@@ -18,7 +18,7 @@ export function Forgot() {
   const { error, resetError, sendPswdResetEmail } = useAuth() ?? {}
 
   const handleResetError = React.useCallback(
-    () => resetError && resetError(undefined),
+    () => resetError && resetError(),
     [resetError]
   )
 
@@ -110,7 +110,7 @@ const styles = {
     justify-content: center;
   `,
   card: css`
-    width: 256px;
+    width: 350px;
   `,
   header: css`
     font-size: 18px;
