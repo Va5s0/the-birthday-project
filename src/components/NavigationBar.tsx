@@ -26,6 +26,8 @@ import { getInitials, getAvatarColor } from "../utils/avatar"
 import { api } from "../services/api"
 import { useContactPicker } from "../hooks/useContactPicker"
 import ContactPhoneIcon from "@mui/icons-material/ContactPhone"
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth"
+import PeopleIcon from "@mui/icons-material/People"
 
 export const NavigationBar = () => {
   const { logout, user, userDelete, error, resetError } = useAuth()
@@ -145,6 +147,25 @@ export const NavigationBar = () => {
               </Typography>
             </Button>
           </motion.div>
+
+          <Box className={styles.navButtons}>
+            <Button
+              color="inherit"
+              onClick={() => navigate("/")}
+              className={`${styles.navButton} ${pathname === "/" ? styles.navButtonActive : ""}`}
+              startIcon={<PeopleIcon />}
+            >
+              Contacts
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => navigate("/calendar")}
+              className={`${styles.navButton} ${pathname === "/calendar" ? styles.navButtonActive : ""}`}
+              startIcon={<CalendarMonthIcon />}
+            >
+              Calendar
+            </Button>
+          </Box>
 
           <Box className={styles.rightSection}>
             <ThemeToggle />
@@ -565,5 +586,53 @@ const styles = {
   icon: css`
     color: var(--text-primary);
     font-size: 1.25rem;
+  `,
+  navButtons: css`
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    @media (max-width: 768px) {
+      gap: 4px;
+    }
+
+    @media (max-width: 600px) {
+      display: none;
+    }
+  `,
+  navButton: css`
+    color: rgba(255, 255, 255, 0.85) !important;
+    text-transform: none !important;
+    font-weight: 500 !important;
+    font-size: 0.9375rem !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid transparent !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 0.875rem !important;
+      padding: 6px 12px !important;
+      border-radius: 10px !important;
+
+      .MuiButton-startIcon {
+        margin-right: 4px !important;
+      }
+    }
+  `,
+  navButtonActive: css`
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25) !important;
+    }
   `,
 }

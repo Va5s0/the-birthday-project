@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Card from './Card/index';
 import TreeCard from './TreeCard';
 import { css } from '@emotion/css';
@@ -8,7 +9,9 @@ import { useContacts } from '../hooks/useContacts';
 
 const Contacts = () => {
   const [treeView, setTreeView] = useState(false);
+  const [highlightedContactId, setHighlightedContactId] = useState<string | null>(null);
   const { data: contacts = [], isLoading: loading } = useContacts();
+  const location = useLocation();
 
   const handleToggleChange = (
     _: React.MouseEvent<HTMLElement>,
@@ -16,6 +19,44 @@ const Contacts = () => {
   ) => {
     if (value !== null) setTreeView(value === 'tree');
   };
+
+  // Handle scroll-to-contact from calendar navigation
+  useEffect(() => {
+    const state = location.state as {
+      scrollToContactId?: string;
+      highlightContact?: boolean;
+      connectionId?: string;
+      isConnection?: boolean;
+    };
+
+    if (state?.scrollToContactId && !loading && contacts.length > 0) {
+      // Wait for render, then scroll to contact
+      setTimeout(() => {
+        const contactElement = document.getElementById(`contact-${state.scrollToContactId}`);
+        if (contactElement) {
+          contactElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+
+          // Add highlight effect
+          if (state.highlightContact && state.scrollToContactId) {
+            setHighlightedContactId(state.scrollToContactId);
+            // Remove highlight after animation
+            setTimeout(() => {
+              setHighlightedContactId(null);
+            }, 3000);
+          }
+        }
+      }, 100);
+
+      // Clear the navigation state after processing
+      // (but keep it briefly for Card component to read)
+      setTimeout(() => {
+        window.history.replaceState({}, document.title);
+      }, 500);
+    }
+  }, [location.state, loading, contacts]);
 
   if (loading) {
     return <div className={styles.container}>Loading contacts...</div>;
@@ -52,13 +93,36 @@ const Contacts = () => {
         <TreeCard contacts={contacts} />
       ) : (
         <div className={styles.container}>
-          {contacts.map((contact, idx) => (
-            <Card
-              key={contact.id || `contact-${idx}`}
-              cardKey={idx.toString()}
-              contact={contact}
-            />
-          ))}
+          {contacts.map((contact, idx) => {
+            const state = location.state as {
+              scrollToContactId?: string;
+              connectionId?: string;
+              isConnection?: boolean;
+            };
+
+            // Check if this is the target contact and has connection info
+            const shouldOpenConnections =
+              state?.scrollToContactId === contact.id &&
+              state?.isConnection &&
+              !!state?.connectionId;
+
+            return (
+              <div
+                key={contact.id || `contact-${idx}`}
+                id={`contact-${contact.id}`}
+                className={`${styles.cardWrapper} ${
+                  highlightedContactId === contact.id ? styles.highlighted : ''
+                }`}
+              >
+                <Card
+                  cardKey={idx.toString()}
+                  contact={contact}
+                  autoOpenConnections={shouldOpenConnections}
+                  highlightConnectionId={shouldOpenConnections ? state.connectionId : undefined}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </>
@@ -137,6 +201,34 @@ const styles = {
       &:hover {
         background: var(--primary-dark) !important;
         color: var(--text-inverse) !important;
+      }
+    }
+  `,
+  cardWrapper: css`
+    transition: all 0.5s ease;
+    border-radius: 16px;
+  `,
+  highlighted: css`
+    animation: highlightPulse 3s ease-in-out;
+
+    @keyframes highlightPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: none;
+      }
+      10%, 30% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 4px var(--primary-main),
+                    0 0 0 8px rgba(33, 150, 243, 0.3),
+                    0 0 30px rgba(33, 150, 243, 0.5);
+      }
+      20% {
+        transform: scale(1.02);
+      }
+      50% {
+        transform: scale(1);
+        box-shadow: 0 0 0 4px var(--primary-main),
+                    0 0 0 8px rgba(33, 150, 243, 0.2);
       }
     }
   `,

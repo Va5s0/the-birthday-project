@@ -5,6 +5,7 @@ import { Loading } from "../../components/Loading"
 import { CircularProgress } from "@mui/material"
 import Layout from "./Layout"
 import Contacts from "../../components/Contacts"
+import Calendar from "../../components/Calendar"
 import { EditProfile } from "../../components/EditProfile"
 
 export default function Base() {
@@ -34,6 +35,7 @@ export default function Base() {
     <React.Suspense fallback={<Loading />}>
       <Layout>
         <Routes>
+          <Route path="/calendar" element={<Calendar />} />
           <Route path="/profile" element={<EditProfile />} />
           <Route path="/" element={<Contacts />} />
         </Routes>
