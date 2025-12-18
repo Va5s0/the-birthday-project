@@ -67,6 +67,8 @@ FEATURE_IDEAS.md
 # Secrets
 src/secrets.js
 secrets/
+cookies.txt
+server/cookies.txt
 
 # Docker
 docker-compose.override.yml
