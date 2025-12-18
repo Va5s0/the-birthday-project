@@ -200,7 +200,7 @@ const styles = {
     gap: 24px;
     padding: 32px;
     background: var(--bg-primary);
-    max-width: 1400px;
+    width: 100%;
     margin: 0 auto;
 
     @media (max-width: 1024px) {
@@ -228,6 +228,11 @@ const styles = {
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-primary);
 
+    @media (prefers-color-scheme: light) {
+      background: #f8f9fa;
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+
     @media (max-width: 768px) {
       padding: 16px;
       border-radius: 12px;
@@ -240,27 +245,78 @@ const styles = {
   `,
 
   calendar: css`
-    width: 100%;
-    border: none;
+    width: 100% !important;
+    min-width: 350px !important;
+    max-width: 100% !important;
+    border: 1px solid var(--border-secondary) !important;
+    border-radius: 12px;
+    padding: 20px;
     font-family: inherit;
+    background: transparent !important;
+
+    @media (prefers-color-scheme: light) {
+      background: white !important;
+      border-color: rgba(0, 0, 0, 0.18) !important;
+    }
+
+    @media (max-width: 1024px) {
+      padding: 16px;
+    }
+
+    @media (max-width: 768px) {
+      padding: 12px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 10px;
+    }
 
     .react-calendar__navigation {
       display: flex;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
+      gap: 8px;
+
+      @media (max-width: 768px) {
+        margin-bottom: 16px;
+        gap: 6px;
+      }
+
+      @media (max-width: 480px) {
+        margin-bottom: 12px;
+        gap: 4px;
+      }
 
       button {
-        background: var(--bg-tertiary);
+        background: var(--bg-primary);
         border: 1px solid var(--border-primary);
         border-radius: 8px;
         color: var(--text-primary);
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 600;
-        padding: 12px;
+        padding: 14px;
         transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        @media (prefers-color-scheme: light) {
+          background: #f1f3f5;
+          border-color: rgba(0, 0, 0, 0.18);
+        }
+
+        @media (max-width: 768px) {
+          font-size: 1rem;
+          padding: 12px;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 0.9rem;
+          padding: 10px;
+        }
 
         &:hover:not(:disabled) {
           background: var(--primary-main);
-          color: var(--text-inverse);
+          color: white;
           border-color: var(--primary-main);
         }
 
@@ -270,24 +326,61 @@ const styles = {
       }
 
       .react-calendar__navigation__label {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        @media (max-width: 768px) {
+          font-size: 1.1rem;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 1rem;
+        }
       }
     }
 
     .react-calendar__month-view__weekdays {
       color: var(--text-secondary);
       font-weight: 600;
-      font-size: 0.875rem;
+      font-size: 0.95rem;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+
+      @media (prefers-color-scheme: light) {
+        color: #495057;
+      }
+
+      @media (max-width: 768px) {
+        font-size: 0.875rem;
+        margin-bottom: 8px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+      }
 
       abbr {
         text-decoration: none;
       }
     }
 
+    .react-calendar__month-view__days {
+      gap: 6px !important;
+
+      @media (max-width: 768px) {
+        gap: 4px !important;
+      }
+
+      @media (max-width: 480px) {
+        gap: 3px !important;
+      }
+    }
+
     .react-calendar__tile {
-      background: var(--bg-primary);
+      background: var(--bg-elevated);
       border: 1px solid var(--border-primary);
       border-radius: 8px;
       color: var(--text-primary);
@@ -297,28 +390,80 @@ const styles = {
       position: relative;
       min-height: 60px;
 
+      @media (prefers-color-scheme: light) {
+        background: rgba(0, 0, 0, 0.03);
+        border-color: rgba(0, 0, 0, 0.15);
+      }
+
+      @media (max-width: 768px) {
+        padding: 10px 6px;
+        font-size: 0.85rem;
+      }
+
+      @media (max-width: 480px) {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+      }
+
       &:hover:not(:disabled) {
-        background: var(--bg-tertiary);
+        background: var(--bg-secondary);
         border-color: var(--border-secondary);
+
+        @media (prefers-color-scheme: light) {
+          background: rgba(0, 0, 0, 0.08);
+          border-color: rgba(0, 0, 0, 0.25);
+        }
       }
 
       &.react-calendar__tile--now {
-        background: var(--primary-light);
+        background: rgba(14, 165, 233, 0.15);
         border-color: var(--primary-main);
         color: var(--primary-main);
         font-weight: 700;
+
+        @media (prefers-color-scheme: light) {
+          background: rgba(14, 165, 233, 0.12);
+          border-color: #0ea5e9;
+        }
+
+        &:hover:not(:disabled) {
+          background: rgba(14, 165, 233, 0.22);
+          border-color: var(--primary-main);
+
+          @media (prefers-color-scheme: light) {
+            background: rgba(14, 165, 233, 0.18);
+            border-color: #0ea5e9;
+          }
+        }
       }
 
       &.react-calendar__tile--active {
         background: var(--primary-main);
         border-color: var(--primary-dark);
-        color: var(--text-inverse);
+        color: white;
         font-weight: 600;
+
+        &:hover:not(:disabled) {
+          background: var(--primary-dark);
+          border-color: var(--primary-dark);
+
+          @media (prefers-color-scheme: light) {
+            background: #0284c7;
+            border-color: #0369a1;
+          }
+        }
       }
 
       &.react-calendar__month-view__days__day--neighboringMonth {
+        background: transparent;
         color: var(--text-tertiary);
-        opacity: 0.5;
+        opacity: 0.4;
+        border-color: var(--border-primary);
+
+        @media (prefers-color-scheme: light) {
+          opacity: 0.5;
+          border-color: rgba(0, 0, 0, 0.08);
+        }
       }
     }
 
