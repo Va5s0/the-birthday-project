@@ -17,6 +17,7 @@ type Props = {
   onDelete: (id?: string) => Promise<void>
   onEditConnection?: (connection: Connection) => void
   errors?: Record<string, string>
+  highlightConnectionId?: string
 }
 
 const nameFields = [
@@ -25,7 +26,30 @@ const nameFields = [
 ]
 
 const Connections = (props: Props) => {
-  const { contact, open, editable, onDelete, onEditConnection, errors } = props
+  const { contact, open, editable, onDelete, onEditConnection, errors, highlightConnectionId } = props
+  const [animatingConnectionId, setAnimatingConnectionId] = React.useState<string | null>(null)
+
+  // Trigger animation when highlighting a connection
+  React.useEffect(() => {
+    if (highlightConnectionId && open) {
+      // Delay to ensure connections are expanded first
+      setTimeout(() => {
+        setAnimatingConnectionId(highlightConnectionId)
+        // Scroll to the highlighted connection
+        const connectionElement = document.getElementById(`connection-${highlightConnectionId}`)
+        if (connectionElement) {
+          connectionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          })
+        }
+        // Remove animation after it completes
+        setTimeout(() => {
+          setAnimatingConnectionId(null)
+        }, 3000)
+      }, 400)
+    }
+  }, [highlightConnectionId, open])
 
   const handleClick = (evt: React.MouseEvent<HTMLInputElement>) =>
     evt?.stopPropagation()
@@ -51,10 +75,15 @@ const Connections = (props: Props) => {
           const fullName = `${c.firstName} ${c?.lastName || ""}`.trim()
           const avatarLetter = (c.firstName?.charAt(0) || "C").toUpperCase()
 
+          const isHighlighted = animatingConnectionId === c.id
+
           return (
             <div
               key={c.id || `connection-${cidx}`}
-              className={styles.connectionCard}
+              id={`connection-${c.id}`}
+              className={`${styles.connectionCard} ${
+                isHighlighted ? styles.highlighted : ''
+              }`}
             >
               <div className={styles.connectionHeader}>
                 <div className={styles.connectionInfo}>
@@ -360,6 +389,33 @@ const styles = {
     &:hover {
       color: #dc2626;
       filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3));
+    }
+  `,
+  highlighted: css`
+    animation: connectionHighlight 3s ease-in-out;
+    position: relative;
+
+    @keyframes connectionHighlight {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: none;
+      }
+      10%, 30% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 3px var(--secondary-main),
+                    0 0 0 6px rgba(156, 39, 176, 0.3),
+                    0 0 20px rgba(156, 39, 176, 0.4);
+        background: rgba(156, 39, 176, 0.1);
+      }
+      20% {
+        transform: scale(1.01);
+      }
+      50% {
+        transform: scale(1);
+        box-shadow: 0 0 0 3px var(--secondary-main),
+                    0 0 0 6px rgba(156, 39, 176, 0.2);
+        background: rgba(156, 39, 176, 0.05);
+      }
     }
   `,
 }

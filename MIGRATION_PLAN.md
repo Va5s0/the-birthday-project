@@ -663,14 +663,15 @@ The open-source version stays free forever, you just add paid options on top.
 
 ## Next Steps
 
-1. ✅ Review this updated plan
-2. Start Phase 1: Backend Setup
-3. Build the application
-4. Test locally with Docker
-5. Publish to GitHub
-6. Share with community (Reddit, HackerNews, ProductHunt)
-7. Gather feedback
-8. Decide on commercial path based on response
+1. Add testing with Playwrite
+2. ✅ Review this updated plan
+3. Start Phase 1: Backend Setup
+4. Build the application
+5. Test locally with Docker
+6. Publish to GitHub
+7. Share with community (Reddit, HackerNews, ProductHunt)
+8. Gather feedback
+9. Decide on commercial path based on response
 
 ---
 

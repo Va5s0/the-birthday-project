@@ -27,6 +27,8 @@ type Props = {
   contact: Contact
   cardKey?: string
   onUpdate?: () => void
+  autoOpenConnections?: boolean
+  highlightConnectionId?: string
 }
 
 // Ensures partial contact has all required Contact fields
@@ -44,7 +46,7 @@ const enhancedContact = (contact: Partial<Contact>): Contact => {
 }
 
 const Card = (props: Props) => {
-  const { contact, cardKey, onUpdate } = props
+  const { contact, cardKey, onUpdate, autoOpenConnections, highlightConnectionId } = props
   const [errors, setErrors] = React.useState<Record<string, any>>()
   const [updatedContact, setUpdatedContact] =
     React.useState<Partial<Contact>>(contact)
@@ -197,6 +199,16 @@ const Card = (props: Props) => {
     [contact.id, onUpdate, updateContactMutation]
   )
 
+  // Auto-open connections when navigating from calendar
+  React.useEffect(() => {
+    if (autoOpenConnections) {
+      // Small delay to ensure smooth animation
+      setTimeout(() => {
+        setOpenConnections(true)
+      }, 300)
+    }
+  }, [autoOpenConnections])
+
   React.useEffect(() => {
     setUpdatedContact(contact)
     setAvatarUrl(contact.avatarUrl || undefined)
@@ -284,6 +296,7 @@ const Card = (props: Props) => {
               onDelete={onDeleteConnection}
               onEditConnection={onOpenEditConnection}
               errors={errors}
+              highlightConnectionId={highlightConnectionId}
             />
           </div>
         </MUICard>
