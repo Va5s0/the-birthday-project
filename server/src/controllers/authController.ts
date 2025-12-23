@@ -50,6 +50,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
+    // Revoke any existing refresh tokens (cleanup for test scenarios)
+    await revokeAllUserTokens(user.id);
+
     // Generate tokens
     const accessToken = generateAccessToken({
       userId: user.id,
@@ -107,6 +110,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
+
+    // Revoke all existing refresh tokens for security
+    await revokeAllUserTokens(user.id);
 
     // Generate tokens
     const accessToken = generateAccessToken({
